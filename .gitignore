@@ -1,0 +1,18 @@
+# Môi trường ảo
+venv/
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Các file media và static do người dùng tải lên (nếu có)
+/media/
+/static_root/
+
+# File cấu hình của IDE
+.vscode/
+.idea/
