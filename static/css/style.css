@@ -1,0 +1,131 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.auth-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border: 1px solid #0A378C;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-title {
+    text-align: center;
+    color: #EBB923;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+form p {
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Thêm dấu sao màu đỏ cho các trường bắt buộc */
+form label.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #0A378C;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(10, 55, 140, 0.2);
+}
+
+.helptext, #password-validation-msg {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 5px;
+    display: block;
+}
+
+ul.errorlist {
+    list-style-type: none;
+    padding: 0;
+    color: #dc3545;
+    font-size: 0.9em;
+    margin: 5px 0 0 0;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #0A378C;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #082b6e;
+}
+
+.btn-primary:disabled {
+    background-color: #a0b3d1;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #0A378C;
+    border: 1px solid #0A378C;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(10, 55, 140, 0.05);
+}
+
+.form-actions {
+    margin-top: 25px;
+}
+
+.extra-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.extra-links .btn-secondary {
+    width: 48%; /* Chia đôi không gian */
+}

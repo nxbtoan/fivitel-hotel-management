@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Fivitel</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        .logout-btn { 
+            display: inline-block; 
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            background-color: #dc3545; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Chào mừng, {{ user.username }}!</h1>
+    <p>Bạn đã đăng nhập thành công vào hệ thống quản lý khách sạn Fivitel.</p>
+    
+    <a href="{% url 'logout' %}" class="logout-btn">Đăng xuất</a>
+
+</body>
+</html>

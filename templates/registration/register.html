@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - Fivitel</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2 class="auth-title">FIVITEL KÍNH CHÀO QUÝ KHÁCH</h2>
+        <p style="text-align: center; margin-top: -20px; margin-bottom: 25px;">Vui lòng đăng ký để tiếp tục</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <ul class="errorlist">
+                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}" class="required">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.name == 'password1' %}
+                        <span id="password-validation-msg" class="helptext">Mật khẩu tối thiểu 8 ký tự, có ít nhất 1 ký tự đặc biệt.</span>
+                    {% elif field.help_text %}
+                        <span class="helptext">{{ field.help_text|safe }}</span>
+                    {% endif %}
+                    {{ field.errors }}
+                </p>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submit-btn">Đăng Ký</button>
+            </div>
+        </form>
+
+        <div class="extra-links">
+             <div style="width: 48%;"></div>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Đã có tài khoản?</a>
+        </div>
+    </div>
+
+    <script src="{% static 'js/auth-validation.js' %}"></script>
+
+</body>
+</html>

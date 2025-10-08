@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Fivitel</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2 class="auth-title">FIVITEL KÍNH CHÀO QUÝ KHÁCH</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <p style="text-align: center; color: green;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        
+        <p style="text-align: center; margin-top: -10px; margin-bottom: 25px;">Vui lòng đăng nhập để tiếp tục</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <ul class="errorlist">
+                    {% for error in form.non_field_errors %}
+                        <li>Tên đăng nhập hoặc mật khẩu không đúng.</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <p>
+                <label for="{{ form.username.id_for_label }}" class="required">Tên đăng nhập</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </p>
+            <p>
+                <label for="{{ form.password.id_for_label }}" class="required">Mật khẩu</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </p>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+            </div>
+        </form>
+
+        <div class="extra-links">
+            <a href="#" class="btn btn-secondary">Quên mật khẩu?</a>
+            <a href="{% url 'register' %}" class="btn btn-secondary">Chưa có tài khoản?</a>
+        </div>
+    </div>
+
+</body>
+</html>
