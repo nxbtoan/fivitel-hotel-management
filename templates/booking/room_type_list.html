@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Các loại phòng - Fivitel</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+
+    <div class="list-container">
+        <h1 class="page-title">CÁC HẠNG PHÒNG CỦA CHÚNG TÔI</h1>
+        <p class="page-subtitle">Khám phá không gian nghỉ dưỡng lý tưởng, phù hợp với mọi nhu cầu của bạn.</p>
+
+        <div class="card-grid">
+            {% for type in room_types %}
+            <a href="{% url 'room_class_list' type.pk %}" class="room-type-card">
+                {% if type.image%}
+                    <img src="{{ type.image.url }}" alt="{{ type.name }}">
+                {% else %}
+                    <div class="placeholder-image">Chưa có ảnh</div>
+                {% endif %}
+                <div class="card-content">
+                    <h3>{{ type.name }}</h3>
+                    <p>{{ type.description|truncatewords:20 }}</p>
+                    <span class="card-action">Xem chi tiết</span>
+                </div>
+            </a>
+            {% empty %}
+            <p>Chưa có thông tin về loại phòng nào được cập nhật.</p>
+            {% endfor %}
+        </div>  
+    </div>
+
+</body>
+</html>

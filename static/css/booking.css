@@ -1,0 +1,637 @@
+/* ============================================= */
+/* CÀI ĐẶT CHUNG & LAYOUT CHÍNH                 */
+/* ============================================= */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    color: #333;
+}
+
+.list-container, .options-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: #0A378C;
+}
+
+.page-subtitle {
+    text-align: center;
+    color: #555;
+    margin-top: -15px;
+    margin-bottom: 40px;
+}
+
+.options-container {
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.options-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Chia cột theo tỷ lệ 2:1 ~ 66%:33% */
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.options-main {
+    background-color: transparent; /* Bỏ nền trắng chung */
+    padding: 0;
+}
+
+.summary-sidebar {
+    background-color: #f7f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    position: sticky;
+    top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+/* ============================================= */
+/* TRANG 1: DANH SÁCH LOẠI PHÒNG (RoomType)      */
+/* ============================================= */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.room-type-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.room-type-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.room-type-card img, .placeholder-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.card-content h3 {
+    margin-top: 0;
+    color: #0A378C;
+}
+
+.card-action {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* ============================================= */
+/* TRANG 2: DANH SÁCH HẠNG PHÒNG (RoomClass)     */
+/* ============================================= */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.class-card {
+    display: grid;
+    grid-template-columns: 300px 1fr auto;
+    gap: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.class-card-img img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.class-card-body { padding: 20px; }
+
+.class-card-body h3 {
+    margin-top: 0; 
+    color: #0A378C; 
+}
+
+.class-card-body .class-specs { 
+    font-size: 0.9em; 
+    color: #555; 
+    margin-bottom: 10px; 
+}
+
+.amenities-list { 
+    list-style-type: '✓ '; 
+    padding-left: 20px; 
+    font-size: 0.9em; 
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 15px; 
+}
+
+.class-card-action { 
+    padding: 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border-left: 1px solid #eee; 
+}
+
+/* Style cho thông báo số phòng trống */
+.available-rooms {
+    font-weight: bold;
+    color: #28a745; /* Màu xanh lá cây cho sự sẵn có */
+    margin-bottom: 10px;
+    font-size: 0.95em;
+}
+
+/* Style cho thông báo khi hết phòng */
+.available-rooms.sold-out {
+    color: #dc3545; /* Màu đỏ khi hết phòng */
+}
+
+/* Style cho nút bị vô hiệu hóa */
+.btn-book.disabled {
+    background-color: #6c757d; /* Màu xám */
+    cursor: not-allowed;      /* Biểu tượng con trỏ không cho phép */
+    pointer-events: none;     /* Vô hiệu hóa hoàn toàn sự kiện click */
+}
+
+.btn-book.disabled:hover {
+    background-color: #5a6268; /* Giữ màu xám khi di chuột qua */
+}
+
+/* ============================================= */
+/* TRANG 3 & 4: OPTIONS & CHECKOUT               */
+/* ============================================= */
+.options-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.options-main, .checkout-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.checkout-section h2, .options-main h1, .options-main h3 {
+    margin-top: 0;
+    font-size: 1.3em;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.form-grid, .date-guest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-field { display: flex; flex-direction: column; }
+.form-field.full-width { grid-column: 1 / -1; }
+.form-field label { margin-bottom: 8px; font-weight: bold; color: #555; font-size: 0.9em; }
+
+.form-field input[type="text"], .form-field input[type="email"], .form-field input[type="number"], .form-field input[type="date"], .form-field textarea, .form-field select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+    border-color: #0A378C;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
+}
+
+.choices-container { border: 1px solid #eee; border-radius: 8px; }
+.choice-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+.choice-item:last-child { border-bottom: none; }
+.choice-item input { margin-right: 15px; width: 18px; height: 18px; }
+.choice-item label { display: flex; justify-content: space-between; width: 100%; align-items: center; }
+.choice-item label strong { color: #333; }
+.choice-item label span { color: #007bff; font-weight: bold; }
+
+.upgrade-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; text-decoration: none; color: inherit; }
+.upgrade-item:last-child { border-bottom: none; }
+.upgrade-item:hover { background-color: #f9f9f9; }
+.upgrade-info strong { color: #28a745; }
+.upgrade-info span { font-size: 0.9em; color: #555; }
+.upgrade-price { font-weight: bold; color: #28a745; }
+
+/* ============================================= */
+/* SIDEBAR TÓM TẮT ĐƠN HÀNG                      */
+/* ============================================= */
+.summary-sidebar {
+    background-color: #f7f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    position: sticky;
+    top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.summary-sidebar h2, .summary-sidebar h3 { margin-top: 0; font-size: 1.3em; text-align: center; border-bottom: 1px solid #ddd; padding-bottom: 15px; }
+.summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95em; }
+.summary-sidebar hr { border: 0; border-top: 1px dashed #ccc; margin: 15px 0; }
+.summary-sidebar .service-summary-item { font-size: 0.9em; color: #555; margin-left: 20px; list-style-type: '· '; padding-left: 5px; }
+.summary-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.5em; color: #0A378C; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
+
+/* ============================================= */
+/* NÚT BẤM (BUTTON)                              */
+/* ============================================= */
+.btn-book {
+    background-color: #0A378C;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-book:hover {
+    background-color: #082b6e;
+}
+
+/* ============================================= */
+/* GIAO DIỆN NÚT BẤM "ĐẶT CHO TÔI" / "CHO NGƯỜI KHÁC" */
+/* ============================================= */
+.segmented-control {
+    display: inline-flex;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.segmented-control input[type="radio"] {
+    /* Ẩn nút radio mặc định */
+    display: none;
+}
+
+.segmented-control label {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f7f9fa;
+    color: #555;
+    transition: background-color 0.2s, color 0.2s;
+    border-right: 1px solid #ccc;
+}
+
+.segmented-control label:last-of-type {
+    border-right: none;
+}
+
+.segmented-control input[type="radio"]:checked + label {
+    background-color: #e0e0e0; 
+    color: #000;
+    font-weight: bold;
+}
+
+/* ============================================= */
+/* CÁC KHỐI FORM (SECTION)                       */
+/* ============================================= */
+.checkout-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.checkout-section h2 {
+    margin-top: 0;
+    font-size: 1.3em;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+/* ============================================= */
+/* CÁC TRƯỜNG NHẬP LIỆU (FORM FIELDS)            */
+/* ============================================= */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-field label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="number"],
+.form-field textarea {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-field input:focus, .form-field textarea:focus {
+    border-color: #0A378C;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
+}
+
+.radio-group label {
+    margin-right: 25px;
+    font-weight: normal;
+    font-size: 1em;
+}
+
+/* ============================================= */
+/* CSS CHO Ô CHỌN QUỐC GIA (COUNTRIES DROPDOWN)  */
+/* ============================================= */
+.form-field select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: white; /* Đảm bảo nền trắng */
+    -webkit-appearance: none; /* Bỏ giao diện mặc định trên Safari/Chrome */
+    -moz-appearance: none;    /* Bỏ giao diện mặc định trên Firefox */
+    appearance: none;
+    /* Thêm icon mũi tên tùy chỉnh */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 10px;
+}
+
+.form-field select:focus {
+    border-color: #0A378C;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
+}
+
+/* ============================================= */
+/* TÙY CHỌN THANH TOÁN (PAYMENT OPTIONS)         */
+/* ============================================= */
+.payment-option {
+    display: flex;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.payment-option:hover {
+    border-color: #aaa;
+}
+
+/* Sử dụng adjacent sibling combinator để style khi radio được chọn */
+.payment-option input[type="radio"]:checked + label {
+    /* Không làm gì label, chúng ta sẽ style cả .payment-option */
+}
+
+.payment-option input[type="radio"] {
+    margin-top: 3px;
+    margin-right: 15px;
+    flex-shrink: 0; /* Ngăn radio bị co lại */
+}
+
+.payment-option label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.payment-option label strong {
+    font-size: 1.1em;
+}
+
+.payment-option label p {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* ============================================= */
+/* SIDEBAR TÓM TẮT ĐƠN HÀNG                      */
+/* ============================================= */
+.summary-sidebar h2 {
+    margin-top: 0;
+    font-size: 1.3em;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+    color: #333;
+}
+
+.summary-sidebar hr {
+    border: 0;
+    border-top: 1px dashed #ccc;
+    margin: 15px 0;
+}
+
+.summary-sidebar .service-summary-item {
+    font-size: 0.9em;
+    color: #555;
+    margin-left: 20px;
+    list-style-type: '· ';
+    padding-left: 5px;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.5em;
+    color: #0A378C;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+/* ============================================= */
+/* NÚT BẤM (BUTTON)                              */
+/* ============================================= */
+.btn-book {
+    background-color: #0A378C;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-book:hover {
+    background-color: #082b6e;
+}
+
+/* ============================================= */
+/* TRANG QUẢN LÝ ĐƠN HÀNG (my_bookings.html)      */
+/* ============================================= */
+.booking-list-container {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.booking-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-card-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #0A378C;
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.status-PENDING { background-color: #ffc107; color: #333; }
+.status-CONFIRMED { background-color: #28a745; }
+.status-CANCELLED { background-color: #dc3545; }
+
+.booking-card-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.booking-card-body .info-item {
+    font-size: 0.95em;
+}
+
+.booking-card-body .info-item strong {
+    display: block;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.booking-card-footer {
+    padding: 15px 20px;
+    background-color: #f7f9fa;
+    text-align: right;
+    border-top: 1px solid #eee;
+}
+
+.btn-details {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+/* ============================================= */
+/* TRANG HƯỚNG DẪN THANH TOÁN (payment_guidance) */
+/* ============================================= */
+.payment-guidance-container {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.bank-info {
+    background-color: #f7f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    line-height: 1.8;
+}
+
+.bank-info p {
+    margin: 5px 0;
+}
+
+/* Style cho input upload file */
+input[type="file"] {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}

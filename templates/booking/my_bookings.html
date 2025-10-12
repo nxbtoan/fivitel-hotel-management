@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đơn đặt phòng của tôi</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+<div class="booking-list-container">
+    <h1 class="page-title">Đơn đặt phòng của tôi</h1>
+    <p class="page-subtitle">Theo dõi lịch sử và trạng thái các đơn đặt phòng của bạn.</p>
+
+    {% for booking in bookings %}
+    <div class="booking-card">
+        <div class="booking-card-header">
+            <h3>{{ booking.room_class.name }}</h3>
+            <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+        </div>
+        <div class="booking-card-body">
+            <div class="info-item">
+                <strong>Mã đơn hàng:</strong>
+                <span>#{{ booking.id }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Ngày nhận phòng:</strong>
+                <span>{{ booking.check_in_date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Ngày trả phòng:</strong>
+                <span>{{ booking.check_out_date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Tổng tiền:</strong>
+                <span>{{ booking.total_price }} VNĐ</span>
+            </div>
+             <div class="info-item">
+                <strong>Thanh toán:</strong>
+                <span>{{ booking.get_payment_method_display }}</span>
+            </div>
+        </div>
+        <div class="booking-card-footer">
+            <a href="#" class="btn-details">Xem chi tiết</a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="checkout-section" style="text-align: center;">
+        <p>Bạn chưa có đơn đặt phòng nào.</p>
+        <a href="{% url 'room_type_list' %}" class="btn-book">Bắt đầu Đặt phòng</a>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>

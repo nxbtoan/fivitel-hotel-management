@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hướng dẫn Thanh toán</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+<div class="payment-guidance-container">
+    <h1 class="page-title">Hướng dẫn Chuyển khoản</h1>
+    <p class="page-subtitle">Vui lòng hoàn tất thanh toán để chúng tôi xác nhận đặt phòng của bạn.</p>
+    
+    <div class="bank-info">
+        <p>Tổng số tiền cần thanh toán: <strong style="color: #0A378C; font-size: 1.2em;">{{ booking.total_price }} VNĐ</strong></p>
+        <hr style="border-style: dashed;">
+        <p><strong>Ngân hàng:</strong> Vietcombank</p>
+        <p><strong>Số tài khoản:</strong> 999988889999</p>
+        <p><strong>Chủ tài khoản:</strong> CTY TNHH KHÁCH SẠN FIVITEL</p>
+        <p><strong>Nội dung chuyển khoản (bắt buộc):</strong> <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px;">TT {{ booking.id }}</code></p>
+    </div>
+    
+    <h3 style="margin-top: 30px;">Tải lên Bằng chứng Thanh toán</h3>
+    <p>Sau khi chuyển khoản thành công, vui lòng chụp lại màn hình giao dịch và tải lên đây để chúng tôi xác nhận.</p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.image }}
+        <button type="submit" class="btn-book" style="width: 100%; margin-top: 20px;">Xác nhận đã chuyển khoản</button>
+    </form>
+</div>
+</body>
+</html>

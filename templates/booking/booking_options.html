@@ -1,0 +1,73 @@
+{% load booking_extras %} {% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tùy chọn Đặt phòng</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+<div class="options-container">
+    <form method="post" class="options-layout">
+        {% csrf_token %}
+        <main class="options-main">
+            <h1>Tùy chọn cho: {{ room_class.name }}</h1>
+            <hr>
+            
+            <h3>1. Chọn ngày và số khách</h3>
+            <div class="form-grid">
+                <div class="form-field">{{ form.check_in_date.label_tag }} {{ form.check_in_date }}</div>
+                <div class="form-field">{{ form.check_out_date.label_tag }} {{ form.check_out_date }}</div>
+                <div class="form-field">{{ form.adults.label_tag }} {{ form.adults }}</div>
+                <div class="form-field">{{ form.children.label_tag }} {{ form.children }}</div>
+            </div>
+
+            <h3 style="margin-top: 30px;">2. Chọn dịch vụ đi kèm</h3>
+            <div class="choices-container">
+                {% for choice in form.additional_services %}
+                <div class="choice-item">
+                    {{ choice.tag }}
+                    
+                    <label for="{{ choice.id_for_label }}">
+                        <strong>{{ choice.choice_label }}</strong>
+                        <span></span>
+                    </label>
+                </div>
+                {% empty %}
+                <p style="padding: 15px;">Chưa có dịch vụ nào được thêm.</p>
+                {% endfor %}
+            </div>
+
+            {% if upgrade_options %}
+            <h3 style="margin-top: 30px;">3. Lựa chọn nâng hạng phòng</h3>
+            <div class="choices-container">
+                {% for option in upgrade_options %}
+                <a href="{% url 'booking_options' option.pk %}" class="upgrade-item">
+                    <div class="upgrade-info">
+                        <strong>Nâng lên hạng: {{ option.name }}</strong>
+                        <span>{{ option.description|truncatewords:15 }}</span>
+                    </div>
+                    <div class="upgrade-price">+ {{ option.base_price|sub:room_class.base_price }} VNĐ</div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="btn-book" style="width: 100%; margin-top: 40px;">Tiếp tục</button>
+        </main>
+
+        <aside class="summary-sidebar" data-base-price="{{ room_class.base_price }}">
+            <h3>Tóm tắt chi phí</h3>
+            <div class="summary-item"><span>Giá phòng/đêm:</span><span id="summary-base-price">{{ room_class.base_price }} VNĐ</span></div>
+            <div class="summary-item"><span>Số đêm:</span><span id="summary-nights">0</span></div>
+            <div class="summary-item"><span>Tiền phòng:</span><span id="summary-room-total">0 VNĐ</span></div>
+            <hr>
+            <div class="summary-item"><span>Tiền dịch vụ:</span><span id="summary-services-total">0 VNĐ</span></div>
+            <hr>
+            <div class="summary-total"><span>TỔNG CỘNG</span><span id="summary-grand-total">0 VNĐ</span></div>
+        </aside>
+    </form>
+</div>
+<script src="{% static 'js/booking-calculator.js' %}"></script>
+</body>
+</html>

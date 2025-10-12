@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển - Fivitel</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Bảng điều khiển Fivitel</h1>
+        <div>
+            <span>Xin chào, <strong>{{ user.username }} ({{ user.get_role_display }})</strong></span> | 
+            <a href="{% url 'logout' %}">Đăng xuất</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-grid">
+
+            {% if user.role == 'RECEPTIONIST' or user.role == 'ADMIN' %}
+            <div class="widget">
+                <h3>🏨 Quản lý Đặt phòng</h3>
+                <p>Xem, xác nhận, hoặc hủy các đơn đặt phòng của khách hàng. Quản lý trạng thái check-in và check-out.</p>
+                <a href="/admin/booking/booking/" class="widget-button">Đi đến Quản lý Đơn đặt phòng</a>
+                <a href="/admin/booking/room/" class="widget-button secondary">Cập nhật Trạng thái phòng</a>
+            </div>
+            {% endif %}
+
+
+            {% if user.role == 'CRM_STAFF' or user.role == 'ADMIN' %}
+            <div class="widget">
+                <h3>💬 Xử lý Yêu cầu Khách hàng</h3>
+                <p>Tiếp nhận, phản hồi và theo dõi các yêu cầu tư vấn, khiếu nại từ khách hàng qua hệ thống CRM.</p>
+                <a href="/admin/crm/ticket/" class="widget-button">Đi đến Quản lý Yêu cầu</a>
+            </div>
+            {% endif %}
+
+
+            {% if user.role == 'ADMIN' %}
+            <div class="widget">
+                <h3>⚙️ Quản lý Hệ thống</h3>
+                <p>Thêm, sửa, xóa các thông tin gốc của hệ thống như Loại phòng, Hạng phòng, Dịch vụ và tài khoản nhân viên.</p>
+                <a href="/admin/booking/roomtype/" class="widget-button secondary">Quản lý Loại phòng</a>
+                <a href="/admin/booking/roomclass/" class="widget-button secondary">Quản lý Hạng phòng</a>
+                <a href="/admin/services/service/" class="widget-button secondary">Quản lý Dịch vụ</a>
+            </div>
+
+            <div class="widget">
+                <h3>👥 Quản lý Nhân sự</h3>
+                <p>Tạo mới, phân quyền và quản lý tài khoản cho các nhân viên trong hệ thống.</p>
+                <a href="/admin/users/customuser/" class="widget-button">Đi đến Quản lý Nhân viên</a>
+                <a href="/admin/auth/group/" class="widget-button secondary">Quản lý Nhóm quyền</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</body>
+</html>

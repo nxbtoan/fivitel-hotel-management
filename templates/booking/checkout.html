@@ -1,0 +1,109 @@
+{% load booking_extras %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hoàn tất Đặt phòng</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+
+<div class="options-container">
+    <div class="options-layout">
+        <main class="options-main">
+            <form id="checkoutForm" method="post" novalidate
+                  data-is-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+                  data-full-name="{{ user.full_name|default:'' }}"
+                  data-email="{{ user.email|default:'' }}"
+                  data-phone="{{ user.phone_number|default:'' }}"
+                  data-nationality="{{ user.nationality.code|default:'' }}">
+                {% csrf_token %}
+                
+                <div class="checkout-section">
+                    <h2>Khách hàng</h2>
+                    <div class="segmented-control-wrapper" style="margin-bottom: 15px;">
+                        <label>Tôi đang đặt</label>
+                        <div class="segmented-control">
+                            {% for radio in form.booking_for %}
+                            {{ radio.tag }}
+                            <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p>Nhập thông tin của khách ở chính. Thông tin của các khách khác có thể cung cấp lúc nhận phòng.</p>
+                    <!-- <div class="radio-group">{{ form.booking_for }}</div> -->
+                    <div id="guest-details" class="form-grid" style="margin-top: 20px;">
+                        <div class="form-field">{{ form.full_name.label_tag }}{{ form.full_name }}</div>
+                        <div class="form-field">{{ form.phone_number.label_tag }}{{ form.phone_number }}</div>
+                        <div class="form-field full-width">{{ form.email|add_attr:"class:form-control" }}</div>
+                        <div class="form-field full-width">{{ form.nationality.label_tag }}{{ form.nationality }}</div>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h2>Thông tin bổ sung</h2>
+                    <div class="form-field">{{ form.special_requests.label_tag }}{{ form.special_requests }}</div>
+                </div>
+
+                <div class="checkout-section">
+                    <h2>Chọn phương thức thanh toán</h2>
+                    <div class="payment-options">
+                        {% for choice in form.payment_method %}
+                        <div class="payment-option">
+                            {{ choice.tag }}
+                            <label for="{{ choice.id_for_label }}">
+                                <strong>{{ choice.choice_label }}</strong>
+                                {% if choice.data.value == 'PAY_LATER' %}
+                                <p>Khi chọn phương thức thanh toán này, bạn sẽ KHÔNG PHẢI TRẢ TRƯỚC. Bạn sẽ nhận được xác nhận đặt phòng và xuất trình khi nhận phòng.</p>
+                                {% elif choice.data.value == 'BANK_TRANSFER' %}
+                                <p>Tổng số tiền phải được thanh toán đầy đủ. Người quản lý sẽ liên lạc với bạn để nhận hóa đơn. Biên lai phải được thanh toán trong vòng 3 ngày làm việc.</p>
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-book" style="width: 100%; margin-top: 40px;">Đặt phòng</button>
+            </form>
+        </main>
+
+
+        <aside class="summary-sidebar">
+            <h2>Đơn đặt phòng của tôi</h2>
+            <div class="summary-item">
+                <span>{{ duration }} đêm</span>
+                <span>{{ options.check_in }} - {{ options.check_out }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Phòng:</span>
+                <span style="font-weight: bold;">{{ room_class.name }}</span>
+            </div>
+            <hr>
+            <div class="summary-item">
+                <span>Tiền phòng ({{ duration }} đêm)</span>
+                <span>{{ room_price }} đ</span>
+            </div>
+            {% if selected_services %}
+            <div class="summary-item">
+                <span>Dịch vụ đi kèm</span>
+                <span>{{ services_price }} đ</span>
+            </div>
+            <ul>
+                {% for service in selected_services %}
+                <li class="service-summary-item">{{ service.name }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <hr>
+            <div class="summary-total">
+                <span>TỔNG CỘNG</span>
+                <span>{{ total_price }} đ</span>
+            </div>
+        </aside>
+    </div>
+</div>
+<script src="{% static 'js/booking-checkout.js' %}"></script>
+</body>
+</html>
