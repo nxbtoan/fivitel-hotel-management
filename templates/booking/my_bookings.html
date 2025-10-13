@@ -40,7 +40,14 @@
             </div>
         </div>
         <div class="booking-card-footer">
-            <a href="#" class="btn-details">Xem chi tiết</a>
+            <a href="{% url 'booking_detail' booking.pk %}" class="btn-details">Xem chi tiết</a>
+
+            {% if booking.is_cancellable %}
+            <form action="{% url 'cancel_booking' booking.pk %}" method="post" style="display: inline; margin-left: 10px;">
+                {% csrf_token %}
+                <button type="submit" class="btn-cancel" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này không?')">Hủy đơn</button>
+            </form>
+            {% endif %}
         </div>
     </div>
     {% empty %}

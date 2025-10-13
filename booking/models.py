@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from services.models import Service
 from django_countries.fields import CountryField
+from django.utils import timezone
+from datetime import timedelta
 
 class RoomType(models.Model):
     """Danh mục phòng cao nhất (VD: Standard, Deluxe, Suite)."""
@@ -44,6 +46,8 @@ class Booking(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Chờ xác nhận'
         CONFIRMED = 'CONFIRMED', 'Đã xác nhận'
+        CHECKED_IN = 'CHECKED_IN', 'Đã nhận phòng'
+        COMPLETED = 'COMPLETED', 'Đã hoàn thành'
         CANCELLED = 'CANCELLED', 'Đã hủy'
 
     class PaymentMethod(models.TextChoices):
@@ -52,6 +56,13 @@ class Booking(models.Model):
 
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     room_class = models.ForeignKey(RoomClass, on_delete=models.SET_NULL, null=True, verbose_name="Hạng phòng đã chọn")
+    assigned_room = models.ForeignKey(
+        Room, 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True, 
+        related_name='bookings_assigned',
+        verbose_name="Phòng đã gán"
+    )
     
     guest_full_name = models.CharField(max_length=255, blank=True)
     guest_email = models.EmailField(blank=True)
@@ -71,6 +82,15 @@ class Booking(models.Model):
         default=PaymentMethod.PAY_LATER,
         verbose_name="Phương thức thanh toán"
     )
+
+    @property
+    def is_cancellable(self):
+        """
+        Kiểm tra xem đơn hàng có thể hủy được không.
+        Trả về True nếu ngày check-in còn xa hơn 24h và trạng thái chưa phải là đã hủy.
+        """
+        cancellable_deadline = timezone.now().date() + timedelta(days=1)
+        return self.check_in_date > cancellable_deadline and self.status != self.Status.CANCELLED
 
 class PaymentProof(models.Model):
     """

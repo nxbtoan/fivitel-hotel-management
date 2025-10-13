@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
+from django.db.models import Count, Q
+from django.contrib.auth.decorators import login_required,  user_passes_test
+from django.contrib import messages
+
 from .models import RoomType, RoomClass, Room, Service, PaymentProof, Booking
 from .forms import BookingOptionsForm, CheckoutForm, PaymentProofForm
-from datetime import datetime
-from django.db.models import Count, Q
-from django.contrib.auth.decorators import login_required
+from datetime import timedelta, datetime
 
 def room_type_list_view(request):
     """
@@ -212,3 +215,181 @@ def my_bookings_view(request):
         'bookings': bookings
     }
     return render(request, 'booking/my_bookings.html', context)
+
+@login_required
+def booking_detail_view(request, pk):
+    """
+    Hiển thị thông tin chi tiết của một đơn đặt phòng cụ thể.
+    Đảm bảo chỉ chủ sở hữu của đơn hàng mới có thể xem.
+    """
+    # Lấy booking, nếu không tìm thấy hoặc không thuộc về user hiện tại, báo lỗi 404
+    booking = get_object_or_404(Booking, pk=pk, customer=request.user)
+    
+    context = {
+        'booking': booking
+    }
+    return render(request, 'booking/booking_detail.html', context)
+
+@login_required
+def cancel_booking_view(request, pk):
+    """
+    Xử lý yêu cầu hủy đơn đặt phòng của khách hàng.
+    Chỉ cho phép hủy nếu ngày check-in còn xa hơn 24 giờ.
+    """
+    booking = get_object_or_404(Booking, pk=pk, customer=request.user)
+    
+    # Quy tắc: Ngày check-in phải lớn hơn ngày hiện tại + 1 ngày (24h)
+    cancellable_deadline = timezone.now().date() + timedelta(days=1)
+    
+    if request.method == 'POST' and booking.check_in_date > cancellable_deadline and booking.status != 'CANCELLED':
+        booking.status = Booking.Status.CANCELLED
+        booking.save()
+        # (Tùy chọn) Thêm message thông báo thành công
+    
+    return redirect('my_bookings')
+
+# Hàm kiểm tra xem user có phải là nhân viên không (Lễ tân hoặc Admin)
+def is_reception_staff(user):
+    return user.is_authenticated and (user.role in ['RECEPTIONIST', 'ADMIN'])
+
+@user_passes_test(is_reception_staff)
+def manage_bookings_view(request):
+    """
+    Hiển thị trang quản lý tất cả đơn đặt phòng cho Lễ tân.
+    Cho phép lọc đơn hàng theo trạng thái.
+    """
+    # Lấy tham số 'status' từ URL, ví dụ: /dashboard/bookings/?status=PENDING
+    status_filter = request.GET.get('status')
+    
+    # Bắt đầu với việc lấy tất cả đơn hàng, sắp xếp mới nhất lên đầu
+    # Dùng select_related và prefetch_related để tối ưu truy vấn database
+    bookings = Booking.objects.select_related(
+        'room_class', 'customer'
+    ).prefetch_related(
+        'payment_proof'
+    ).order_by('-created_at')
+
+    # Nếu có bộ lọc, áp dụng nó
+    if status_filter in ['PENDING', 'CONFIRMED', 'CANCELLED']:
+        bookings = bookings.filter(status=status_filter)
+
+    context = {
+        'bookings': bookings,
+        'current_filter': status_filter # Gửi bộ lọc hiện tại sang template để active nút
+    }
+    return render(request, 'booking/dashboard_bookings.html', context)
+
+@user_passes_test(is_reception_staff)
+def confirm_booking_view(request, pk):
+    """Xử lý hành động 'Xác nhận' đơn hàng."""
+    if request.method == 'POST':
+        booking = get_object_or_404(Booking, pk=pk)
+        booking.status = Booking.Status.CONFIRMED
+        booking.save()
+        messages.success(request, f"Đã xác nhận thành công đơn hàng #{booking.id}.")
+    return redirect('manage_bookings')
+
+@user_passes_test(is_reception_staff)
+def cancel_booking_by_staff_view(request, pk):
+    """Xử lý hành động 'Hủy' đơn hàng từ phía nhân viên."""
+    if request.method == 'POST':
+        booking = get_object_or_404(Booking, pk=pk)
+        booking.status = Booking.Status.CANCELLED
+        booking.save()
+        messages.success(request, f"Đã hủy thành công đơn hàng #{booking.id}.")
+    return redirect('manage_bookings')
+
+@user_passes_test(is_reception_staff)
+def manage_rooms_view(request):
+    """
+    Hiển thị trang quản lý trạng thái của tất cả các phòng.
+    Cho phép Lễ tân cập nhật trạng thái (Còn trống, Đang dọn dẹp, Đã có khách).
+    """
+    # Xử lý yêu cầu cập nhật trạng thái khi Lễ tân gửi form
+    if request.method == 'POST':
+        room_id = request.POST.get('room_id')
+        new_status = request.POST.get('status')
+        
+        # Tìm phòng và cập nhật trạng thái
+        room_to_update = get_object_or_404(Room, pk=room_id)
+        if new_status in Room.Status.values:
+            room_to_update.status = new_status
+            room_to_update.save()
+            messages.success(request, f"Đã cập nhật trạng thái cho phòng {room_to_update.room_number}.")
+        
+        # Chuyển hướng trở lại chính trang này để xem kết quả
+        return redirect('manage_rooms')
+
+    # Lấy danh sách tất cả các phòng để hiển thị
+    all_rooms = Room.objects.select_related('room_class').order_by('room_number')
+    
+    context = {
+        'rooms': all_rooms,
+        'room_statuses': Room.Status.choices # Gửi các lựa chọn trạng thái sang template
+    }
+    return render(request, 'booking/dashboard_rooms.html', context)
+
+@user_passes_test(is_reception_staff)
+def check_in_view(request, pk):
+    """
+    Xử lý quy trình Check-in: Gán một phòng trống cụ thể cho một đơn đặt phòng.
+    """
+    booking = get_object_or_404(Booking, pk=pk)
+    
+    # Tìm tất cả các phòng vật lý có sẵn thuộc đúng Hạng phòng mà khách đã đặt.
+    available_rooms = Room.objects.filter(
+        room_class=booking.room_class, 
+        status=Room.Status.AVAILABLE
+    )
+
+    if request.method == 'POST':
+        # Lấy ID của phòng đã được chọn từ form.
+        selected_room_id = request.POST.get('selected_room')
+        if selected_room_id:
+            selected_room = get_object_or_404(Room, pk=selected_room_id)
+            
+            # --- CẬP NHẬT DATABASE ---
+            # 1. Gán phòng cụ thể vào đơn hàng.
+            booking.assigned_room = selected_room
+            # 2. Cập nhật trạng thái đơn hàng thành "Đã nhận phòng".
+            booking.status = Booking.Status.CHECKED_IN
+            booking.save()
+            
+            # 3. Cập nhật trạng thái của phòng thành "Đang có khách".
+            selected_room.status = Room.Status.OCCUPIED
+            selected_room.save()
+            
+            messages.success(request, f"Check-in thành công cho đơn #{booking.id}. Đã gán phòng {selected_room.room_number}.")
+            return redirect('manage_bookings')
+
+    context = {
+        'booking': booking,
+        'available_rooms': available_rooms
+    }
+    return render(request, 'booking/dashboard_check_in.html', context)
+
+@user_passes_test(is_reception_staff)
+def check_out_view(request, pk):
+    """
+    Xử lý quy trình Check-out:
+    - Cập nhật trạng thái Booking thành "Đã hoàn thành".
+    - Cập nhật trạng thái Room thành "Cần dọn dẹp".
+    """
+    if request.method == 'POST':
+        # Lấy đơn hàng cần check-out
+        booking = get_object_or_404(Booking, pk=pk)
+        
+        # --- CẬP NHẬT DATABASE ---
+        # 1. Cập nhật trạng thái đơn hàng
+        booking.status = Booking.Status.COMPLETED
+        booking.save()
+        
+        # 2. Cập nhật trạng thái phòng để bộ phận buồng phòng xử lý
+        if booking.assigned_room:
+            room = booking.assigned_room
+            room.status = Room.Status.CLEANING
+            room.save()
+        
+        messages.success(request, f"Check-out thành công cho đơn hàng #{booking.id}. Phòng {room.room_number} đã được chuyển sang trạng thái cần dọn dẹp.")
+    
+    return redirect('manage_bookings')

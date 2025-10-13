@@ -24,8 +24,8 @@
             <div class="widget">
                 <h3>🏨 Quản lý Đặt phòng</h3>
                 <p>Xem, xác nhận, hoặc hủy các đơn đặt phòng của khách hàng. Quản lý trạng thái check-in và check-out.</p>
-                <a href="/admin/booking/booking/" class="widget-button">Đi đến Quản lý Đơn đặt phòng</a>
-                <a href="/admin/booking/room/" class="widget-button secondary">Cập nhật Trạng thái phòng</a>
+                <a href="{% url 'manage_bookings' %}" class="widget-button">Đi đến Quản lý Đơn đặt phòng</a>
+                <a href="{% url 'manage_rooms' %}" class="widget-button secondary">Cập nhật Trạng thái phòng</a>
             </div>
             {% endif %}
 

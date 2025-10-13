@@ -89,3 +89,114 @@ body {
 .widget-button:hover {
     background-color: #082b6e;
 }
+
+/* ============================================= */
+/* TRANG QUẢN LÝ ĐƠN HÀNG Ở DASHBOARD CỦA LỄ TÂN  */
+/* ============================================= */
+.filter-nav {
+    margin-bottom: 20px;
+}
+.filter-nav a {
+    text-decoration: none;
+    padding: 8px 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 20px;
+    margin-right: 10px;
+    font-size: 0.9em;
+}
+.filter-nav a.active {
+    background-color: #0A378C;
+    color: white;
+    border-color: #0A378C;
+}
+
+.table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.booking-table th, .booking-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+.booking-table th {
+    background-color: #f7f9fa;
+}
+.proof-thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+.btn-action {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-action.confirm { background-color: #28a745; }
+.btn-action.cancel { background-color: #dc3545; }
+
+/* ============================================= */
+/* FORM CẬP NHẬT TRẠNG THÁI PHÒNG Ở DASHBOARD CỦA LỄ TÂN  */
+/* ============================================= */
+.status-update-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-update-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-grow: 1; /* Để select chiếm hết không gian còn lại */
+}
+
+.btn-action.update {
+    background-color: #007bff;
+}
+
+/* Thêm màu cho các trạng thái phòng */
+.room-status-AVAILABLE { background-color: #28a745; } /* Xanh lá */
+.room-status-CLEANING { background-color: #ffc107; color: #333; } /* Vàng */
+.room-status-OCCUPIED { background-color: #dc3545; } /* Đỏ */
+
+/* ============================================= */
+/* FORM CHỌN PHÒNG KHI XÁC NHẬN ĐƠN ĐẶT PHÒNG Ở DASHBOARD CỦA LỄ TÂN  */
+/* ============================================= */
+.btn-action.checkin { background-color: #17a2b8; color: white; text-decoration: none; }
+.room-selection { display: flex; flex-wrap: wrap; gap: 15px; }
+.room-choice input[type="radio"] { display: none; }
+.room-choice label {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.room-choice input[type="radio"]:checked + label {
+    background-color: #0A378C;
+    color: white;
+    border-color: #0A378C;
+    font-weight: bold;
+}
+
+.btn-action.checkout { 
+    background-color: #ffc107; /* Màu vàng */
+    color: #333;
+}

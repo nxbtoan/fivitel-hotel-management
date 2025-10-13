@@ -600,6 +600,17 @@ body {
     font-size: 0.9em;
 }
 
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9em;
+    border: none;
+    cursor: pointer;
+}
+
 /* ============================================= */
 /* TRANG HƯỚNG DẪN THANH TOÁN (payment_guidance) */
 /* ============================================= */
@@ -635,3 +646,7 @@ input[type="file"] {
     width: 100%;
     box-sizing: border-box;
 }
+
+/* ============================================= */
+/* TRANG QUẢN LÝ ĐƠN HÀNG Ở DASHBOARD CỦA LỄ TÂ  */
+/* ============================================= */

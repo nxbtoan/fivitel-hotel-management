@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết Đơn hàng #{{ booking.id }}</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body style="background-color: #f0f2f5;">
+<div class="detail-container" style="max-width: 800px; margin: 40px auto;">
+    <a href="{% url 'my_bookings' %}" class="back-link">‹ Quay lại danh sách</a>
+    <h1 class="page-title">Chi tiết Đơn hàng #{{ booking.id }}</h1>
+
+    <div class="checkout-section">
+        <h2>Thông tin đặt phòng</h2>
+        <div class="booking-card-body">
+            <div class="info-item"><strong>Hạng phòng:</strong><span>{{ booking.room_class.name }}</span></div>
+            <div class="info-item"><strong>Ngày nhận phòng:</strong><span>{{ booking.check_in_date|date:"d/m/Y" }}</span></div>
+            <div class="info-item"><strong>Ngày trả phòng:</strong><span>{{ booking.check_out_date|date:"d/m/Y" }}</span></div>
+            <div class="info-item"><strong>Trạng thái:</strong><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></div>
+            <div class="info-item"><strong>Thanh toán:</strong><span>{{ booking.get_payment_method_display }}</span></div>
+            <div class="info-item"><strong>Tổng tiền:</strong><span style="font-weight: bold; color: #0A378C;">{{ booking.total_price }} VNĐ</span></div>
+        </div>
+    </div>
+    
+    <div class="checkout-section">
+        <h2>Thông tin khách hàng</h2>
+        <div class="booking-card-body">
+            {% if booking.customer %}
+                <div class="info-item"><strong>Họ tên:</strong><span>{{ booking.customer.full_name }}</span></div>
+                <div class="info-item"><strong>Email:</strong><span>{{ booking.customer.email }}</span></div>
+                <div class="info-item"><strong>SĐT:</strong><span>{{ booking.customer.phone_number }}</span></div>
+            {% else %}
+                <div class="info-item"><strong>Họ tên:</strong><span>{{ booking.guest_full_name }}</span></div>
+                <div class="info-item"><strong>Email:</strong><span>{{ booking.guest_email }}</span></div>
+                <div class="info-item"><strong>SĐT:</strong><span>{{ booking.guest_phone_number }}</span></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
