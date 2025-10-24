@@ -1,0 +1,43 @@
+{% extends 'dashboard_base.html' %}
+{% load booking_extras %}
+
+{% block dashboard_title %}{% if form.instance.pk %}Chỉnh sửa{% else %}Tạo mới{% endif %} Dịch vụ{% endblock %}
+{% block header_title %}{% if form.instance.pk %}Chỉnh sửa{% else %}Tạo mới{% endif %} Dịch vụ{% endblock %}
+{% block header_back_url %}{% url 'service_list' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block dashboard_content %}
+<div class="service-management-page">
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-field">
+                {{ form.category.label_tag }}
+                {{ form.category|add_attr:"class:form-control" }}
+            </div>
+            <div class="form-field">
+                {{ form.name.label_tag }}
+                {{ form.name|add_attr:"class:form-control" }}
+            </div>
+            <div class="form-field">
+                {{ form.description.label_tag }}
+                {{ form.description|add_attr:"class:form-control" }}
+            </div>
+            <div class="form-field">
+                {{ form.price.label_tag }}
+                {{ form.price|add_attr:"class:form-control" }}
+            </div>
+            <div class="form-field">
+                {{ form.image.label_tag }}
+                {% if form.instance.image %}
+                    <p>Ảnh hiện tại: <a href="{{ form.instance.image.url }}" target="_blank">{{ form.instance.image.name|truncatechars:30 }}</a></p>
+                {% endif %}
+                {{ form.image }}
+            </div>
+
+            <button type="submit" class="btn-book" style="margin-top: 20px;">Lưu Dịch vụ</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

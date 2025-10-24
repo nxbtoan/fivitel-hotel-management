@@ -1,0 +1,72 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Chi tiết Đơn hàng{% endblock %}
+{% block header_title %}Chi tiết Đơn hàng #{{ booking.id }}{% endblock %}
+{% block header_back_url %}{% url 'manage_bookings' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Quản lý{% endblock %}
+
+{% block dashboard_content %}
+<div class="ticket-detail-grid">
+    <div class="ticket-main-content">
+        <div class="checkout-section">
+            <h2>Thông tin Khách hàng</h2>
+            {% if booking.customer %}
+                <p><strong>Khách hàng:</strong> {{ booking.customer.full_name|default:booking.customer.username }} (Thành viên)</p>
+                <p><strong>Email:</strong> {{ booking.customer.email }}</p>
+                <p><strong>SĐT:</strong> {{ booking.customer.phone_number }}</p>
+            {% else %}
+                <p><strong>Khách hàng:</strong> {{ booking.guest_full_name }} (Khách vãng lai)</p>
+                <p><strong>Email:</strong> {{ booking.guest_email }}</p>
+                <p><strong>SĐT:</strong> {{ booking.guest_phone_number }}</p>
+            {% endif %}
+            <p><strong>Quốc tịch:</strong> {% if booking.customer %}{{ booking.customer.nationality.name }}{% else %}{{ booking.guest_nationality.name }}{% endif %}</p>
+        </div>
+
+        <div class="checkout-section">
+            <h2>Dịch vụ đi kèm đã chọn</h2>
+            <ul>
+                {% for service in booking.additional_services.all %}
+                    <li>{{ service.name }} - ({{ service.price }} VNĐ)</li>
+                {% empty %}
+                <li>Không có dịch vụ nào được chọn.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <aside class="ticket-sidebar">
+        <div class="checkout-section">
+            <h2>Tóm tắt Đơn hàng</h2>
+            <p><strong>Mã ĐH:</strong> #{{ booking.id }}</p>
+            <p><strong>Hạng phòng:</strong> {{ booking.room_class.name }}</p>
+            <p><strong>Phòng đã gán:</strong> 
+                {% if booking.assigned_room %}
+                    <strong style="color: #0A378C;">{{ booking.assigned_room.room_number }}</strong>
+                {% else %}
+                    Chưa gán
+                {% endif %}
+            </p>
+            <p><strong>Ngày nhận:</strong> {{ booking.check_in_date|date:"d/m/Y" }}</p>
+            <p><strong>Ngày trả:</strong> {{ booking.check_out_date|date:"d/m/Y" }}</p>
+            <p><strong>Trạng thái:</strong> <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></p>
+            <p><strong>Thanh toán:</strong> {{ booking.get_payment_method_display }}</p>
+            <hr>
+            <p style="font-size: 1.2em;"><strong>Tổng tiền:</strong> <strong style="color: #0A378C;">{{ booking.total_price }} VNĐ</strong></p>
+        </div>
+
+        {% if booking.payment_method == 'BANK_TRANSFER' %}
+        <div class="checkout-section">
+            <h2>Bằng chứng Thanh toán</h2>
+            {% if booking.payment_proof %}
+                <a href="{{ booking.payment_proof.image.url }}" target="_blank">
+                    <img src="{{ booking.payment_proof.image.url }}" style="width: 100%; border-radius: 5px;" alt="Bằng chứng thanh toán">
+                </a>
+            {% else %}
+                <p>Khách hàng chưa tải lên bằng chứng.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

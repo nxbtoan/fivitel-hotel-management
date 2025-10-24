@@ -1,29 +1,234 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ - Fivitel</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        .logout-btn { 
-            display: inline-block; 
-            margin-top: 20px; 
-            padding: 10px 20px; 
-            background-color: #dc3545; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 5px; 
-        }
-    </style>
-</head>
-<body>
 
-    <h1>Chào mừng, {{ user.username }}!</h1>
-    <p>Bạn đã đăng nhập thành công vào hệ thống quản lý khách sạn Fivitel.</p>
-    
-    <a href="{% url 'logout' %}" class="logout-btn">Đăng xuất</a>
+{% block title %}Trang chủ - Fivitel Hotel{% endblock %}
 
-</body>
-</html>
+{% block content %}
+
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <video autoplay loop muted playsinline id="hero-video">
+        <source src="{% static 'videos/hotel-video.mp4' %}" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ video.
+    </video>
+    <div class="hero-content">
+        <h1>Chào mừng đến với Fivitel</h1>
+        <p>Nơi trải nghiệm nghỉ dưỡng đẳng cấp giao thoa cùng vẻ đẹp Đà Nẵng</p>
+
+        <form action="#" method="get" class="booking-widget">
+            <div class="widget-field">
+                <label for="checkin">Nhận phòng</label>
+                <input type="date" id="checkin" name="checkin">
+            </div>
+            <div class="widget-field">
+                <label for="checkout">Trả phòng</label>
+                <input type="date" id="checkout" name="checkout">
+            </div>
+            <div class="widget-field">
+                <label for="adults">Người lớn</label>
+                <input type="number" id="adults" name="adults" min="1" value="2">
+            </div>
+            <div class="widget-field">
+                <label for="children">Trẻ em</label>
+                <input type="number" id="children" name="children" min="0" value="0">
+            </div>
+            <div class="widget-submit">
+                <button type="submit">Kiểm tra Phòng trống</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% if featured_room_types %}
+<section class="section fade-in-element" id="rooms">
+    <div class="container">
+        <h2 class="section-title fade-in-element">Khám phá các Hạng phòng</h2>
+        <div class="showcase-grid">
+            {% for type in featured_room_types %}
+            <a href="{% url 'room_class_list' type.pk %}" class="showcase-card fade-in-element">
+                <div class="card-image"><img src="{{ type.image.url }}" alt="{{ type.name }}"></div>
+                <div class="card-content">
+                    <h3>{{ type.name }}</h3>
+                    <p>{{ type.description|truncatewords:15 }}</p>
+                    <span class="card-link">Xem chi tiết &rarr;</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 40px;" class="fade-in-element">
+            <a href="{% url 'room_type_list_view' %}" class="btn-primary">Xem tất cả các phòng <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if featured_service_categories %}
+<section class="section fade-in-element" id="services" style="background-color: #f9f9f9; padding-bottom: 80px;">
+    <div class="container">
+        <h2 class="section-title fade-in-element">Dịch vụ & Tiện ích Nổi bật</h2>
+        <div class="showcase-grid">
+            {% for category in featured_service_categories %}
+            <div class="showcase-card fade-in-element">
+                <div class="card-image"><img src="{{ category.image.url }}" alt="{{ category.name }}"></div>
+                <div class="card-content">
+                    <h3>{{ category.name }}</h3>
+                    <p>{{ category.description|truncatewords:15 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section feature-section fade-in-element" id="features">
+    <div class="container">
+        <div class="feature-card layout-image-text">
+            <div class="feature-image">
+                <img src="{% static 'images/dong-giang.jpg' %}" alt="Khu du lịch sinh thái Cổng Trời Đông Giang">
+            </div>
+            <div class="feature-content">
+                <h3>Khu du lịch sinh thái Cổng Trời Đông Giang</h3>
+                <p>Thuộc hệ sinh thái của FVG Group, Cổng Trời Đông Giang là điểm đến kỳ vĩ, nơi bạn có thể hòa mình vào thiên nhiên, khám phá văn hóa Cơ Tu đặc sắc và trải nghiệm những dịch vụ nghỉ dưỡng độc đáo.</p>
+                <a href="#" class="btn-outline">Khám phá khu du lịch <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <div class="feature-card layout-text-image">
+            <div class="feature-content">
+                <h3>Hệ thống khách sạn FIVITEL đẳng cấp</h3>
+                <p>Với chuỗi khách sạn trải dài tại các thành phố du lịch hàng đầu, Fivitel cam kết mang đến chất lượng dịch vụ 5 sao, cơ sở vật chất hiện đại và những trải nghiệm khó quên cho mọi du khách.</p>
+                <a href="{% url 'room_type_list_view' %}" class="btn-outline">Xem tất cả phòng <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="feature-image">
+                <img src="{% static 'images/fivitel-danang.jpg' %}" alt="Khách sạn Fivitel Đà Nẵng">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="section full-width fade-in-element" id="gallery" style="background-color: #f9f9f9; padding-bottom: 80px;">
+    <div style="text-align: center; padding: 0 20px;">
+        <h2 class="section-title fade-in-element">Thư viện Ảnh Fivitel</h2>
+    </div>
+
+    <div class="gallery-container fade-in-element">
+        <div class="gallery-row">
+            <div class="gallery-item" data-flex="2">
+                <img src="{% static 'images/gallery/gallery-1.jpg' %}" alt="Phong cảnh Đà Nẵng">
+                <div class="overlay"><i class="fas fa-search-plus overlay-icon"></i></div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/gallery/gallery-2.jpg' %}" alt="Cáp treo Bà Nà Hills">
+                <div class="overlay"><i class="fas fa-search-plus overlay-icon"></i></div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/gallery/gallery-3.jpg' %}" alt="Phòng ngủ Fivitel">
+                <div class="overlay"><i class="fas fa-search-plus overlay-icon"></i></div>
+            </div>
+        </div>
+        <div class="gallery-row">
+            <div class="gallery-item">
+                <img src="{% static 'images/gallery/gallery-4.jpg' %}" alt="Thác nước">
+                <div class="overlay"><i class="fas fa-search-plus overlay-icon"></i></div>
+            </div>
+            <div class="gallery-item" data-flex="2">
+                <img src="{% static 'images/gallery/gallery-5.jpg' %}" alt="Ẩm thực tại Fivitel">
+                <div class="overlay"><i class="fas fa-search-plus overlay-icon"></i></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section testimonials-section hidden fade-in-element" id="testimonials">
+    <div class="container">
+        <h2 class="section-title">Khách hàng nói về Fivitel</h2>
+        
+        <div class="swiper testimonial-slider">
+            <div class="swiper-wrapper">
+                
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <div class="star-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="quote">Dịch vụ tuyệt vời, nhân viên thân thiện và chuyên nghiệp. Vị trí khách sạn rất thuận tiện, phòng ốc sạch sẽ và có view biển rất đẹp. Chắc chắn sẽ quay lại!</p>
+                        <div class="author">
+                            <div class="author-avatar">T</div>
+                            <span class="author-name">Anh Minh Tuấn, Hà Nội</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <div class="star-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="quote">Tôi thực sự ấn tượng với hồ bơi vô cực và sky bar trên tầng thượng. Một trải nghiệm rất đáng giá. Bữa sáng tự chọn cũng rất phong phú và ngon miệng.</p>
+                        <div class="author">
+                            <div class="author-avatar">A</div>
+                            <span class="author-name">Chị Lan Anh, TP.HCM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <div class="star-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="quote">Gia đình tôi đã có một kỳ nghỉ tuyệt vời tại Fivitel. Mọi thứ đều hoàn hảo từ lúc check-in cho đến lúc check-out. Cảm ơn khách sạn rất nhiều.</p>
+                        <div class="author">
+                            <div class="author-avatar">J</div>
+                            <span class="author-name">John Doe, Australia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <div class="star-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="quote">Spa ở đây thật sự thư giãn. Các bạn kỹ thuật viên rất chuyên nghiệp. Tôi đã có những giờ phút tái tạo năng lượng tuyệt vời sau những ngày làm việc căng thẳng.</p>
+                        <div class="author">
+                            <div class="author-avatar">H</div>
+                            <span class="author-name">Chị Thu Hằng, Đà Nẵng</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+        
+        <div class="swiper-button-prev-custom swiper-nav-button"><i class="fas fa-arrow-left"></i></div>
+        <div class="swiper-button-next-custom swiper-nav-button"><i class="fas fa-arrow-right"></i></div>
+
+    </div>
+</section>
+
+<section class="section fade-in-element" id="about" style="background-color: #f9f9f9;">
+    <div class="container">
+        <div class="fade-in-element">
+            <h2 class="section-title">Về Chúng Tôi</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 30px; font-size: 1.1em;">
+                Tọa lạc tại vị trí đắc địa bên bờ biển Mỹ Khê, Fivitel Hotel tự hào mang đến cho quý khách một không gian nghỉ dưỡng sang trọng, tiện nghi cùng chất lượng dịch vụ chuẩn 5 sao.
+            </p>
+            <div style="text-align: center;">
+                <a href="{% url 'room_type_list_view' %}" class="btn-primary">Khám phá các hạng phòng <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block body_end %}
+<div class="lightbox" id="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img src="" alt="Lightbox Image" class="lightbox-content" id="lightbox-img">
+</div>
+{% endblock %}

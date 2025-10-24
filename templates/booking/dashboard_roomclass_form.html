@@ -1,0 +1,39 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block dashboard_title %}{% if object %}Sửa Hạng phòng{% else %}Thêm Hạng phòng{% endif %}{% endblock %}
+{% block header_title %}{% if object %}Sửa Hạng phòng{% else %}Thêm Hạng phòng{% endif %}{% endblock %}
+{% block header_back_url %}{% url 'room_class_list_admin' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block dashboard_content %}
+<div class="checkout-section">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-field">{{ form.room_type.label_tag }} {{ form.room_type }}</div>
+            <div class="form-field">{{ form.name.label_tag }} {{ form.name|add_attr:"class:form-control" }}</div>
+            <div class="form-field">{{ form.base_price.label_tag }} {{ form.base_price|add_attr:"class:form-control" }}</div>
+            <div class="form-field">{{ form.area.label_tag }} {{ form.area|add_attr:"class:form-control" }}</div>
+        </div>
+        <div class="form-field full-width" style="margin-top: 20px;">
+            {{ form.description.label_tag }}
+            {{ form.description|add_attr:"class:form-control" }}
+        </div>
+        <div class="form-field full-width" style="margin-top: 20px;">
+            {{ form.amenities.label_tag }}
+            {{ form.amenities|add_attr:"class:form-control" }}
+        </div>
+        <div class="form-field full-width" style="margin-top: 20px;">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button type="submit" class="btn-book">Lưu lại</button>
+            <a href="{% url 'room_class_list_admin' %}" class="btn-action cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

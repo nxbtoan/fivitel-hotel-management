@@ -1,17 +1,17 @@
-{% load booking_extras %}
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Hoàn tất Đặt phòng</title>
-    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
-</head>
-<body style="background-color: #f0f2f5;">
+{% load humanize %}
 
-<div class="options-container">
-    <div class="options-layout">
-        <main class="options-main">
+{% block title %}Hoàn tất Đặt phòng - Fivitel{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="booking-flow-page">
+        <main class="main-content">
             <form id="checkoutForm" method="post" novalidate
                   data-is-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
                   data-full-name="{{ user.full_name|default:'' }}"
@@ -20,10 +20,11 @@
                   data-nationality="{{ user.nationality.code|default:'' }}">
                 {% csrf_token %}
                 
-                <div class="checkout-section">
-                    <h2>Khách hàng</h2>
-                    <div class="segmented-control-wrapper" style="margin-bottom: 15px;">
-                        <label>Tôi đang đặt</label>
+                <section class="booking-section">
+                    <h3>1. Thông tin khách hàng</h3>
+                    {% if user.is_authenticated %}
+                    <div class="segmented-control-wrapper">
+                        <span>Tôi đang đặt cho</span>
                         <div class="segmented-control">
                             {% for radio in form.booking_for %}
                             {{ radio.tag }}
@@ -31,79 +32,77 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <p>Nhập thông tin của khách ở chính. Thông tin của các khách khác có thể cung cấp lúc nhận phòng.</p>
-                    <!-- <div class="radio-group">{{ form.booking_for }}</div> -->
+                    {% endif %}
+                    <p style="font-size: 0.9em; color: #555;">Nhập thông tin của khách ở chính.</p>
+                    
                     <div id="guest-details" class="form-grid" style="margin-top: 20px;">
-                        <div class="form-field">{{ form.full_name.label_tag }}{{ form.full_name }}</div>
-                        <div class="form-field">{{ form.phone_number.label_tag }}{{ form.phone_number }}</div>
-                        <div class="form-field full-width">{{ form.email|add_attr:"class:form-control" }}</div>
-                        <div class="form-field full-width">{{ form.nationality.label_tag }}{{ form.nationality }}</div>
+                        <div class="form-field full-width">{{ form.full_name.label_tag }} {{ form.full_name }}</div>
+                        <div class="form-field">{{ form.email.label_tag }} {{ form.email }}</div>
+                        <div class="form-field">{{ form.phone_number.label_tag }} {{ form.phone_number }}</div>
+                        <div class="form-field full-width">{{ form.nationality.label_tag }} {{ form.nationality }}</div>
                     </div>
-                </div>
+                </section>
 
-                <div class="checkout-section">
-                    <h2>Thông tin bổ sung</h2>
-                    <div class="form-field">{{ form.special_requests.label_tag }}{{ form.special_requests }}</div>
-                </div>
+                <section class="booking-section">
+                    <h3>2. Yêu cầu đặc biệt (nếu có)</h3>
+                    <div class="form-field">{{ form.special_requests.label_tag }} {{ form.special_requests }}</div>
+                </section>
 
-                <div class="checkout-section">
-                    <h2>Chọn phương thức thanh toán</h2>
+                <section class="booking-section">
+                    <h3>3. Chọn phương thức thanh toán</h3>
                     <div class="payment-options">
                         {% for choice in form.payment_method %}
-                        <div class="payment-option">
-                            {{ choice.tag }}
-                            <label for="{{ choice.id_for_label }}">
-                                <strong>{{ choice.choice_label }}</strong>
-                                {% if choice.data.value == 'PAY_LATER' %}
-                                <p>Khi chọn phương thức thanh toán này, bạn sẽ KHÔNG PHẢI TRẢ TRƯỚC. Bạn sẽ nhận được xác nhận đặt phòng và xuất trình khi nhận phòng.</p>
-                                {% elif choice.data.value == 'BANK_TRANSFER' %}
-                                <p>Tổng số tiền phải được thanh toán đầy đủ. Người quản lý sẽ liên lạc với bạn để nhận hóa đơn. Biên lai phải được thanh toán trong vòng 3 ngày làm việc.</p>
-                                {% endif %}
-                            </label>
-                        </div>
+                        <label class="payment-option-card" for="{{ choice.id_for_label }}">
+                            <div class="payment-wrapper">
+                                {{ choice.tag }}
+                                <div class="payment-info">
+                                    <strong>{{ choice.choice_label }}</strong>
+                                    {% if choice.data.value == 'PAY_LATER' %}
+                                    <p>Thanh toán toàn bộ chi phí trực tiếp tại quầy lễ tân khi bạn nhận phòng.</p>
+                                    {% elif choice.data.value == 'BANK_TRANSFER' %}
+                                    <p>Chuyển khoản trực tiếp. Lễ tân sẽ liên hệ với bạn để hướng dẫn chi tiết.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
                         {% endfor %}
                     </div>
-                </div>
-                
-                <button type="submit" class="btn-book" style="width: 100%; margin-top: 40px;">Đặt phòng</button>
+                </section>
             </form>
         </main>
 
-
         <aside class="summary-sidebar">
-            <h2>Đơn đặt phòng của tôi</h2>
-            <div class="summary-item">
-                <span>{{ duration }} đêm</span>
-                <span>{{ options.check_in }} - {{ options.check_out }}</span>
+            <h3>Tóm tắt đơn hàng</h3>
+            <div class="summary-details">
+                <div class="summary-item">
+                    <span style="font-weight: 600; color: var(--primary-blue);">{{ room_class.name }}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Thời gian ở</span>
+                    <span>{{ duration }} đêm</span>
+                </div>
+                <div class="summary-item">
+                    <span>Tiền phòng</span>
+                    <span>{{ room_price|intcomma }} đ</span>
+                </div>
+                {% if selected_services %}
+                <div class="summary-item">
+                    <span>Tiền dịch vụ</span>
+                    <span>{{ services_price|intcomma }} đ</span>
+                </div>
+                {% endif %}
             </div>
-            <div class="summary-item">
-                <span>Phòng:</span>
-                <span style="font-weight: bold;">{{ room_class.name }}</span>
-            </div>
-            <hr>
-            <div class="summary-item">
-                <span>Tiền phòng ({{ duration }} đêm)</span>
-                <span>{{ room_price }} đ</span>
-            </div>
-            {% if selected_services %}
-            <div class="summary-item">
-                <span>Dịch vụ đi kèm</span>
-                <span>{{ services_price }} đ</span>
-            </div>
-            <ul>
-                {% for service in selected_services %}
-                <li class="service-summary-item">{{ service.name }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            <hr>
             <div class="summary-total">
                 <span>TỔNG CỘNG</span>
-                <span>{{ total_price }} đ</span>
+                <span class="summary-grand-total">{{ total_price|intcomma }} đ</span>
             </div>
+            
+            <button type="submit" form="checkoutForm" class="btn-submit-booking">Hoàn tất Đặt phòng</button>
         </aside>
     </div>
 </div>
-<script src="{% static 'js/booking-checkout.js' %}"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/booking-checkout.js' %}"></script>
+{% endblock %}

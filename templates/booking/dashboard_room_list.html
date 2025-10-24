@@ -1,0 +1,58 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Quản lý Phòng{% endblock %}
+{% block header_title %}Quản lý Phòng{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'room_create' %}" class="btn-action confirm">Thêm Phòng mới</a>
+    </div>
+    <div class="table-container">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Số phòng</th>
+                    <th>Hạng phòng</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 200px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td><strong>{{ room.room_number }}</strong></td>
+                    <td>{{ room.room_class.name }}</td>
+                    <td><span class="status-badge room-status-{{ room.status }}">{{ room.get_status_display }}</span></td>
+                    <td class="action-buttons">
+                        <a href="{% url 'room_update' room.pk %}" class="btn-action update">Sửa</a>
+                        <button type="button" class="btn-action cancel open-delete-modal" 
+                                data-delete-url="{% url 'room_delete' room.pk %}">Xóa</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; padding: 20px;">Chưa có phòng nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="delete-confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn">&times;</span>
+            <h2>Xác nhận Xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa mục này không?</p>
+            <form id="delete-form" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action cancel">Vâng, Xóa</button>
+            </form>
+            <button type="button" id="cancel-delete-btn" class="btn-action view">Hủy</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

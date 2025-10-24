@@ -1,92 +1,86 @@
+{% extends 'dashboard_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Quản lý Đặt phòng</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
-    <header class="header">
-        <h1>Quản lý Đặt phòng</h1>
-        <a href="{% url 'staff_dashboard' %}">‹ Quay lại Dashboard</a>
-    </header>
 
-    <div class="container">
-        <nav class="filter-nav">
-            <a href="{% url 'manage_bookings' %}" class="{% if not current_filter %}active{% endif %}">Tất cả</a>
-            <a href="?status=PENDING" class="{% if current_filter == 'PENDING' %}active{% endif %}">Chờ xác nhận</a>
-            <a href="?status=CONFIRMED" class="{% if current_filter == 'CONFIRMED' %}active{% endif %}">Đã xác nhận</a>
-            <a href="?status=CANCELLED" class="{% if current_filter == 'CANCELLED' %}active{% endif %}">Đã hủy</a>
-        </nav>
+{% block dashboard_title %}Quản lý Đặt phòng{% endblock %}
 
-        <div class="table-container">
-            <table class="booking-table">
-                <thead>
-                    <tr>
-                        <th>Mã ĐH</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày nhận - trả</th>
-                        <th>Trạng thái</th>
-                        <th>Bằng chứng TT</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for booking in bookings %}
-                    <tr>
-                        <td>#{{ booking.id }}</td>
-                        <td>
-                            {% if booking.customer %}
-                                {{ booking.customer.username }}
-                            {% else %}
-                                {{ booking.guest_full_name }} (Khách vãng lai)
-                            {% endif %}
-                        </td>
-                        <td>{{ booking.check_in_date|date:"d/m" }} - {{ booking.check_out_date|date:"d/m/Y" }}</td>
-                        <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
-                        <td>
-                            {% if booking.payment_proof %}
-                                <a href="{{ booking.payment_proof.image.url }}" target="_blank">
-                                    <img src="{{ booking.payment_proof.image.url }}" class="proof-thumbnail" alt="Proof">
-                                </a>
-                            {% else %}
-                                ---
-                            {% endif %}
-                        </td>
-                        <td class="action-buttons">
-                            {# Nếu đơn hàng đã được xác nhận (chưa check-in), hiển thị nút Check-in #}
-                            {% if booking.status == 'CONFIRMED' %}
-                                <a href="{% url 'check_in' booking.pk %}" class="btn-action checkin">Check-in</a>
+{% block header_title %}Quản lý Đặt phòng{% endblock %}
 
-                            {# Nếu đơn đã nhận phòng, Hiển thị nút Check-outt #}
-                            {% elif booking.status == 'CHECKED_IN' %}
-                                <form action="{% url 'check_out' booking.pk %}" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-action checkout" onclick="return confirm('Xác nhận khách hàng đã trả phòng?')">Check-out</button>
-                                </form>
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
 
-                            {# Nếu đơn đang chờ, hiển thị các nút tương ứng #}
-                            {% elif  booking.status == 'PENDING' %}
-                                <form action="{% url 'confirm_booking' booking.pk %}" method="post" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-action confirm">Xác nhận</button>
-                                </form>
-                                <form action="{% url 'cancel_booking_by_staff' booking.pk %}" method="post" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-action cancel" onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">Hủy</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6">Không có đơn đặt phòng nào phù hợp.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</body>
-</html>
+{% block dashboard_content %}
+<nav class="filter-nav">
+    <a href="{% url 'manage_bookings' %}" class="{% if not current_filter %}active{% endif %}">Tất cả</a>
+    <a href="?status=PENDING" class="{% if current_filter == 'PENDING' %}active{% endif %}">Chờ xác nhận</a>
+    <a href="?status=CONFIRMED" class="{% if current_filter == 'CONFIRMED' %}active{% endif %}">Đã xác nhận</a>
+    <a href="?status=CHECKED_IN" class="{% if current_filter == 'CHECKED_IN' %}active{% endif %}">Đã nhận phòng</a>
+    <a href="?status=COMPLETED" class="{% if current_filter == 'COMPLETED' %}active{% endif %}">Đã hoàn thành</a>
+    <a href="?status=CANCELLED" class="{% if current_filter == 'CANCELLED' %}active{% endif %}">Đã hủy</a>
+</nav>
+
+<div class="table-container">
+    <table class="booking-table">
+        <thead>
+            <tr>
+                <th>Mã ĐH</th>
+                <th>Khách hàng</th>
+                <th>Ngày nhận - trả</th>
+                <th>Trạng thái</th>
+                <th>Bằng chứng TT</th>
+                <th style="width: 220px;">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>#{{ booking.id }}</td>
+                <td>
+                    {% if booking.customer %}
+                        {{ booking.customer.full_name|default:booking.customer.username }}
+                    {% else %}
+                        {{ booking.guest_full_name }} (Vãng lai)
+                    {% endif %}
+                </td>
+                <td>{{ booking.check_in_date|date:"d/m" }} - {{ booking.check_out_date|date:"d/m/Y" }}</td>
+                <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                <td>
+                    {% if booking.payment_proof %}
+                        <a href="{{ booking.payment_proof.image.url }}" target="_blank">
+                            <img src="{{ booking.payment_proof.image.url }}" class="proof-thumbnail" alt="Proof" style="width: 100px; height: auto; border-radius: 5px;">
+                        </a>
+                    {% else %}
+                        ---
+                    {% endif %}
+                </td>
+                <td class="action-buttons">
+                    <a href="{% url 'staff_booking_detail' booking.pk %}" class="btn-action view">Xem</a>
+                    {% if booking.status == 'CONFIRMED' %}
+                        <a href="{% url 'check_in' booking.pk %}" class="btn-action checkin">Check-in</a>
+                    {% elif booking.status == 'CHECKED_IN' %}
+                        <form action="{% url 'check_out' booking.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action checkout" onclick="return confirm('Xác nhận khách hàng đã trả phòng?')">Check-out</button>
+                        </form>
+                    {% elif booking.status == 'PENDING' %}
+                        <form action="{% url 'confirm_booking' booking.pk %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action confirm">Xác nhận</button>
+                        </form>
+                        <form action="{% url 'cancel_booking_by_staff' booking.pk %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action cancel" onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">Hủy</button>
+                        </form>
+                    {% else %}
+                        ---
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 20px;">Không có đơn đặt phòng nào phù hợp.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

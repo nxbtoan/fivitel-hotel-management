@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yêu cầu Tư vấn{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/crm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crm-luxury">
+  <div class="form-page-wrapper">
+    <div class="crm-form-container">
+      <h1 class="page-title">Gửi Yêu cầu Tư vấn</h1>
+      <p class="page-subtitle">
+        Nếu bạn có bất kỳ thắc mắc nào, vui lòng điền vào form dưới đây.  
+        Chúng tôi sẽ phản hồi trong thời gian sớm nhất.
+      </p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-grid">
+          <div class="form-group">
+            {{ form.full_name.label_tag }}
+            <div class="input-wrapper">
+              {{ form.full_name }} <i class="fa fa-user icon"></i>
+            </div>
+            {{ form.full_name.errors }}
+          </div>
+
+          <div class="form-group">
+            {{ form.phone_number.label_tag }}
+            <div class="input-wrapper">
+              {{ form.phone_number }} <i class="fa fa-phone icon"></i>
+            </div>
+            {{ form.phone_number.errors }}
+          </div>
+
+          <div class="form-group full-width">
+            {{ form.email.label_tag }}
+            <div class="input-wrapper">
+              {{ form.email }} <i class="fa fa-envelope icon"></i>
+            </div>
+            {{ form.email.errors }}
+          </div>
+
+          <div class="form-group full-width">
+            {{ form.request_type.label_tag }}
+            <div class="input-wrapper">
+              {{ form.request_type }} <i class="fa fa-list icon"></i>
+            </div>
+            {{ form.request_type.errors }}
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          {{ form.content.label_tag }}
+          <div class="input-wrapper">
+            {{ form.content }} <i class="fa fa-comment-dots icon"></i>
+          </div>
+          {{ form.content.errors }}
+        </div>
+
+        <div class="form-group full-width">
+          {{ form.captcha.label_tag }}
+          <div class="captcha-field">
+            {{ form.captcha }}
+          </div>
+          {{ form.captcha.errors }}
+        </div>
+
+        <button type="submit" class="submit-button">Gửi yêu cầu</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

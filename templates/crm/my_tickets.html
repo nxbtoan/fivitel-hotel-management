@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Yêu cầu của tôi - Fivitel{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crm-customer-page">
+    <div class="page-banner">
+        <h1 class="page-title">Các yêu cầu đã gửi</h1>
+        <p class="page-subtitle">Theo dõi lịch sử các yêu cầu tư vấn và khiếu nại của bạn.</p>
+    </div>
+
+    <div class="container list-container">
+        {% if tickets %}
+            <div class="ticket-card-list">
+                {% for ticket in tickets %}
+                <div class="ticket-card">
+                    <div class="ticket-card-header">
+                        <span class="ticket-id">Yêu cầu #{{ ticket.ticket_id|truncatechars:8 }}...</span>
+                        <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+                    </div>
+                    <div class="ticket-card-body">
+                        <h3>{{ ticket.subject|default:ticket.get_type_display }}</h3>
+                        <p class="ticket-date">Ngày gửi: {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+
+                        {% if ticket.last_response_message %}
+                            <div class="last-reply">
+                                <hr>
+                                <p><strong>Phản hồi cuối:</strong></p>
+                                <p class="reply-content">
+                                    <strong class="responder-name">
+                                        {% if ticket.last_responder_name == user.full_name %}Bạn:{% else %}{{ ticket.last_responder_name }}:{% endif %}
+                                    </strong>
+                                    {{ ticket.last_response_message|truncatewords:20 }}
+                                </p>
+                            </div>
+                        {% endif %}
+                        </div>
+                    <div class="ticket-card-actions">
+                        <a href="{% url 'customer_ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết & Hội thoại</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-bookings-card">
+                <p>Bạn chưa có yêu cầu nào.</p>
+                <a href="{% url 'consultation_request' %}" class="btn-primary">Gửi Yêu cầu Tư vấn</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

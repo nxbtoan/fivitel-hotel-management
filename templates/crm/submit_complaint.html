@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gửi Khiếu nại{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/crm.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="crm-luxury">
+  <div class="form-page-wrapper">
+    <div class="crm-form-container">
+      <h1 class="page-title">Gửi Khiếu nại</h1>
+      <p class="page-subtitle">
+        Chúng tôi rất tiếc về trải nghiệm chưa tốt của bạn.<br>
+        Vui lòng cung cấp thông tin chi tiết để chúng tôi có thể hỗ trợ bạn tốt nhất.
+      </p>
+
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Tiêu đề khiếu nại -->
+        <div class="form-group full-width">
+          {{ form.subject.label_tag }}
+          <div class="input-wrapper">
+            {{ form.subject }}
+            <i class="fa fa-heading icon"></i>
+          </div>
+          {{ form.subject.errors }}
+        </div>
+
+        <!-- Phân loại & Thời gian -->
+        <div class="form-grid">
+          <div class="form-group">
+            {{ form.complaint_type.label_tag }}
+            <div class="input-wrapper">
+              {{ form.complaint_type }}
+              <i class="fa fa-tags icon"></i>
+            </div>
+            {{ form.complaint_type.errors }}
+          </div>
+
+          <div class="form-group">
+            {{ form.incident_time.label_tag }}
+            <div class="input-wrapper">
+              {{ form.incident_time }}
+              <i class="fa fa-calendar-days icon"></i>
+            </div>
+            {{ form.incident_time.errors }}
+          </div>
+        </div>
+
+        <!-- Nội dung chi tiết -->
+        <div class="form-group full-width">
+          {{ form.description.label_tag }}
+          <div class="input-wrapper">
+            {{ form.description }}
+            <i class="fa fa-pen-to-square icon"></i>
+          </div>
+          {{ form.description.errors }}
+        </div>
+
+        <!-- File đính kèm -->
+        <div class="form-group full-width">
+          {{ form.attachment.label_tag }}
+          <div class="input-wrapper">
+            {{ form.attachment }}
+            <i class="fa fa-paperclip icon"></i>
+          </div>
+          {{ form.attachment.errors }}
+        </div>
+
+        <!-- Nút gửi -->
+        <button type="submit" class="submit-button">
+          <i class="fa fa-paper-plane me-2"></i> Gửi Khiếu nại
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

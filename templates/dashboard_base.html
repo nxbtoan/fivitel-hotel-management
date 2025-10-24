@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block dashboard_title %}Bảng điều khiển{% endblock %} - Fivitel</title>
+    
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    {% block dashboard_styles %}{% endblock %}
+</head>
+<body class="dashboard-page">
+    
+    <header class="header">
+        <h1>{% block header_title %}Bảng điều khiển Fivitel{% endblock %}</h1>
+        <div class="header-home-link">
+            <a href="{% url 'staff_dashboard' %}" class="btn-dashboard-home">Trang chính Dashboard</a>
+        </div>
+        <div class="header-user-info">
+            <div class="user-details">
+                <span class="username">Xin chào, <strong>{{ user.username }}</strong></span>
+                <span class="user-role">{{ user.get_role_display }}</span>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-button">Đăng xuất</a>
+        </div>
+    </header>
+
+    <div class="container">
+        {% block dashboard_content %}{% endblock %}
+    </div>
+
+    {% block dashboard_scripts %}{% endblock %}
+</body>
+</html>

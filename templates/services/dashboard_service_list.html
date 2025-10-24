@@ -1,0 +1,68 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Quản lý Dịch vụ{% endblock %}
+{% block header_title %}Quản lý Dịch vụ{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="service-management-page">
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'service_create' %}" class="btn-action confirm">Thêm Dịch vụ mới</a>
+    </div>
+    <div class="table-container">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên Dịch vụ</th>
+                    <th>Loại</th>
+                    <th>Giá</th>
+                    <th style="width: 200px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>
+                        {% if service.image %}
+                            <img src="{{ service.image.url }}" alt="{{ service.name }}" style="max-width: 100px; height: auto; border-radius: 5px;">
+                        {% else %}
+                            <span style="color: #888;">Không có ảnh</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ service.name }}</strong></td>
+                    <td>{{ service.category.name }}</td>
+                    <td>{{ service.price }} VNĐ</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'service_update' service.pk %}" class="btn-action update">Sửa</a>
+                        <button type="button" class="btn-action cancel open-delete-modal" 
+                                data-delete-url="{% url 'service_delete' service.pk %}">Xóa</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; padding: 20px;">Chưa có dịch vụ nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="delete-confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn">&times;</span>
+            <h2>Xác nhận Xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.</p>
+            <form id="delete-form" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action cancel">Vâng, Xóa</button>
+            </form>
+            <button type="button" id="cancel-delete-btn" class="btn-action view">Hủy</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_countries',
+    'captcha',
+    'django.contrib.humanize',
 
     'users.apps.UsersConfig',
     'booking.apps.BookingConfig',

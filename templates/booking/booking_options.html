@@ -1,73 +1,120 @@
-{% load booking_extras %} {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Tùy chọn Đặt phòng</title>
-    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
-</head>
-<body style="background-color: #f0f2f5;">
-<div class="options-container">
-    <form method="post" class="options-layout">
-        {% csrf_token %}
-        <main class="options-main">
-            <h1>Tùy chọn cho: {{ room_class.name }}</h1>
-            <hr>
-            
-            <h3>1. Chọn ngày và số khách</h3>
-            <div class="form-grid">
-                <div class="form-field">{{ form.check_in_date.label_tag }} {{ form.check_in_date }}</div>
-                <div class="form-field">{{ form.check_out_date.label_tag }} {{ form.check_out_date }}</div>
-                <div class="form-field">{{ form.adults.label_tag }} {{ form.adults }}</div>
-                <div class="form-field">{{ form.children.label_tag }} {{ form.children }}</div>
-            </div>
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load booking_extras %}
 
-            <h3 style="margin-top: 30px;">2. Chọn dịch vụ đi kèm</h3>
-            <div class="choices-container">
-                {% for choice in form.additional_services %}
-                <div class="choice-item">
-                    {{ choice.tag }}
-                    
-                    <label for="{{ choice.id_for_label }}">
-                        <strong>{{ choice.choice_label }}</strong>
-                        <span></span>
-                    </label>
+{% block title %}Tùy chọn đặt phòng - {{ room_class.name }}{% endblock %}
+
+{% block styles %}
+    {# Nạp file CSS mới dành riêng cho trang này #}
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form method="post" class="booking-flow-page" novalidate>
+        {% csrf_token %}
+
+        <main class="options-main">
+            
+            <section class="booking-section">
+                <h3>1. Chọn ngày và số khách</h3>
+                <div class="date-guest-grid">
+                    <div class="form-field">
+                        {{ form.check_in_date.label_tag }} 
+                        {{ form.check_in_date|add_attr:"class:form-control" }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.check_out_date.label_tag }} 
+                        {{ form.check_out_date|add_attr:"class:form-control" }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.adults.label_tag }} 
+                        {{ form.adults|add_attr:"class:form-control" }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.children.label_tag }} 
+                        {{ form.children|add_attr:"class:form-control" }}
+                    </div>
                 </div>
-                {% empty %}
-                <p style="padding: 15px;">Chưa có dịch vụ nào được thêm.</p>
-                {% endfor %}
-            </div>
+            </section>
+
+            <section class="booking-section">
+                <h3>2. Chọn dịch vụ đi kèm</h3>
+                <div class="choice-list">
+                    {% for choice in form.additional_services %}
+                    <label class="choice-card" for="{{ choice.id_for_label }}">
+                        <div class="choice-wrapper">
+                            {{ choice.tag }}
+                            <div class="choice-info">
+                                <strong>{{ choice.choice_label }}</strong>
+                            </div>
+                            <span class="choice-price"></span>                        
+                        </div>
+                    </label>
+                    {% empty %}
+                    <p>Chưa có dịch vụ nào được thêm.</p>
+                    {% endfor %}
+                </div>
+            </section>
 
             {% if upgrade_options %}
-            <h3 style="margin-top: 30px;">3. Lựa chọn nâng hạng phòng</h3>
-            <div class="choices-container">
-                {% for option in upgrade_options %}
-                <a href="{% url 'booking_options' option.pk %}" class="upgrade-item">
-                    <div class="upgrade-info">
-                        <strong>Nâng lên hạng: {{ option.name }}</strong>
-                        <span>{{ option.description|truncatewords:15 }}</span>
-                    </div>
-                    <div class="upgrade-price">+ {{ option.base_price|sub:room_class.base_price }} VNĐ</div>
-                </a>
-                {% endfor %}
-            </div>
+            <section class="booking-section">
+                <h3>3. Lựa chọn nâng hạng phòng</h3>
+                <div class="choice-list">
+                    {% for option in upgrade_options %}
+                    <a href="{% url 'booking_options' option.pk %}" class="choice-card upgrade-card">
+                        <div class="choice-wrapper">
+                            <div class="choice-info">
+                                <strong>Nâng lên hạng: {{ option.name }}</strong>
+                                <span>{{ option.description|truncatewords:15 }}</span>
+                            </div>
+                            <span class="choice-price">+ {{ option.base_price|sub:room_class.base_price|floatformat:"0"|intcomma }} VNĐ</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
             {% endif %}
-            
-            <button type="submit" class="btn-book" style="width: 100%; margin-top: 40px;">Tiếp tục</button>
         </main>
 
         <aside class="summary-sidebar" data-base-price="{{ room_class.base_price }}">
-            <h3>Tóm tắt chi phí</h3>
-            <div class="summary-item"><span>Giá phòng/đêm:</span><span id="summary-base-price">{{ room_class.base_price }} VNĐ</span></div>
-            <div class="summary-item"><span>Số đêm:</span><span id="summary-nights">0</span></div>
-            <div class="summary-item"><span>Tiền phòng:</span><span id="summary-room-total">0 VNĐ</span></div>
+            <h3>Tóm tắt đơn hàng</h3>
+            <div class="summary-room-info">
+                <p style="font-size: 1.2em; font-weight: 600; color: var(--primary-blue);">{{ room_class.name }}</p>
+            </div>
             <hr>
-            <div class="summary-item"><span>Tiền dịch vụ:</span><span id="summary-services-total">0 VNĐ</span></div>
-            <hr>
-            <div class="summary-total"><span>TỔNG CỘNG</span><span id="summary-grand-total">0 VNĐ</span></div>
+            <div class="summary-details">
+                <div class="summary-item">
+                    <span>Giá phòng/đêm</span>
+                    <span id="summary-base-price">{{ room_class.base_price|floatformat:"0"|intcomma }} VNĐ</span>
+                </div>
+                <div class="summary-item">
+                    <span>Số đêm</span>
+                    <span id="summary-nights">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Tiền phòng</span>
+                    <span id="summary-room-total">0 VNĐ</span>
+                </div>
+                <div class="summary-item">
+                    <span>Tiền dịch vụ</span>
+                    <span id="summary-services-total">0 VNĐ</span>
+                </div>
+            </div>
+            <div class="summary-total">
+                <span>TỔNG CỘNG</span>
+                <span id="summary-grand-total" class="summary-grand-total">0 VNĐ</span>
+            </div>
+            
+            <button type="submit" class="btn-submit-booking">Tiếp tục thanh toán</button>
         </aside>
+
     </form>
 </div>
-<script src="{% static 'js/booking-calculator.js' %}"></script>
-</body>
-</html>
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="{% static 'js/booking-calculator.js' %}"></script>
+{% endblock %}

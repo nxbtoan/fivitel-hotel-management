@@ -1,0 +1,47 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block dashboard_title %}{% if object %}Sửa Người dùng{% else %}Thêm Người dùng mới{% endif %}{% endblock %}
+{% block header_title %}{% if object %}Sửa Người dùng: {{ object.username }}{% else %}Thêm Người dùng mới{% endif %}{% endblock %}
+{% block header_back_url %}{% url 'user_list_admin' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block dashboard_content %}
+<div class="checkout-section">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {# Lặp qua từng trường để có toàn quyền kiểm soát giao diện #}
+        {% for field in form %}
+            <div class="form-field full-width" style="margin-bottom: 20px;">
+                {{ field.label_tag }}
+                
+                {# Áp dụng class .form-control cho các loại input khác nhau #}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                    {{ field }}
+                {% else %}
+                    {{ field|add_attr:"class:form-control" }}
+                {% endif %}
+
+                {# HIỂN THỊ CHÚ THÍCH (HELP TEXT) NẾU CÓ #}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text|safe }}</small>
+                {% endif %}
+
+                {# Hiển thị lỗi của từng trường #}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        
+        <div style="margin-top: 30px;">
+            <button type="submit" class="btn-book">Lưu lại</button>
+            <a href="{% url 'user_list_admin' %}" class="btn-action cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

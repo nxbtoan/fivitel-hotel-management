@@ -1,0 +1,53 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}{{ header_title }}{% endblock %}
+{% block header_title %}{{ header_title }}{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<nav class="filter-nav">
+    <a href="{{ request.path }}" class="{% if not current_filter %}active{% endif %}">Tất cả</a>
+    {% for value, label in ticket_statuses %}
+        <a href="?status={{ value }}" class="{% if current_filter == value %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+</nav>
+
+<div class="table-container">
+    <table class="crm-table">
+        <thead>
+            <tr>
+                <th>Mã YC</th>
+                <th>Khách hàng</th>
+                <th>Tiêu đề / Loại YC</th>
+                <th>Ngày gửi</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td>#{{ ticket.ticket_id|truncatechars:8 }}...</td>
+                <td>
+                    {% if ticket.customer %}
+                        {{ ticket.customer.full_name|default:ticket.customer.username }}
+                    {% else %}
+                        {{ ticket.guest_full_name }} (Vãng lai)
+                    {% endif %}
+                </td>
+                <td>{{ ticket.subject|default:ticket.get_type_display }}</td>
+                <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                <td><span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+                <td class="action-buttons">
+                    <a href="{% url 'ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align: center; padding: 20px;">Không có yêu cầu nào phù hợp.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

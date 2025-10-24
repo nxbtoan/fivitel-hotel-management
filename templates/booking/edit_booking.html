@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block title %}Chỉnh sửa Đơn hàng{% endblock %}
+
+{% block content %}
+<div class="options-container" style="max-width: 700px; margin: 2rem auto;">
+    <div class="checkout-section">
+        <h1 class="page-title">Chỉnh sửa Đơn hàng #{{ booking.id }}</h1>
+        <p class="page-subtitle">Bạn có thể cập nhật thông tin người nhận phòng và các dịch vụ đi kèm. Sau khi lưu, đơn hàng sẽ cần được lễ tân xác nhận lại.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-field full-width" style="margin-top: 20px;">
+                {{ form.guest_full_name.label_tag }}
+                {{ form.guest_full_name|add_attr:"class:form-control" }}
+                {{ form.guest_full_name.errors }}
+            </div>
+            <div class="form-field full-width" style="margin-top: 20px;">
+                {{ form.guest_email.label_tag }}
+                {{ form.guest_email|add_attr:"class:form-control" }}
+                {{ form.guest_email.errors }}
+            </div>
+            <div class="form-field full-width" style="margin-top: 20px;">
+                {{ form.guest_phone_number.label_tag }}
+                {{ form.guest_phone_number|add_attr:"class:form-control" }}
+                {{ form.guest_phone_number.errors }}
+            </div>
+
+            <hr style="margin: 30px 0;">
+
+            <div class="form-field full-width">
+                <label>{{ form.additional_services.label }}</label>
+                <div class="service-checkbox-list">
+                    {{ form.additional_services }}
+                    {{ form.additional_services.errors }}
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn-book">Lưu thay đổi</button>
+                <a href="{% url 'booking_detail' booking.pk %}" class="btn-secondary">Hủy bỏ</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

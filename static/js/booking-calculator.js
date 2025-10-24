@@ -14,17 +14,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const basePrice = parseFloat(sidebar.dataset.basePrice);
 
     // TỰ ĐỘNG ĐIỀN GIÁ DỊCH VỤ KHI TẢI TRANG
-    const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+    const formatter = new Intl.NumberFormat('vi-VN');
     servicesCheckboxes.forEach(checkbox => {
         const price = parseFloat(checkbox.dataset.price || 0);
-        const label = checkbox.nextElementSibling;
-        const span = label.querySelector('span');
-        if (span) {
-            span.textContent = `+ ${formatter.format(price)}`;
+        const wrapper = checkbox.closest('.choice-wrapper');
+        if (wrapper) {
+            const span = wrapper.querySelector('.choice-price');
+            if (span) {
+                // Điền giá đã được định dạng vào
+                span.textContent = `+ ${formatter.format(price)} VNĐ`;
+            }
         }
     });
-    // -----------------------------------------------------------
 
+    //-----------------------------------------------------------
     function calculateTotal() {
         // 1. Tính tiền phòng
         let roomTotal = 0;

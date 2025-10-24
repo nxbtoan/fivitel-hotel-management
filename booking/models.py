@@ -5,6 +5,8 @@ from django_countries.fields import CountryField
 from django.utils import timezone
 from datetime import timedelta
 
+import uuid
+
 class RoomType(models.Model):
     """Danh mục phòng cao nhất (VD: Standard, Deluxe, Suite)."""
     name = models.CharField(max_length=100, verbose_name="Tên loại phòng")
@@ -54,6 +56,7 @@ class Booking(models.Model):
         PAY_LATER = 'PAY_LATER', 'Thanh toán khi nhận phòng'
         BANK_TRANSFER = 'BANK_TRANSFER', 'Chuyển khoản ngân hàng'
 
+    booking_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     room_class = models.ForeignKey(RoomClass, on_delete=models.SET_NULL, null=True, verbose_name="Hạng phòng đã chọn")
     assigned_room = models.ForeignKey(
@@ -71,9 +74,14 @@ class Booking(models.Model):
 
     check_in_date = models.DateField()
     check_out_date = models.DateField()
+
+    room_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Tiền phòng")
+    services_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Tiền dịch vụ")
+
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     additional_services = models.ManyToManyField(Service, blank=True, verbose_name="Dịch vụ đi kèm")
+    special_requests = models.TextField(blank=True, verbose_name="Yêu cầu đặc biệt")
     created_at = models.DateTimeField(auto_now_add=True)
 
     payment_method = models.CharField(
@@ -91,6 +99,14 @@ class Booking(models.Model):
         """
         cancellable_deadline = timezone.now().date() + timedelta(days=1)
         return self.check_in_date > cancellable_deadline and self.status != self.Status.CANCELLED
+    
+    @property
+    def is_editable(self):
+        """
+        Kiểm tra xem đơn hàng có thể chỉnh sửa được không.
+        Trả về True nếu ngày check-in vẫn còn ở tương lai và trạng thái hợp lệ.
+        """
+        return self.check_in_date > timezone.now().date() and self.status in [self.Status.PENDING, self.Status.CONFIRMED]
 
 class PaymentProof(models.Model):
     """

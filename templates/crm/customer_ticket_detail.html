@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Chi tiết Yêu cầu #{{ ticket.id }} - Fivitel{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crm-customer-page">
+    <div class="page-banner">
+        <h1 class="page-title">{{ ticket.subject|default:"Chi tiết Yêu cầu" }}</h1>
+        <p class="page-subtitle">Mã Yêu cầu: #{{ ticket.ticket_id|truncatechars:8 }}...</p>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+        <div class="ticket-detail-grid">
+            <main class="chat-container">
+                <div class="response-history">
+                    {% for response in responses %}
+                        <div class="response-item {% if response.responder == user %}my-response{% else %}staff-response{% endif %}">
+                            <span class="responder-name">{{ response.responder.full_name|default:response.responder.username }}</span>
+                            <p>{{ response.message|linebreaksbr }}</p>
+                            <span class="timestamp">{{ response.created_at|naturaltime }}</span>
+                        </div>
+                    {% empty %}
+                        <p style="text-align: center; color: #888;">Chưa có phản hồi nào trong hội thoại này.</p>
+                    {% endfor %}
+                </div>
+                
+                {% if ticket.status != 'RESOLVED' %}
+                <div class="reply-form">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form.message }}
+                        <button type="submit" class="btn-primary" style="margin-top: 10px;">Gửi trả lời</button>
+                    </form>
+                </div>
+                {% endif %}
+            </main>
+
+            <aside class="ticket-detail-sidebar">
+                <div class="detail-card">
+                    <h3>Thông tin Yêu cầu</h3>
+                    <div class="info-grid">
+                        <div class="info-item"><strong>Trạng thái:</strong><span><span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></span></div>
+                        <div class="info-item"><strong>Loại yêu cầu:</strong><span>{{ ticket.get_type_display }}</span></div>
+                        {% if ticket.type == 'COMPLAINT' and ticket.complaint_type %}
+                            <div class="info-item"><strong>Phân loại:</strong><span>{{ ticket.get_complaint_type_display }}</span></div>
+                        {% endif %}
+                        {% if ticket.incident_time %}
+                            <div class="info-item"><strong>Thời gian vụ việc:</strong><span>{{ ticket.incident_time|date:"d/m/Y H:i" }}</span></div>
+                        {% endif %}
+                        {% if ticket.attachment %}
+                            <div class="info-item"><strong>Tệp đính kèm:</strong><span><a href="{{ ticket.attachment.url }}" target="_blank">Xem tệp</a></span></div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <h3>Nội dung gốc</h3>
+                    <p style="white-space: pre-wrap;">{{ ticket.description|linebreaks }}</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,48 +5,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Ký Tài Khoản - Fivitel</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 
     <div class="auth-container">
-        <h2 class="auth-title">FIVITEL KÍNH CHÀO QUÝ KHÁCH</h2>
-        <p style="text-align: center; margin-top: -20px; margin-bottom: 25px;">Vui lòng đăng ký để tiếp tục</p>
+        <div class="auth-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Fivitel Logo">
+        </div>
+        <h1 class="auth-title">Tạo Tài Khoản Mới</h1>
+        <p class="auth-subtitle">Nhanh chóng và dễ dàng</p>
 
         <form method="post" novalidate>
             {% csrf_token %}
-
+            
+            {# Hiển thị lỗi không liên quan đến trường cụ thể #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
-                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
                 </ul>
             {% endif %}
 
+            {# Lặp qua tất cả các trường trong form, ngoại trừ trường password confirmation nếu có #}
             {% for field in form %}
+                {% if field.name != 'password2' %} {# Bỏ qua trường password2 vì nó sẽ được render lại bên dưới #}
                 <p>
-                    <label for="{{ field.id_for_label }}" class="required">{{ field.label }}</label>
+                    {{ field.label_tag }}
                     {{ field }}
-                    {% if field.name == 'password1' %}
-                        <span id="password-validation-msg" class="helptext">Mật khẩu tối thiểu 8 ký tự, có ít nhất 1 ký tự đặc biệt.</span>
-                    {% elif field.help_text %}
-                        <span class="helptext">{{ field.help_text|safe }}</span>
+                    {% if field.help_text %}
+                        <small class="helptext">{{ field.help_text|safe }}</small>
                     {% endif %}
-                    {{ field.errors }}
+                    {{ field.errors }} {# Hiển thị lỗi cho từng trường #}
                 </p>
+                {% endif %}
             {% endfor %}
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary" id="submit-btn">Đăng Ký</button>
-            </div>
+            {# Xử lý riêng cho trường password2 để hiển thị nhãn chuẩn hơn #}
+            {% if form.password2 %}
+                <p>
+                    <label for="{{ form.password2.id_for_label }}">Xác nhận mật khẩu</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </p>
+            {% endif %}
+
+            <p style="margin-top: 30px;">
+                <button type="submit" class="btn-primary">Đăng Ký</button>
+            </p>
         </form>
 
-        <div class="extra-links">
-             <div style="width: 48%;"></div>
-            <a href="{% url 'login' %}" class="btn btn-secondary">Đã có tài khoản?</a>
+        <div class="extra-links" style="justify-content: center;">
+            <a href="{% url 'login' %}">Đã có tài khoản? Đăng nhập</a>
         </div>
     </div>
-
-    <script src="{% static 'js/auth-validation.js' %}"></script>
 
 </body>
 </html>

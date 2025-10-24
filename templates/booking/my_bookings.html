@@ -1,61 +1,80 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Đơn đặt phòng của tôi</title>
+{% load humanize %}
+
+{% block title %}Đơn đặt phòng của tôi - Fivitel{% endblock %}
+
+{% block styles %}
     <link rel="stylesheet" href="{% static 'css/booking.css' %}">
-</head>
-<body style="background-color: #f0f2f5;">
-<div class="booking-list-container">
-    <h1 class="page-title">Đơn đặt phòng của tôi</h1>
-    <p class="page-subtitle">Theo dõi lịch sử và trạng thái các đơn đặt phòng của bạn.</p>
+{% endblock %}
 
-    {% for booking in bookings %}
-    <div class="booking-card">
-        <div class="booking-card-header">
-            <h3>{{ booking.room_class.name }}</h3>
-            <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
-        </div>
-        <div class="booking-card-body">
-            <div class="info-item">
-                <strong>Mã đơn hàng:</strong>
-                <span>#{{ booking.id }}</span>
-            </div>
-            <div class="info-item">
-                <strong>Ngày nhận phòng:</strong>
-                <span>{{ booking.check_in_date|date:"d/m/Y" }}</span>
-            </div>
-            <div class="info-item">
-                <strong>Ngày trả phòng:</strong>
-                <span>{{ booking.check_out_date|date:"d/m/Y" }}</span>
-            </div>
-            <div class="info-item">
-                <strong>Tổng tiền:</strong>
-                <span>{{ booking.total_price }} VNĐ</span>
-            </div>
-             <div class="info-item">
-                <strong>Thanh toán:</strong>
-                <span>{{ booking.get_payment_method_display }}</span>
-            </div>
-        </div>
-        <div class="booking-card-footer">
-            <a href="{% url 'booking_detail' booking.pk %}" class="btn-details">Xem chi tiết</a>
+{% block content %}
+<div class="my-bookings-page">
+    <div class="page-banner">
+        <h1 class="page-title">Đơn đặt phòng của tôi</h1>
+        <p class="page-subtitle">Theo dõi lịch sử và trạng thái các đơn đặt phòng của bạn.</p>
+    </div>
 
-            {% if booking.is_cancellable %}
-            <form action="{% url 'cancel_booking' booking.pk %}" method="post" style="display: inline; margin-left: 10px;">
-                {% csrf_token %}
-                <button type="submit" class="btn-cancel" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này không?')">Hủy đơn</button>
-            </form>
-            {% endif %}
-        </div>
+    <div class="container list-container">
+        {% if bookings %}
+            <div class="booking-card-list">
+                {% for booking in bookings %}
+                <div class="booking-card">
+                    <div class="booking-card-header">
+                        <span class="booking-id">Đơn hàng #{{ booking.id }}</span>
+                        <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                    </div>
+
+                    <div class="booking-card-body">
+                        <div class="card-room-image">
+                            {% if booking.room_class.image %}
+                                <img src="{{ booking.room_class.image.url }}" alt="{{ booking.room_class.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="card-booking-details">
+                            <h3>{{ booking.room_class.name }}</h3>
+                            <div class="card-info-grid">
+                                <div class="card-info-item">
+                                    <strong>Ngày nhận phòng</strong>
+                                    <span>{{ booking.check_in_date|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="card-info-item">
+                                    <strong>Ngày trả phòng</strong>
+                                    <span>{{ booking.check_out_date|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="card-info-item">
+                                    <strong>Ngày tạo đơn</strong>
+                                    <span>{{ booking.created_at|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="card-info-item">
+                                    <strong>Tổng tiền</strong>
+                                    <span>{{ booking.total_price|intcomma }} VNĐ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="booking-card-actions">
+                        {% if booking.is_cancellable %}
+                        <form action="{% url 'cancel_booking' booking.pk %}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này không?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action cancel">Hủy đơn</button>
+                        </form>
+                        {% endif %}
+                        {% if booking.is_editable %}
+                        <a href="{% url 'edit_booking' booking.pk %}" class="btn-action edit">Sửa dịch vụ</a>
+                        {% endif %}
+                        <a href="{% url 'booking_detail' booking.pk %}" class="btn-action view">Xem chi tiết</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-bookings-card">
+                <p>Bạn chưa có đơn đặt phòng nào.</p>
+                <a href="{% url 'room_type_list_view' %}" class="btn-primary">Bắt đầu Đặt phòng</a>
+            </div>
+        {% endif %}
     </div>
-    {% empty %}
-    <div class="checkout-section" style="text-align: center;">
-        <p>Bạn chưa có đơn đặt phòng nào.</p>
-        <a href="{% url 'room_type_list' %}" class="btn-book">Bắt đầu Đặt phòng</a>
-    </div>
-    {% endfor %}
 </div>
-</body>
-</html>
+{% endblock %}

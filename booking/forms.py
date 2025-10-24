@@ -2,7 +2,8 @@ from django import forms
 from django.utils import timezone
 from services.models import Service
 from .models import RoomClass, Booking, PaymentProof
-from django_countries import countries
+# from django_countries import countries
+from django_countries.fields import CountryField
 
 class ServiceCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     """
@@ -60,35 +61,70 @@ class BookingOptionsForm(forms.Form):
     
 class CheckoutForm(forms.Form):
     """
-    Form cho Nhập thông tin khách hàng: Khách hàng điền thông tin cá nhân để hoàn tất đặt phòng.
+    Form thu thập thông tin khách hàng ở bước cuối cùng trước khi đặt phòng.
     """
-    # Lựa chọn đặt cho ai, dùng để điều khiển bằng JS
+    # --- Định nghĩa các lựa chọn ---
+    BOOKING_FOR_CHOICES = [
+        ('SELF', 'Cho tôi'),
+        ('SOMEONE_ELSE', 'Cho người khác'),
+    ]
+    PAYMENT_METHOD_CHOICES = [
+        ('BANK_TRANSFER', 'Chuyển khoản Ngân hàng'),
+        ('PAY_LATER', 'Thanh toán tại quầy'),
+    ]
+
+    # --- Định nghĩa các trường ---
     booking_for = forms.ChoiceField(
-        label="Thông tin của khách ở chính:",
-        choices=(('myself', 'Cho tôi'), ('other', 'Cho người khác')),
+        choices=BOOKING_FOR_CHOICES,
         widget=forms.RadioSelect,
-        initial='myself'
+        initial='SELF',
+        required=False
     )
-    
-    # Các trường thông tin cá nhân
-    full_name = forms.CharField(label="Họ và Tên")
-    email = forms.EmailField(label="Email")
-    phone_number = forms.CharField(label="Số điện thoại")
-    nationality = forms.ChoiceField(
-        label="Quốc tịch",
-        choices=countries
+    full_name = forms.CharField(label="Họ và tên khách ở chính", max_length=100)
+    email = forms.EmailField(label="Email liên hệ")
+    phone_number = forms.CharField(label="Số điện thoại", max_length=20)
+    nationality = CountryField().formfield(label="Quốc tịch")
+    special_requests = forms.CharField(
+        label="Yêu cầu đặc biệt (nếu có)",
+        widget=forms.Textarea(attrs={'rows': 4}),
+        required=False
     )
     payment_method = forms.ChoiceField(
-        label="Chọn phương thức thanh toán",
-        choices=Booking.PaymentMethod.choices,
+        choices=PAYMENT_METHOD_CHOICES,
         widget=forms.RadioSelect,
-        initial=Booking.PaymentMethod.PAY_LATER
+        initial='BANK_TRANSFER',
+        required=True
     )
-    special_requests = forms.CharField(
-        label="Yêu cầu cá nhân",
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Nếu có bất kỳ nhu cầu đặc biệt nào, xin vui lòng chia sẻ với chúng tôi.'})
-    )
+
+    # --- PHẦN QUAN TRỌNG NHẤT ĐỂ THÊM CLASS CSS ---
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Tự động thêm class 'form-control' cho các trường input, select, textarea
+        self.fields['full_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
+        self.fields['phone_number'].widget.attrs.update({'class': 'form-control'})
+        self.fields['nationality'].widget.attrs.update({'class': 'form-control'})
+        self.fields['special_requests'].widget.attrs.update({'class': 'form-control'})
+
+class BookingEditForm(forms.ModelForm):
+    """
+    Form chuyên dụng cho phép khách hàng chỉnh sửa thông tin
+    người nhận phòng và các dịch vụ đi kèm của một đơn hàng đã có.
+    """
+    class Meta:
+        model = Booking
+        # Chỉ định các trường được phép chỉnh sửa
+        fields = ['guest_full_name', 'guest_email', 'guest_phone_number', 'additional_services']
+        labels = {
+            'guest_full_name': 'Họ tên người nhận phòng',
+            'guest_email': 'Email người nhận phòng',
+            'guest_phone_number': 'Số điện thoại người nhận phòng',
+            'additional_services': 'Cập nhật các dịch vụ đi kèm',
+        }
+        # Dùng CheckboxSelectMultiple để có giao diện chọn dịch vụ tốt hơn
+        widgets = {
+            'additional_services': forms.CheckboxSelectMultiple,
+        }
 
 class PaymentProofForm(forms.ModelForm):
     """
@@ -100,3 +136,4 @@ class PaymentProofForm(forms.ModelForm):
         labels = {
             'image': 'Chọn ảnh bằng chứng thanh toán'
         }
+

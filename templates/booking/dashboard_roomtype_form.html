@@ -1,0 +1,30 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block dashboard_title %}{% if object %}Sửa Loại phòng{% else %}Thêm Loại phòng{% endif %}{% endblock %}
+{% block header_title %}{% if object %}Sửa Loại phòng{% else %}Thêm Loại phòng{% endif %}{% endblock %}
+{% block header_back_url %}{% url 'room_type_list' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block dashboard_content %}
+<div class="checkout-section">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="form-field full-width">{{ form.name.label_tag }} {{ form.name|add_attr:"class:form-control" }}</div>
+        <div class="form-field full-width" style="margin-top: 20px;">
+            {{ form.description.label_tag }}
+            {{ form.description|add_attr:"class:form-control" }}
+        </div>
+        <div class="form-field full-width" style="margin-top: 20px;">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button type="submit" class="btn-book">Lưu lại</button>
+            <a href="{% url 'room_type_list' %}" class="btn-action cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

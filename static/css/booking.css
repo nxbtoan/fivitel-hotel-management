@@ -1,12 +1,12 @@
 /* ============================================= */
 /* CÀI ĐẶT CHUNG & LAYOUT CHÍNH                 */
 /* ============================================= */
-body {
+/* body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f0f2f5;
     margin: 0;
     color: #333;
-}
+} */
 
 .list-container, .options-container {
     max-width: 1200px;
@@ -55,49 +55,111 @@ body {
 /* ============================================= */
 /* TRANG 1: DANH SÁCH LOẠI PHÒNG (RoomType)      */
 /* ============================================= */
-.card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+.page-banner {
+    padding: 80px 20px;
+    background-image: linear-gradient(rgba(10, 55, 140, 0.7), rgba(10, 55, 140, 0.7)), url('/static/images/page-banner-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    color: var(--text-light);
+    animation: fadeIn 0.8s ease-out;
 }
 
+.page-banner .page-title {
+    color: var(--primary-yellow);
+    font-size: 3em;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+}
+
+.page-banner .page-subtitle {
+    color: var(--text-light);
+    font-size: 1.2em;
+    max-width: 700px;
+    margin: 0 auto;
+    opacity: 0.9;
+}
+
+/* --- Lưới thẻ (Card Grid) --- */
+.list-container {
+    padding: 40px 0;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+}
+
+/* --- Thiết kế Thẻ Phòng --- */
 .room-type-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
+    display: block;
     text-decoration: none;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
+    color: var(--text-dark);
+    background: var(--background-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .room-type-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
 }
 
-.room-type-card img, .placeholder-image {
+.room-type-card img, 
+.room-type-card .placeholder-image {
     width: 100%;
-    height: 200px;
+    height: 240px;
     object-fit: cover;
+    display: block;
 }
 
-.card-content {
-    padding: 20px;
-    flex-grow: 1;
+/* Style cho ảnh placeholder */
+.placeholder-image {
+    background-color: #e9ecef;
+    color: #adb5bd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+}
+/* Thêm icon cho placeholder */
+.placeholder-image::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f03e"; /* Icon hình ảnh */
+    font-size: 2.5em;
+    font-weight: 900;
 }
 
-.card-content h3 {
-    margin-top: 0;
-    color: #0A378C;
+.room-type-card .card-content {
+    padding: 25px;
 }
 
-.card-action {
-    margin-top: 15px;
+.room-type-card .card-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+    color: var(--primary-blue);
+}
+
+.room-type-card .card-content p {
+    margin: 0 0 20px 0;
+    font-size: 1em;
+    color: #555;
+    line-height: 1.6;
+}
+
+.room-type-card .card-action {
     font-weight: bold;
-    color: #007bff;
+    color: var(--primary-blue);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.room-type-card:hover .card-action {
+    color: var(--primary-yellow);
 }
 
 /* ============================================= */
@@ -183,68 +245,232 @@ body {
 }
 
 /* ============================================= */
-/* TRANG 3 & 4: OPTIONS & CHECKOUT               */
+/* GIAO DIỆN CHUNG CHO QUY TRÌNH ĐẶT PHÒNG       */
 /* ============================================= */
-.options-layout {
+.booking-flow-page {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); /* Cột trái linh hoạt, cột phải cố định hơn */
+    gap: 40px;
     align-items: flex-start;
 }
 
-.options-main, .checkout-section {
+.booking-flow-page .main-content {
+    padding: 0;
+}
+
+.booking-flow-page .booking-section {
     background-color: #fff;
     padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    margin-bottom: 30px;
 }
 
-.checkout-section h2, .options-main h1, .options-main h3 {
-    margin-top: 0;
-    font-size: 1.3em;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
+.booking-flow-page .booking-section h3 {
+    font-size: 1.6em;
+    color: var(--primary-blue);
+    margin: 0 0 25px 0;
     padding-bottom: 15px;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
 }
 
-.form-grid, .date-guest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.form-field { display: flex; flex-direction: column; }
-.form-field.full-width { grid-column: 1 / -1; }
-.form-field label { margin-bottom: 8px; font-weight: bold; color: #555; font-size: 0.9em; }
+/* Lưới cho form */
+.booking-flow-page .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.booking-flow-page .date-guest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.booking-flow-page .form-field.full-width {
+    grid-column: 1 / -1;
+}
 
-.form-field input[type="text"], .form-field input[type="email"], .form-field input[type="number"], .form-field input[type="date"], .form-field textarea, .form-field select {
-    padding: 12px;
+/* --- Thiết kế cho các lựa chọn (Dịch vụ, Thanh toán) --- */
+.choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.choice-card {
+    display: block;
+    padding: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: var(--text-dark);
+}
+.choice-card:hover {
+    border-color: var(--primary-blue);
+}
+
+.choice-card .choice-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.choice-card .choice-info {
+    flex-grow: 1;
+}
+
+.choice-card .choice-info strong {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.choice-card .choice-info span {
+    display: block;
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+}
+
+.choice-card .choice-price {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Style đặc biệt cho thẻ nâng hạng để phân biệt với thẻ dịch vụ */
+.upgrade-card {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+}
+.upgrade-card:hover {
+    border-color: var(--primary-blue);
+}
+
+/* ============================================= */
+/* CSS CHO KHỐI CHỌN PHƯƠNG THỨC THANH TOÁN      */
+/* ============================================= */
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các lựa chọn */
+}
+
+.payment-option-card {
+    display: block; /* Để cả thẻ label có thể click được */
+    padding: 20px;
+    border: 2px solid #e9ecef; /* Viền xám mặc định */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.payment-option-card:hover {
+    border-color: var(--primary-blue); /* Viền xanh khi di chuột */
+}
+
+/* Style đặc biệt khi radio button bên trong được chọn */
+.payment-option-card:has(input:checked) {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.15);
+}
+
+.payment-wrapper {
+    display: flex;
+    align-items: flex-start; /* Căn lề trên cho radio và text */
+    gap: 15px;
+}
+
+.payment-wrapper input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 3px; /* Căn chỉnh vị trí radio cho đẹp */
+    flex-shrink: 0;
+}
+
+.payment-info strong {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.payment-info p {
+    font-size: 0.9em;
+    color: #555;
+    margin: 5px 0 0 0;
+    line-height: 1.5;
+}
+
+/* ============================================= */
+/* GIAO DIỆN NÚT BẤM "ĐẶT CHO TÔI" / "CHO NGƯỜI KHÁC" */
+/* ============================================= */
+.segmented-control {
+    display: inline-flex;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1em;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-    box-sizing: border-box;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.form-field input:focus, .form-field textarea:focus, .form-field select:focus {
-    border-color: #0A378C;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
+.segmented-control input[type="radio"] {
+    /* Ẩn nút radio mặc định */
+    display: none;
 }
 
-.choices-container { border: 1px solid #eee; border-radius: 8px; }
-.choice-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
-.choice-item:last-child { border-bottom: none; }
-.choice-item input { margin-right: 15px; width: 18px; height: 18px; }
-.choice-item label { display: flex; justify-content: space-between; width: 100%; align-items: center; }
-.choice-item label strong { color: #333; }
-.choice-item label span { color: #007bff; font-weight: bold; }
+.segmented-control label {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f7f9fa;
+    color: #555;
+    transition: background-color 0.2s, color 0.2s;
+    border-right: 1px solid #ccc;
+}
 
-.upgrade-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; text-decoration: none; color: inherit; }
-.upgrade-item:last-child { border-bottom: none; }
-.upgrade-item:hover { background-color: #f9f9f9; }
-.upgrade-info strong { color: #28a745; }
-.upgrade-info span { font-size: 0.9em; color: #555; }
-.upgrade-price { font-weight: bold; color: #28a745; }
+.segmented-control label:last-of-type {
+    border-right: none;
+}
+
+.segmented-control input[type="radio"]:checked + label {
+    background-color: #e0e0e0; 
+    color: #000;
+    font-weight: bold;
+}
+
+/* --- Sidebar tóm tắt --- */
+.booking-flow-page .summary-sidebar {
+    position: sticky;
+    top: 100px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    padding: 25px;
+}
+.booking-flow-page .summary-sidebar h3 {
+    text-align: center; font-size: 1.6em; color: var(--primary-blue); margin: 0 0 20px 0;
+}
+.summary-details .summary-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.summary-details .summary-item span:last-child { font-weight: 600; }
+.summary-total {
+    margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--primary-blue);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.summary-total span:first-child { font-size: 1em; font-weight: 700; }
+#summary-grand-total { font-size: 1em; font-weight: 700; color: var(--primary-yellow); }
+.summary-grand-total { font-size: 1em; font-weight: 700; color: var(--primary-yellow); }
+.summary-total .grand-total-price { font-size: 1em; font-weight: 700; color: var(--primary-yellow); }
+
+/* Nút bấm chính */
+.btn-submit-booking {
+    width: 100%; padding: 15px; font-size: 1.2em; font-weight: 700;
+    color: var(--text-light); background-color: var(--primary-yellow);
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: background-color 0.3s; margin-top: 25px;
+}
+.btn-submit-booking:hover { background-color: #d4a71c; }
 
 /* ============================================= */
 /* SIDEBAR TÓM TẮT ĐƠN HÀNG                      */
@@ -283,40 +509,6 @@ body {
 
 .btn-book:hover {
     background-color: #082b6e;
-}
-
-/* ============================================= */
-/* GIAO DIỆN NÚT BẤM "ĐẶT CHO TÔI" / "CHO NGƯỜI KHÁC" */
-/* ============================================= */
-.segmented-control {
-    display: inline-flex;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.segmented-control input[type="radio"] {
-    /* Ẩn nút radio mặc định */
-    display: none;
-}
-
-.segmented-control label {
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: #f7f9fa;
-    color: #555;
-    transition: background-color 0.2s, color 0.2s;
-    border-right: 1px solid #ccc;
-}
-
-.segmented-control label:last-of-type {
-    border-right: none;
-}
-
-.segmented-control input[type="radio"]:checked + label {
-    background-color: #e0e0e0; 
-    color: #000;
-    font-weight: bold;
 }
 
 /* ============================================= */
@@ -525,128 +717,499 @@ body {
 }
 
 /* ============================================= */
-/* TRANG QUẢN LÝ ĐƠN HÀNG (my_bookings.html)      */
+/* TRANG CHI TIẾT ĐƠN HÀNG (NÂNG CẤP TOÀN DIỆN)   */
 /* ============================================= */
-.booking-list-container {
-    max-width: 900px;
+.booking-detail-page {
+    max-width: 1200px;
     margin: 40px auto;
+    padding: 20px;
 }
 
-.booking-card {
+.detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.detail-card {
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    margin-bottom: 30px;
+}
+
+.detail-card h3 {
+    font-size: 1.6em;
+    color: var(--primary-blue);
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 30px;
+}
+
+.info-item {
     display: flex;
     flex-direction: column;
 }
 
-.booking-card-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
+.info-item strong {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.info-item span {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+/* --- Dòng thời gian Trạng thái --- */
+.status-timeline {
     display: flex;
+    list-style: none;
+    padding: 0;
     justify-content: space-between;
+}
+.timeline-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+/* Đường gạch nối */
+.timeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+.timeline-step.completed:not(:last-child)::after {
+    background-color: #28a745;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #adb5bd;
+    display: inline-flex;
+    justify-content: center;
     align-items: center;
-}
-
-.booking-card-header h3 {
-    margin: 0;
     font-size: 1.2em;
-    color: #0A378C;
+    border: 4px solid #fff;
+    position: relative;
+    z-index: 2;
+}
+.timeline-step.completed .step-icon {
+    background-color: #28a745;
+    color: #fff;
+}
+.timeline-step.current .step-icon {
+    background-color: var(--primary-blue);
+    color: #fff;
 }
 
+.step-label {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #adb5bd;
+}
+.timeline-step.completed .step-label,
+.timeline-step.current .step-label {
+    color: var(--text-dark);
+}
+
+/* --- Sidebar --- */
+.detail-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.room-image-card img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+.actions-card .action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.room-image-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.room-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 15px;
+    text-align: center;
+    font-size: 1.1em;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* Thumbnail nhỏ trong card */
+.proof-thumbnail {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: zoom-in;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proof-thumbnail:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* --- Modal overlay --- */
+.proof-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.proof-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+/* --- Hình phóng to --- */
+.proof-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* --- Nút đóng --- */
+.proof-modal .close-btn {
+    position: absolute;
+    top: 25px; right: 35px;
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.proof-modal .close-btn:hover {
+    transform: scale(1.2);
+    color: #ffcc00;
+}
+
+
+.btn-upload-proof {
+    display: inline-block;
+    background-color: var(--primary-blue);
+    color: #fff;
+    border: 2px solid var(--primary-blue);
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.btn-upload-proof:hover {
+    background-color: var(--background-white);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    display: inline-block;
+    background-color: #fff;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-blue);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+
+/* ============================================= */
+/* TRANG QUẢN LÝ ĐƠN HÀNG CỦA KHÁCH (Dạng Bảng)    */
+/* ============================================= */
+.table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.customer-booking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.customer-booking-table th, .customer-booking-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.customer-booking-table th {
+    background-color: #f7f9fa;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.customer-booking-table td {
+    font-size: 0.95em;
+}
+
+.customer-booking-table .action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-action {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.btn-action.view { background-color: #007bff; }
+.btn-action.edit { background-color: #ffc107; color: #333; }
+.btn-action.cancel { background-color: #dc3545; }
+
+/* Thêm lại các style cho status badge nếu bạn đã xóa */
 .status-badge {
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.85em;
     font-weight: bold;
     color: #fff;
+    background-color: #007bff; 
+}
+.status-IN_PROGRESS { background-color: #ffc107; color: #333; }
+.status-PENDING { background-color: #ffc107; color: #333; }
+.status-CONFIRMED { background-color: #17a2b8; }
+.status-CHECKED_IN { background-color: #007bff; }
+.status-COMPLETED { background-color: #28a745; }
+.status-CANCELLED { background-color: #6c757d; }
+
+/* ============================================= */
+/* TRANG HƯỚNG DẪN THANH TOÁN                   */
+/* ============================================= */
+.payment-guidance-page {
+    max-width: 800px;
+    margin: 40px auto;
 }
 
-.status-PENDING { background-color: #ffc107; color: #333; }
-.status-CONFIRMED { background-color: #28a745; }
-.status-CANCELLED { background-color: #dc3545; }
+.payment-guidance-page .booking-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    margin-bottom: 30px;
+}
+.payment-guidance-page .booking-section h2 {
+    font-size: 1.8em;
+    color: var(--primary-blue);
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
 
-.booking-card-body {
-    padding: 20px;
+.payment-info-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 200px; /* Nội dung | Mã QR */
+    gap: 30px;
+    align-items: center;
+}
+
+.bank-details p {
+    margin: 10px 0;
+    font-size: 1.1em;
+}
+
+.bank-details .payment-total {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--primary-yellow);
+}
+
+.bank-details .payment-code {
+    background-color: #e9ecef;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-weight: bold;
+    color: #c7254e;
+}
+
+.qr-code-container img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.qr-code-container p {
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* ============================================= */
+/* TRANG ĐƠN ĐẶT PHÒNG CỦA TÔI (MY BOOKINGS)     */
+/* ============================================= */
+
+.my-bookings-page .list-container {
+    padding-top: 0; /* Bỏ padding top vì đã có banner */
+}
+
+/* --- Thiết kế Thẻ Đơn hàng (Booking Card) --- */
+.booking-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Khoảng cách giữa các thẻ */
+}
+
+.booking-card {
+    background: var(--background-white);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+}
+
+/* Phần Header của Card: Mã ĐH và Trạng thái */
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.booking-card-header .booking-id {
+    font-weight: 700;
+    color: var(--primary-blue);
+    font-size: 1.1em;
+}
+
+/* Phần Body của Card: Ảnh và Chi tiết */
+.booking-card-body {
+    display: grid;
+    grid-template-columns: 200px 1fr; /* Cột ảnh | Cột thông tin */
+    gap: 25px;
+    padding: 25px;
+}
+
+.card-room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.card-booking-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-booking-details h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.5em;
+}
+
+.card-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-.booking-card-body .info-item {
-    font-size: 0.95em;
-}
-
-.booking-card-body .info-item strong {
+.card-info-item strong {
     display: block;
+    font-size: 0.9em;
     color: #555;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
+}
+.card-info-item span {
+    font-weight: 600;
 }
 
-.booking-card-footer {
-    padding: 15px 20px;
-    background-color: #f7f9fa;
-    text-align: right;
+/* Phần Actions của Card: Các nút bấm */
+.booking-card-actions {
+    padding: 20px 25px;
+    background-color: #f8f9fa;
     border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end; /* Đẩy các nút sang phải */
+    align-items: center;
+    gap: 10px;
 }
 
-.btn-details {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 0.9em;
-}
-
-.btn-cancel {
-    background-color: #dc3545;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 0.9em;
-    border: none;
-    cursor: pointer;
-}
-
-/* ============================================= */
-/* TRANG HƯỚNG DẪN THANH TOÁN (payment_guidance) */
-/* ============================================= */
-.payment-guidance-container {
-    max-width: 800px;
-    margin: 40px auto;
+/* --- Khối "Chưa có đơn hàng" --- */
+.no-bookings-card {
+    text-align: center;
+    padding: 50px;
     background-color: #fff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    border: 2px dashed #e9ecef;
 }
-
-.bank-info {
-    background-color: #f7f9fa;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    line-height: 1.8;
+.no-bookings-card p {
+    font-size: 1.2em;
+    color: #555;
+    margin: 0 0 25px 0;
 }
-
-.bank-info p {
-    margin: 5px 0;
-}
-
-/* Style cho input upload file */
-input[type="file"] {
-    border: 1px solid #ccc;
-    display: inline-block;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* ============================================= */
-/* TRANG QUẢN LÝ ĐƠN HÀNG Ở DASHBOARD CỦA LỄ TÂ  */
-/* ============================================= */

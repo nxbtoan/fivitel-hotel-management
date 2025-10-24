@@ -1,0 +1,62 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Quản lý Nhân sự{% endblock %}
+{% block header_title %}Quản lý Nhân sự{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'user_create' %}" class="btn-action confirm">Thêm Người dùng mới</a>
+    </div>
+    <div class="table-container">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Tên đăng nhập</th>
+                    <th>Họ và Tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 200px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_obj in users %}
+                <tr>
+                    <td><strong>{{ user_obj.username }}</strong></td>
+                    <td>{{ user_obj.full_name }}</td>
+                    <td>{{ user_obj.email }}</td>
+                    <td>{{ user_obj.get_role_display }}</td>
+                    <td>{% if user_obj.is_active %}Hoạt động{% else %}Bị khóa{% endif %}</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'user_update' user_obj.pk %}" class="btn-action update">Sửa</a>
+                        {% if user_obj != request.user %} {# Không cho phép tự xóa chính mình #}
+                        <button type="button" class="btn-action cancel open-delete-modal" 
+                                data-delete-url="{% url 'user_delete' user_obj.pk %}">Xóa</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="delete-confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn">&times;</span>
+            <h2>Xác nhận Xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa người dùng này không?</p>
+            <form id="delete-form" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action cancel">Vâng, Xóa</button>
+            </form>
+            <button type="button" id="cancel-delete-btn" class="btn-action view">Hủy</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

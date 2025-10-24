@@ -1,0 +1,90 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block dashboard_title %}{{ header_title }}{% endblock %}
+{% block header_title %}{{ header_title }}{% endblock %}
+
+{% block header_back_url %}{{ back_url }}{% endblock %}
+{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block dashboard_content %}
+<div class="ticket-detail-grid">
+    <div class="ticket-main-content">
+        <div class="checkout-section">
+            <h2>{{ ticket.subject|default:"Nội dung yêu cầu của khách hàng" }}</h2>
+            <p style="white-space: pre-wrap; line-height: 1.7;">{{ ticket.description }}</p>
+
+            {% if ticket.attachment %}
+                <div class="attachment-box">
+                    <strong>Tệp đính kèm:</strong>
+                    <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link">
+                        <svg xmlns="http://www.w.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
+                        Xem tệp
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="checkout-section">
+            <h2>Gửi phản hồi mới</h2>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="form-field">
+                    {{ form.message.label_tag }}
+                    {{ form.message|add_attr:"class:form-control" }}
+                    {{ form.message.errors }}
+                </div>
+                <button type="submit" class="btn-book" style="margin-top: 15px;">Gửi phản hồi</button>
+            </form>
+        </div>
+    </div>
+
+    <aside class="ticket-sidebar">
+        <div class="checkout-section">
+            <h2>Thông tin yêu cầu</h2>
+            <p><strong>Mã YC:</strong> {{ ticket.ticket_id|truncatechars:8 }}...</p>
+            <p><strong>Khách hàng:</strong> {% if ticket.customer %}{{ ticket.customer.full_name|default:ticket.customer.username }}{% else %}{{ ticket.guest_full_name }}{% endif %}</p>
+            <p><strong>Loại YC:</strong> {{ ticket.get_type_display }}</p>
+            
+            {% if ticket.type == 'COMPLAINT' %}
+                {% if ticket.complaint_type %}
+                <p><strong>Phân loại:</strong> {{ ticket.get_complaint_type_display }}</p>
+                {% endif %}
+                {% if ticket.incident_time %}
+                <p><strong>Thời gian vụ việc:</strong> {{ ticket.incident_time|date:"d/m/Y H:i" }}</p>
+                {% endif %}
+            {% endif %}
+
+            <p><strong>Ngày gửi:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+            <p><strong>Trạng thái:</strong> <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></p>
+
+            {% if ticket.status != 'RESOLVED' %}
+            <form action="{% url 'resolve_ticket' ticket.pk %}" method="post" style="margin-top: 15px;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action confirm" style="width: 100%;" onclick="return confirm('Bạn có chắc chắn muốn đóng yêu cầu này không?')">
+                    Đánh dấu là Đã hoàn thành
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        
+        <div class="checkout-section">
+            <h2>Lịch sử Phản hồi</h2>
+            <div class="response-history">
+                {% for response in responses %}
+                    <div class="response-item">
+                        <div class="response-header">
+                            <span class="responder-name">{{ response.responder.username }}</span>
+                            <span class="timestamp">{{ response.created_at|date:"d/m H:i" }}</span>
+                        </div>
+                        <p>{{ response.message|linebreaksbr }}</p>
+                    </div>
+                {% empty %}
+                    <p>Chưa có phản hồi nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

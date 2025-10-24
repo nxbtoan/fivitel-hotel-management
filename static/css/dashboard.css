@@ -1,202 +1,545 @@
-body { 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-    background-color: #f4f7f6; 
-    margin: 0; 
+/* ============================================= */
+/* CÀI ĐẶT CHUNG & LAYOUT DASHBOARD              */
+/* ============================================= */
+.dashboard-page {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
     color: #333;
 }
 
-.header { 
-    background-color: #0A378C; 
-    color: white; 
-    padding: 15px 30px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+.dashboard-page .header {
+    background-color: #0A378C;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+.dashboard-page .header h1 { margin: 0; font-size: 1.5em; }
+.dashboard-page .header-user-info { display: flex; align-items: center; gap: 20px; }
+.dashboard-page .user-details { display: flex; flex-direction: column; align-items: flex-end; }
+.dashboard-page .logout-button, .dashboard-page .back-link { color: white; text-decoration: none; font-weight: bold; }
+.dashboard-page .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
 
-.header h1 { 
-    margin: 0; 
-    font-size: 1.5em; 
-}
-
-.header a { 
-    color: white; 
-    text-decoration: none; 
-    font-weight: bold;
-}
-
-.container { 
-    max-width: 1200px; 
-    margin: 40px auto; 
-    padding: 0 20px; 
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-}
-
-.widget {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex;
-    flex-direction: column;
-}
-
-.widget h3 {
-    margin-top: 0;
-    color: #0A378C;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-}
-
-.widget p {
-    flex-grow: 1; /* Đẩy các nút xuống dưới */
-    line-height: 1.6;
-    color: #555;
-}
-
-.widget-button {
-    display: block;
-    text-align: center;
-    padding: 12px;
+.dashboard-page .btn-dashboard-home {
+    display: inline-block;
+    padding: 10px 15px;
+    color: white;
     border-radius: 5px;
+    border: 2px solid #eee;
     text-decoration: none;
     font-weight: bold;
-    margin-top: 10px;
     transition: background-color 0.2s;
 }
 
-.widget-button.secondary {
-    background-color: #f0f2f5;
-    color: #0A378C;
-    border: 1px solid #ddd;
-}
-
-.widget-button.secondary:hover {
-    background-color: #e9ecef;
-}
-
-.widget-button {
+.dashboard-page .btn-dashboard-home:hover {
     background-color: #0A378C;
     color: white;
 }
 
-.widget-button:hover {
-    background-color: #082b6e;
+.dashboard-page .btn-action
+
+/* ============================================= */
+/* CSS CHO THÔNG TIN NGƯỜI DÙNG TRÊN HEADER      */
+/* ============================================= */
+.dashboard-page .header {
+    display: flex;
+    justify-content: space-between; /* Đảm bảo các item nằm ở 2 đầu */
+    align-items: center;
+}
+
+.header-user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Khoảng cách giữa cụm thông tin và nút Đăng xuất */
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Căn phải cho đẹp */
+    color: #f1f3f5;
+}
+
+.user-details .username {
+    font-size: 0.95em;
+}
+
+.user-details .user-role {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #a5d8ff; /* Màu xanh nhạt hơn để phân biệt */
+}
+
+.logout-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ============================================= */
-/* TRANG QUẢN LÝ ĐƠN HÀNG Ở DASHBOARD CỦA LỄ TÂN  */
+/* CÁC THÀNH PHẦN CHUNG TRÊN DASHBOARD           */
 /* ============================================= */
-.filter-nav {
-    margin-bottom: 20px;
+/* Widget trên trang chính */
+.dashboard-page .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+.dashboard-page .widget { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+.dashboard-page .widget h3 { margin-top: 0; color: #0A378C; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+.dashboard-page .widget p { flex-grow: 1; line-height: 1.6; color: #555; }
+.dashboard-page .widget-button { display: block; text-align: center; padding: 12px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+.dashboard-page .widget-button.secondary { background-color: #f0f2f5; color: #0A378C; border: 1px solid #ddd; }
+.dashboard-page .widget-button { background-color: #0A378C; color: white; }
+
+/* Bảng Quản lý (Bookings, Rooms, CRM) */
+.dashboard-page .filter-nav { margin-bottom: 20px; }
+.dashboard-page .filter-nav a { text-decoration: none; padding: 8px 15px; background-color: #fff; border: 1px solid #ddd; color: #333; border-radius: 20px; margin-right: 10px; font-size: 0.9em; }
+.dashboard-page .filter-nav a.active { background-color: #0A378C; color: white; border-color: #0A378C; }
+.dashboard-page .table-container { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
+.dashboard-page .booking-table { width: 100%; border-collapse: collapse; }
+.dashboard-page .booking-table th, .dashboard-page .booking-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+.dashboard-page .booking-table th { background-color: #f7f9fa; font-size: 0.9em; text-transform: uppercase; color: #555; }
+.dashboard-page .booking-table tbody tr:hover { background-color: #f8f9fa; }
+
+/* Các nút hành động trong bảng */
+.dashboard-page .action-buttons { display: flex; gap: 10px; align-items: center; }
+.dashboard-page .btn-action { padding: 6px 12px; border-radius: 5px; border: none; color: white; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9em; }
+.dashboard-page .btn-action.confirm { background-color: #28a745; }
+.dashboard-page .btn-action.cancel { background-color: #dc3545; color: white; border-radius: 8px; border: none; font-size: 1.1em; cursor: pointer;}
+.dashboard-page .btn-action.checkin { background-color: #17a2b8; }
+.dashboard-page .btn-action.checkout { background-color: #ffc107; color: #333; }
+.dashboard-page .btn-action.view { background-color: #007bff; }
+.dashboard-page .btn-action.update { background-color: #007bff; }
+
+/* ============================================= */
+/* CSS CHO TRANG QUẢN LÝ PHÒNG (dashboard_rooms) */
+/* ============================================= */
+.dashboard-page .status-update-form { display: flex; align-items: center; gap: 10px; }
+.dashboard-page .status-update-form select { padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex-grow: 1; font-family: inherit; font-size: 1em; }
+
+/* ============================================= */
+/* CSS CHO TRANG CHECK-IN (dashboard_check_in)   */
+/* ============================================= */
+.dashboard-page .checkout-section { background-color: #fff; padding: 30px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.dashboard-page .checkout-section h2 { margin-top: 0; font-size: 1.3em; color: #333; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+.dashboard-page .room-selection { display: flex; flex-wrap: wrap; gap: 15px; }
+.dashboard-page .room-choice input[type="radio"] { display: none; }
+.dashboard-page .room-choice label {
+    padding: 12px 25px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
-.filter-nav a {
-    text-decoration: none;
-    padding: 8px 15px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    color: #333;
-    border-radius: 20px;
-    margin-right: 10px;
-    font-size: 0.9em;
-}
-.filter-nav a.active {
+.dashboard-page .room-choice input[type="radio"]:checked + label {
     background-color: #0A378C;
     color: white;
     border-color: #0A378C;
 }
+.dashboard-page .btn-book { background-color: #0A378C; color: white; padding: 15px 25px; border-radius: 8px; border: none; font-size: 1.1em; cursor: pointer; }
 
-.table-container {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    overflow: hidden;
-}
-.booking-table {
+/* ============================================= */
+/* CSS CHO TRANG CHI TIẾT TICKET (CRM)           */
+/* ============================================= */
+/* Style chung cho bảng CRM */
+.dashboard-page .crm-table {
     width: 100%;
     border-collapse: collapse;
 }
-.booking-table th, .booking-table td {
+
+.dashboard-page .crm-table th,
+.dashboard-page .crm-table td {
     padding: 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
-.booking-table th {
+
+.dashboard-page .crm-table th {
     background-color: #f7f9fa;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    color: #555;
 }
-.proof-thumbnail {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
+
+.dashboard-page .crm-table tbody tr:hover {
+    background-color: #f8f9fa;
 }
-.action-buttons {
-    display: flex;
-    gap: 10px;
-}
-.btn-action {
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: none;
-    color: white;
-    cursor: pointer;
+
+/* Thêm lại các style cho status badge nếu bạn đã xóa */
+.dashboard-page .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
     font-weight: bold;
+    color: #fff;
 }
-.btn-action.confirm { background-color: #28a745; }
-.btn-action.cancel { background-color: #dc3545; }
+
+.dashboard-page .status-NEW { background-color: #007bff; }
+.dashboard-page .status-IN_PROGRESS { background-color: #ffc107; color: #333; }
+.dashboard-page .status-AWAITING_STAFF { background-color: #fd7e14; }
+.dashboard-page .status-RESOLVED { background-color: #28a745; }
 
 /* ============================================= */
-/* FORM CẬP NHẬT TRẠNG THÁI PHÒNG Ở DASHBOARD CỦA LỄ TÂN  */
+/* CSS DÀNH RIÊNG CHO TRANG CHI TIẾT YÊU CẦU (CRM) */
 /* ============================================= */
-.status-update-form {
+
+/* Layout 2 cột cho trang chi tiết */
+.dashboard-page .ticket-detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Cột trái lớn hơn cột phải */
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Các khối nội dung (section) */
+.dashboard-page .ticket-main-content .checkout-section,
+.dashboard-page .ticket-sidebar .checkout-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Sidebar thông tin tóm tắt */
+.dashboard-page .ticket-sidebar .checkout-section {
+    position: sticky;
+    top: 20px;
+}
+.dashboard-page .ticket-sidebar .checkout-section p {
+    margin: 10px 0;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+.dashboard-page .ticket-sidebar .checkout-section p strong {
+    color: #555;
+    min-width: 100px;
+    display: inline-block;
+}
+
+/* Lịch sử phản hồi */
+.dashboard-page .response-history {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+.dashboard-page .response-item {
+    background-color: #f1f3f5;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+.dashboard-page .response-item:last-child {
+    margin-bottom: 0;
+}
+.dashboard-page .response-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
 }
-
-.status-update-form select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    flex-grow: 1; /* Để select chiếm hết không gian còn lại */
-}
-
-.btn-action.update {
-    background-color: #007bff;
-}
-
-/* Thêm màu cho các trạng thái phòng */
-.room-status-AVAILABLE { background-color: #28a745; } /* Xanh lá */
-.room-status-CLEANING { background-color: #ffc107; color: #333; } /* Vàng */
-.room-status-OCCUPIED { background-color: #dc3545; } /* Đỏ */
-
-/* ============================================= */
-/* FORM CHỌN PHÒNG KHI XÁC NHẬN ĐƠN ĐẶT PHÒNG Ở DASHBOARD CỦA LỄ TÂN  */
-/* ============================================= */
-.btn-action.checkin { background-color: #17a2b8; color: white; text-decoration: none; }
-.room-selection { display: flex; flex-wrap: wrap; gap: 15px; }
-.room-choice input[type="radio"] { display: none; }
-.room-choice label {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
-}
-.room-choice input[type="radio"]:checked + label {
-    background-color: #0A378C;
-    color: white;
-    border-color: #0A378C;
+.dashboard-page .response-header .responder-name {
     font-weight: bold;
+    color: #0A378C;
+}
+.dashboard-page .response-header .timestamp {
+    color: #6c757d;
+}
+.dashboard-page .response-item p {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap; /* Giữ lại các xuống dòng của người dùng */
 }
 
-.btn-action.checkout { 
-    background-color: #ffc107; /* Màu vàng */
+/* Tin nhắn của khách hàng (để phân biệt) */
+.dashboard-page .response-item.my-response {
+    background-color: #e7f5ff;
+    border-left: 3px solid #007bff;
+}
+.dashboard-page .response-item.my-response .responder-name {
+    color: #007bff;
+}
+
+/* Form gửi phản hồi của nhân viên */
+.dashboard-page .ticket-main-content .form-field {
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-page .ticket-main-content .form-field label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+.dashboard-page .ticket-main-content textarea.form-control {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 120px;
+}
+
+/* Nút bấm */
+.dashboard-page .ticket-main-content .btn-book {
+    display: inline-block;
+    width: auto;
+}
+
+/* ============================================= */
+/* CSS CHO POP-UP XÁC NHẬN (MODAL)               */
+/* ============================================= */
+.modal-overlay {
+    display: none; /* Mặc định ẩn */
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+}
+
+.close-modal-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ============================================= */
+/* BADGES TRẠNG THÁI                             */
+/* ============================================= */
+.dashboard-page .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; color: #fff; }
+.dashboard-page .status-PENDING, .dashboard-page .status-IN_PROGRESS { background-color: #ffc107; color: #333; }
+.dashboard-page .status-CONFIRMED { background-color: #17a2b8; }
+.dashboard-page .status-CHECKED_IN { background-color: #007bff; }
+.dashboard-page .status-COMPLETED, .dashboard-page .status-RESOLVED { background-color: #28a745; }
+.dashboard-page .status-CANCELLED { background-color: #6c757d; }
+.dashboard-page .room-status-AVAILABLE { background-color: #28a745; }
+.dashboard-page .room-status-CLEANING { background-color: #ffc107; color: #333; }
+.dashboard-page .room-status-OCCUPIED { background-color: #dc3545; }
+
+/* ============================================= */
+/* CSS CHO CÁC FORM THÊM/SỬA TRÊN DASHBOARD      */
+/* ============================================= */
+
+.dashboard-page .checkout-section form .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.dashboard-page .checkout-section form .form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.dashboard-page .checkout-section form .form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.dashboard-page .checkout-section form label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.dashboard-page .checkout-section form .form-control,
+.dashboard-page .checkout-section form select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-page .checkout-section form .form-control:focus,
+.dashboard-page .checkout-section form select:focus {
+    border-color: #0A378C;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
+}
+
+/* ============================================= */
+/* CSS CHO CHÚ THÍCH (HELP TEXT) TRONG FORM      */
+/* ============================================= */
+.dashboard-page .form-field .help-text {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* ============================================= */
+/* --- CSS cho dashboard quản lý dịch vụ     --- */
+/* ============================================= */
+.service-management-page .actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+/* --- Bảng dữ liệu --- */
+.service-management-page .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.service-management-page .data-table th,
+.service-management-page .data-table td {
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.service-management-page .data-table thead {
+    background-color: #f8f9fa;
+}
+
+.service-management-page .data-table th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.service-management-page .data-table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.service-management-page .table-image {
+    max-width: 100px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.service-management-page .no-image-text {
+    color: #868e96;
+    font-style: italic;
+}
+
+/* --- Form --- */
+.service-management-page .form-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    max-width: 800px;
+    margin: 0 auto; /* Căn giữa form */
+}
+
+/* Các trường nhập liệu */
+.service-management-page .form-field {
+    margin-bottom: 25px;
+}
+
+.service-management-page .form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e; /* Màu chữ đậm hơn */
+    font-size: 0.95em;
+}
+
+/* Style chung cho input, select, textarea */
+.service-management-page .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+    font-size: 1em;
     color: #333;
+}
+
+.service-management-page .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+    outline: none;
+    background-color: #ffffff;
+}
+
+/* Style riêng cho ô upload file */
+.service-management-page input[type="file"] {
+    border: 1px dashed #ced4da;
+    padding: 10px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.service-management-page input[type="file"]:hover {
+    border-color: #007bff;
+}
+
+.service-management-page .current-image-text {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+.service-management-page .current-image-text a {
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Khu vực nút bấm */
+.service-management-page .form-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Nút bấm phụ (Hủy bỏ) */
+.service-management-page .btn-secondary {
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    background-color: #e9ecef;
+    color: #495057;
+    transition: background-color 0.3s;
+}
+
+.service-management-page .btn-secondary:hover {
+    background-color: #dee2e6;
 }

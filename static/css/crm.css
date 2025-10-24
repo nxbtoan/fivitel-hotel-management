@@ -1,0 +1,417 @@
+/* =========================================================== */
+/* CRM FORM - LUXURY+ STYLE (Fivitel)                          */
+/* =========================================================== */
+.crm-luxury {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    --transition: all 0.3s ease;
+}
+
+/* --- BACKGROUND --- */
+.crm-luxury .form-page-wrapper {
+    background: linear-gradient(135deg, var(--background-light), #ffffff);
+    min-height: 100vh;
+    padding: 80px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- FORM CONTAINER --- */
+.crm-luxury .crm-form-container {
+    background: var(--background-white);
+    border-radius: 24px;
+    padding: 60px 70px;
+    box-shadow: 0 20px 60px rgba(10, 55, 140, 0.08),
+                0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid rgba(235,185,35,0.15);
+    width: 100%;
+    max-width: 850px;
+    animation: fadeInUp 0.8s ease;
+}
+
+/* --- TITLE --- */
+.crm-luxury .page-title {
+    text-align: center;
+    font-size: 2.4em;
+    font-weight: 700;
+    background: var(--primary-yellow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+.crm-luxury .page-subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 1.05em;
+    margin-bottom: 50px;
+    line-height: 1.7;
+    padding-top: 20px;
+}
+
+/* --- GRID --- */
+.crm-luxury .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+.crm-luxury .form-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+.crm-luxury .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* --- LABEL --- */
+.crm-luxury .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+/* --- INPUT WRAPPER WITH ICON --- */
+.crm-luxury .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.crm-luxury .input-wrapper .icon {
+    position: absolute;
+    left: 14px;
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    pointer-events: none;
+    opacity: 0.8;
+}
+.crm-luxury .input-wrapper input,
+.crm-luxury .input-wrapper select,
+.crm-luxury .input-wrapper textarea {
+    width: 100%;
+    padding: 13px 16px 13px 42px; /* extra left padding for icon */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: linear-gradient(145deg, #ffffff, #f7f8fa);
+    font-size: 1em;
+    color: var(--text-dark);
+    transition: var(--transition);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* --- FOCUS STATE --- */
+.crm-luxury .input-wrapper input:focus,
+.crm-luxury .input-wrapper select:focus,
+.crm-luxury .input-wrapper textarea:focus {
+    border-color: var(--primary-yellow);
+    box-shadow: 0 0 0 4px rgba(235,185,35,0.2);
+    outline: none;
+    background-color: #fff;
+}
+.crm-luxury .input-wrapper input:focus + .icon,
+.crm-luxury .input-wrapper select:focus + .icon,
+.crm-luxury .input-wrapper textarea:focus + .icon {
+    color: var(--primary-yellow);
+    opacity: 1;
+}
+
+/* --- PLACEHOLDER --- */
+.crm-luxury input::placeholder,
+.crm-luxury textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* --- ERROR MESSAGE --- */
+.crm-luxury .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    color: #c0392b;
+    font-size: 0.9em;
+}
+
+/* --- BUTTON --- */
+.crm-luxury .submit-button {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 1.15em;
+    font-weight: 700;
+    color: var(--text-light);
+    background: var(--primary-yellow);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(235,185,35,0.3);
+    position: relative;
+    overflow: hidden;
+}
+.crm-luxury .submit-button:hover {
+    background: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(235,185,35,0.45);
+}
+.crm-luxury .submit-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: rgba(255,255,255,0.3);
+    transform: skewX(-25deg);
+    transition: left 0.5s ease;
+}
+.crm-luxury .submit-button:hover::after {
+    left: 125%;
+}
+
+/* --- CAPTCHA FIELD --- */
+.crm-luxury .captcha-field {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.crm-luxury .captcha-field img.captcha {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* --- POPUP --- */
+.crm-luxury .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+}
+.crm-luxury .popup-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+.crm-luxury .popup-content {
+    background: var(--background-white);
+    border-radius: 18px;
+    padding: 45px 55px;
+    max-width: 420px;
+    text-align: center;
+    animation: zoomIn 0.4s ease;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+.crm-luxury .popup-content h2 {
+    color: var(--primary-blue);
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+.crm-luxury .popup-content p {
+    color: var(--text-dark);
+}
+
+/* ===== CAPTCHA FIXED FOR DJANGO SIMPLE CAPTCHA ===== */
+.crm-luxury .captcha-field {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.crm-luxury .captcha-field img.captcha {
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.crm-luxury .captcha-field input[name^="captcha_"] {
+    width: 180px;
+    padding: 12px 16px 12px 42px; /* chừa chỗ cho icon */
+    text-align: center;
+    letter-spacing: 4px;
+    font-weight: 700;
+    font-size: 1.1em;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(145deg, #fff, #f8f9fa);
+    color: var(--primary-blue);
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 2;
+}
+
+.crm-luxury .captcha-field input[name^="captcha_"]:focus {
+    border-color: var(--primary-yellow);
+    box-shadow: 0 0 0 4px rgba(235,185,35,0.25);
+    outline: none;
+    background: #fff;
+}
+
+/* ============================================= */
+/* GIAO DIỆN CRM PHÍA KHÁCH HÀNG (NÂNG CẤP)      */
+/* ============================================= */
+.crm-customer-page .page-banner {
+    padding: 60px 20px;
+    background-image: linear-gradient(rgba(10, 55, 140, 0.7), rgba(10, 55, 140, 0.7)), url('/static/images/page-banner-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    color: var(--text-light);
+}
+.crm-customer-page .page-banner .page-title { color: #fff; }
+.crm-customer-page .page-banner .page-subtitle { color: rgba(255,255,255,0.9); }
+
+.crm-customer-page .list-container {
+    padding: 60px 0;
+}
+
+/* --- Thiết kế Thẻ Yêu cầu (Ticket Card) --- */
+.ticket-card-list { display: flex; flex-direction: column; gap: 25px; }
+.ticket-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.ticket-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+.ticket-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+.ticket-card-header .ticket-id { font-weight: 700; font-family: monospace; }
+
+.ticket-card-body { padding: 25px; }
+.ticket-card-body h3 { margin: 0 0 15px 0; font-size: 1.3em; }
+.ticket-card-body .ticket-date { color: #555; font-size: 0.9em; }
+
+.ticket-card-actions {
+    padding: 20px 25px;
+    margin-top: auto;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+/* ============================================= */
+/* TRANG CHI TIẾT YÊU CẦU (GIAO DIỆN CHAT)      */
+/* ============================================= */
+.ticket-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.5fr);
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* --- Sidebar thông tin --- */
+.ticket-detail-sidebar .detail-card {
+    position: sticky;
+    top: 100px;
+}
+
+/* --- Giao diện Chat --- */
+.chat-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    height: 70vh; /* Chiều cao cố định */
+}
+.response-history {
+    flex-grow: 1;
+    overflow-y: auto; /* Thêm thanh cuộn khi có nhiều tin nhắn */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.response-item {
+    padding: 12px 20px;
+    border-radius: 18px;
+    max-width: 80%;
+    line-height: 1.5;
+}
+.response-item .responder-name { font-weight: bold; font-size: 0.9em; margin-bottom: 5px; display: block; }
+.response-item .timestamp { font-size: 0.8em; color: #888; }
+
+/* Tin nhắn của Nhân viên (trái) */
+.response-item.staff-response {
+    background-color: #e9ecef;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+.response-item.staff-response .timestamp { color: #6c757d; }
+
+/* Tin nhắn của Tôi (phải) */
+.response-item.my-response {
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+.response-item.my-response .timestamp { color: rgba(255,255,255,0.7); }
+
+/* Form trả lời */
+.reply-form {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    background-color: #f8f9fa;
+}
+.reply-form textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+.reply-form button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.ticket-card .last-reply {
+    margin-top: 20px;
+    font-size: 0.95em;
+}
+.ticket-card .last-reply hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin-bottom: 15px;
+}
+.ticket-card .last-reply p {
+    margin: 5px 0;
+}
+.ticket-card .last-reply .reply-content {
+    color: #555;
+    font-style: italic;
+}
+.ticket-card .last-reply .responder-name {
+    font-style: normal;
+    color: #333;
+}
+
+
+/* --- ANIMATIONS --- */
+@keyframes fadeInUp {
+    from {opacity: 0; transform: translateY(30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+@keyframes zoomIn {
+    from {opacity: 0; transform: scale(0.9);}
+    to {opacity: 1; transform: scale(1);}
+}

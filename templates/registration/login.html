@@ -5,51 +5,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Nhập - Fivitel</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 
     <div class="auth-container">
-        <h2 class="auth-title">FIVITEL KÍNH CHÀO QUÝ KHÁCH</h2>
-        
-        {% if messages %}
-            {% for message in messages %}
-                <p style="text-align: center; color: green;">{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-        
-        <p style="text-align: center; margin-top: -10px; margin-bottom: 25px;">Vui lòng đăng nhập để tiếp tục</p>
+        <div class="auth-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Fivitel Logo">
+        </div>
+        <h1 class="auth-title">Chào Mừng Trở Lại</h1>
+        <p class="auth-subtitle">Đăng nhập để tiếp tục trải nghiệm</p>
 
-        <form method="post">
+        <form method="post" novalidate>
             {% csrf_token %}
-
+            
+            {# Hiển thị lỗi không liên quan đến trường cụ thể #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
                     {% for error in form.non_field_errors %}
-                        <li>Tên đăng nhập hoặc mật khẩu không đúng.</li>
+                        <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
 
-            <p>
-                <label for="{{ form.username.id_for_label }}" class="required">Tên đăng nhập</label>
-                {{ form.username }}
-                {{ form.username.errors }}
-            </p>
-            <p>
-                <label for="{{ form.password.id_for_label }}" class="required">Mật khẩu</label>
-                {{ form.password }}
-                {{ form.password.errors }}
-            </p>
+            {# Form Django render mỗi trường trong thẻ <p> theo mặc định #}
+            {% for field in form %}
+                <p>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="helptext">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                    {{ field.errors }} {# Hiển thị lỗi cho từng trường #}
+                </p>
+            {% endfor %}
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Đăng Nhập</button>
-            </div>
+            <p style="margin-top: 30px;">
+                <button type="submit" class="btn-primary">Đăng Nhập</button>
+            </p>
         </form>
 
         <div class="extra-links">
-            <a href="#" class="btn btn-secondary">Quên mật khẩu?</a>
-            <a href="{% url 'register' %}" class="btn btn-secondary">Chưa có tài khoản?</a>
+            <a href="#">Quên mật khẩu?</a>
+            <a href="{% url 'register' %}">Tạo tài khoản mới</a>
         </div>
     </div>
 

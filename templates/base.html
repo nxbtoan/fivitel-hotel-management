@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fivitel Hotel{% endblock %}</title>
+    
+    {# Nạp file CSS toàn cục duy nhất #}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+    
+    {# Nạp Google Fonts #}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+
+    {# "Khe cắm" cho các trang con nạp CSS riêng nếu cần #}
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="{% url 'homepage' %}" class="logo">
+                    <img src="{% static 'images/logo.png' %}" alt="FIVITEL Logo" class="logo-img">
+                </a>
+            </div>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{% url 'homepage' %}#about">Về chúng tôi</a></li>
+                    <li><a href="{% url 'room_type_list_view' %}">Đặt phòng</a></li>
+                    <li><a href="{% url 'homepage' %}#services">Dịch vụ</a></li>
+                    
+                    <li class="nav-dropdown">
+                        <a href="#">Liên hệ & Khiếu nại <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                        <ul class="dropdown-content">
+                            <li><a href="{% url 'consultation_request' %}">Yêu cầu Tư vấn</a></li>
+                            <li><a href="{% url 'submit_complaint' %}">Gửi Khiếu nại</a></li>
+                        </ul>
+                    </li>
+                    </ul>
+            </nav>
+
+            <div class="user-actions">
+                {% if user.is_authenticated %}
+                    <div class="user-menu">
+                        <div id="user-menu-trigger" class="user-menu-trigger">
+                            <div class="avatar">{{ user.username.0|upper }}</div>
+                            <span>{{ user.username }}</span>
+                        </div>
+                        <div id="dropdown-menu" class="dropdown-menu">
+                            <a href="{% url 'my_bookings' %}">Đơn hàng của tôi</a>
+                            <a href="{% url 'my_tickets' %}">Yêu cầu của tôi</a>
+                            <a href="{% url 'profile_update' %}">Quản lý tài khoản</a>
+                            {% if user.is_staff %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'staff_dashboard' %}">Bảng điều khiển</a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}">Đăng xuất</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-button">Đăng nhập / Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <img src="{% static 'images/logo-footer.png' %}" alt="Fivitel Logo" class="footer-logo">
+                <p>Fivitel Hotel - Nơi trải nghiệm nghỉ dưỡng đẳng cấp giao thoa cùng vẻ đẹp Đà Nẵng. Chúng tôi cam kết mang đến dịch vụ 5 sao và những kỷ niệm khó quên.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Liên kết nhanh</h4>
+                <ul>
+                    <li><a href="#">Về chúng tôi</a></li>
+                    <li><a href="{% url 'room_type_list_view' %}">Các hạng phòng</a></li>
+                    <li><a href="#">Dịch vụ</a></li>
+                    <li><a href="#">Thư viện ảnh</a></li>
+                    <li><a href="{% url 'consultation_request' %}">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Thông tin liên hệ</h4>
+                <p><i class="fas fa-map-marker-alt"></i> 388 Trần Hưng Đạo, Sơn Trà, Đà Nẵng</p>
+                <p><i class="fas fa-phone"></i> (+84) 123 456 789</p>
+                <p><i class="fas fa-envelope"></i> contact@fivitel.com</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Fivitel Hotel. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img src="" alt="Lightbox Image" class="lightbox-content" id="lightbox-img">
+    </div>
+    
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="{% static 'js/animations.js' %}" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

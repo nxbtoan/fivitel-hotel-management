@@ -1,0 +1,56 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Quản lý Loại Dịch vụ{% endblock %}
+{% block header_title %}Quản lý Loại Dịch vụ{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="service-management-page">
+    <div class="actions-bar">
+        <a href="{% url 'service_category_create' %}" class="btn-action confirm">Thêm Loại Dịch vụ mới</a>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên Loại Dịch vụ</th>
+                    <th>Mô tả</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>
+                        {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="table-image">
+                        {% else %}
+                            <span class="no-image-text">Không có ảnh</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ category.name }}</strong></td>
+                    <td>{{ category.description|truncatewords:20 }}</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'service_category_update' category.pk %}" class="btn-action update">Sửa</a>
+                        <button type="button" class="btn-action cancel open-delete-modal" 
+                                data-delete-url="{% url 'service_category_delete' category.pk %}">Xóa</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Chưa có loại dịch vụ nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="delete-confirmation-modal" class="modal-overlay">
+    </div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

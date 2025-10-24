@@ -18,17 +18,23 @@ from django.contrib import admin
 from django.urls import path, include
 from users import views as user_views
 from django.conf import settings
-from django.conf.urls.static import static 
+from django.conf.urls.static import static
+from booking.views import homepage
 
 urlpatterns = [
-    path('', user_views.homepage, name='homepage'), 
+    path('admin/', admin.site.urls),
+    
+    path('', homepage, name='homepage'),
+    # path('', user_views.homepage, name='homepage'), 
 
     path('dashboard/', user_views.staff_dashboard_view, name='staff_dashboard'),
-
-    path('admin/', admin.site.urls),
     
     path('accounts/', include('users.urls')),
     path('booking/', include('booking.urls')),
+    path('crm/', include('crm.urls')),
+    path('services/', include('services.urls')),
+    
+    path('captcha/', include('captcha.urls')),
 ]
 
 urlpatterns += [

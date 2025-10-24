@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Chi tiết Đơn hàng - Fivitel{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 40px auto;">
+    <div class="booking-section">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #28a745;">Cảm ơn bạn đã đặt phòng!</h2>
+            <p>Đơn hàng của bạn đã được ghi nhận. Vui lòng kiểm tra lại thông tin dưới đây.</p>
+        </div>
+
+        <h3>Thông tin Đơn hàng</h3>
+        <div class="summary-details">
+            <div class="summary-item">
+                <span>Mã đặt phòng của bạn:</span>
+                <span style="font-family: monospace; font-weight: bold;">#{{ booking.id }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Trạng thái:</span>
+                <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+            </div>
+             <div class="summary-item">
+                <span>Hạng phòng:</span>
+                <span>{{ booking.room_class.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Ngày nhận phòng:</span>
+                <span>{{ booking.check_in_date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Ngày trả phòng:</span>
+                <span>{{ booking.check_out_date|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="summary-total" style="font-size: 1.2em;">
+            <span>TỔNG CỘNG</span>
+            <span class="grand-total-price">{{ booking.total_price|intcomma }} đ</span>
+        </div>
+
+        {% if booking.payment_method == 'BANK_TRANSFER' and booking.status == 'PENDING' %}
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <p>Đơn hàng của bạn sẽ được xác nhận sau khi chúng tôi nhận được thanh toán.</p>
+            {% comment %} <a href="{% url 'guest_payment_guidance' booking.booking_code %}" class="btn-primary">Xem hướng dẫn thanh toán</a> {% endcomment %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

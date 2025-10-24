@@ -1,63 +1,52 @@
+{% extends 'dashboard_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng điều khiển - Fivitel</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
 
-    <header class="header">
-        <h1>Bảng điều khiển Fivitel</h1>
-        <div>
-            <span>Xin chào, <strong>{{ user.username }} ({{ user.get_role_display }})</strong></span> | 
-            <a href="{% url 'logout' %}">Đăng xuất</a>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="dashboard-grid">
-
-            {% if user.role == 'RECEPTIONIST' or user.role == 'ADMIN' %}
-            <div class="widget">
-                <h3>🏨 Quản lý Đặt phòng</h3>
-                <p>Xem, xác nhận, hoặc hủy các đơn đặt phòng của khách hàng. Quản lý trạng thái check-in và check-out.</p>
-                <a href="{% url 'manage_bookings' %}" class="widget-button">Đi đến Quản lý Đơn đặt phòng</a>
-                <a href="{% url 'manage_rooms' %}" class="widget-button secondary">Cập nhật Trạng thái phòng</a>
-            </div>
-            {% endif %}
-
-
-            {% if user.role == 'CRM_STAFF' or user.role == 'ADMIN' %}
-            <div class="widget">
-                <h3>💬 Xử lý Yêu cầu Khách hàng</h3>
-                <p>Tiếp nhận, phản hồi và theo dõi các yêu cầu tư vấn, khiếu nại từ khách hàng qua hệ thống CRM.</p>
-                <a href="/admin/crm/ticket/" class="widget-button">Đi đến Quản lý Yêu cầu</a>
-            </div>
-            {% endif %}
-
-
-            {% if user.role == 'ADMIN' %}
-            <div class="widget">
-                <h3>⚙️ Quản lý Hệ thống</h3>
-                <p>Thêm, sửa, xóa các thông tin gốc của hệ thống như Loại phòng, Hạng phòng, Dịch vụ và tài khoản nhân viên.</p>
-                <a href="/admin/booking/roomtype/" class="widget-button secondary">Quản lý Loại phòng</a>
-                <a href="/admin/booking/roomclass/" class="widget-button secondary">Quản lý Hạng phòng</a>
-                <a href="/admin/services/service/" class="widget-button secondary">Quản lý Dịch vụ</a>
-            </div>
-
-            <div class="widget">
-                <h3>👥 Quản lý Nhân sự</h3>
-                <p>Tạo mới, phân quyền và quản lý tài khoản cho các nhân viên trong hệ thống.</p>
-                <a href="/admin/users/customuser/" class="widget-button">Đi đến Quản lý Nhân viên</a>
-                <a href="/admin/auth/group/" class="widget-button secondary">Quản lý Nhóm quyền</a>
-            </div>
-            {% endif %}
-
-        </div>
+{% block dashboard_content %}
+<div class="dashboard-grid">
+    {# Khối chức năng cho Lễ tân và Admin #}
+    {% if user.role == 'RECEPTIONIST' or user.role == 'ADMIN' %}
+    <div class="widget">
+        <h3>🏨 Quản lý Đặt phòng</h3>
+        <p>Xem, xác nhận, hoặc hủy các đơn đặt phòng của khách hàng. Quản lý trạng thái check-in và check-out.</p>
+        <a href="{% url 'manage_bookings' %}" class="widget-button">Đi đến Quản lý Đơn đặt phòng</a>
+        <a href="{% url 'manage_rooms' %}" class="widget-button secondary">Cập nhật Trạng thái phòng</a>
     </div>
+    {% endif %}
 
-</body>
-</html>
+    {# Khối chức năng cho CSKH và Admin #}
+    {% if user.role == 'CRM_STAFF' or user.role == 'ADMIN' %}
+    <div class="widget">
+        <h3>💬 Xử lý Yêu cầu Khách hàng</h3>
+        <p>Tiếp nhận, phản hồi và theo dõi các yêu cầu tư vấn, khiếu nại từ khách hàng qua hệ thống CRM.</p>
+        <a href="{% url 'manage_requests' %}" class="widget-button">Đi đến Quản lý Yêu cầu</a>
+        <a href="{% url 'manage_complaints' %}" class="widget-button secondary">Đi đến Quản lý Khiếu nại</a>    
+    </div>
+    {% endif %}
+
+    {# Các khối chức năng chỉ dành cho Admin #}
+    {% if user.role == 'ADMIN' %}
+    <div class="widget">
+        <h3>⚙️ Quản lý Hệ thống</h3>
+        <p>Thêm, sửa, xóa các thông tin gốc của hệ thống như Loại phòng, Hạng phòng, Phòng.</p>
+        <a href="{% url 'room_type_list' %}" class="widget-button secondary">Quản lý Loại phòng</a>        
+        <a href="{% url 'room_class_list_admin' %}" class="widget-button">Quản lý Hạng phòng</a>        
+        <a href="{% url 'room_list_admin' %}" class="widget-button secondary">Quản lý Phòng</a>    
+    </div>
+    <div class="widget">
+        <h3>👥 Quản lý Nhân sự</h3>
+        <p>Tạo mới, phân quyền và quản lý tài khoản cho các nhân viên trong hệ thống.</p>
+        <a href="{% url 'user_list_admin' %}" class="widget-button">Đi đến Quản lý Nhân viên</a>        
+        <a href="/admin/auth/group/" class="widget-button secondary">Quản lý Nhóm quyền</a>
+    </div>
+    {% endif %}
+
+    {% if user.role == 'ADMIN' %}
+        <div class="widget">
+            <h3>🍽️ Quản lý Dịch vụ</h3>
+            <p>Thêm, sửa, xóa các dịch vụ đi kèm như tour du lịch, spa, đưa đón sân bay...</p>
+            <a href="{% url 'service_list' %}" class="widget-button">Đi đến Quản lý Dịch vụ</a>
+            <a href="{% url 'service_category_list' %}" class="widget-button secondary">Quản lý Loại Dịch vụ</a>
+        </div>
+        {% endif %}
+</div>
+{% endblock %}

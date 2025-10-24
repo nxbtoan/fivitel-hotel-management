@@ -1,57 +1,118 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Các hạng phòng {{ room_type.name }}</title>
-    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
-</head>
-<body style="background-color: #f0f2f5;">
+{% load humanize %}
 
-    <div class="list-container">
-        <a href="{% url 'room_type_list' %}" class="back-link">‹ Quay lại chọn Loại phòng</a>
-        <h1 class="page-title">Các hạng phòng cho "{{ room_type.name }}"</h1>
-        <p class="page-subtitle">{{ room_type.description }}</p>
+{% block title %}Các hạng phòng {{ room_type.name }} - Fivitel{% endblock %}
 
-        <div class="class-list">
-            {% for class in room_classes %}
-            <div class="class-card">
-                <div class="class-card-img">
-                    {% if class.image %}
-                    <img src="{{ class.image.url }}" alt="{{ class.name }}">
-                    {% else %}
-                    <div class="placeholder-image">Chưa có ảnh</div>
-                    {% endif %}
-                </div>
-                <div class="class-card-body">
-                    <h3>{{ class.name }}</h3>
-                    <p class="available-rooms {% if class.available_rooms_count == 0 %}sold-out{% endif %}">
-                        <strong>Còn trống:</strong> {{ class.available_rooms_count }} phòng
-                    </p>
-                    <p class="class-specs"><strong>Diện tích:</strong> {{ class.area }} | <strong>Giá từ:</strong> {{ class.base_price }} VNĐ/đêm</p>
-                    <p>{{ class.description|truncatewords:30 }}</p>
-                    <ul class="amenities-list">
-                        {% for amenity in class.amenities_list|slice:":4" %}
-                            <li>{{ amenity }}</li>
-                        {% endfor %}
-                        {% if class.amenities_list|length > 4 %}
-                            <li>...</li>
-                        {% endif %}
-                    </ul>
-                </div>
-                <div class="class-card-action">
-                    {% if class.available_rooms_count > 0 %}
-                        <a href="{% url 'booking_options' class.pk %}" class="btn-book">Đặt phòng</a>
-                    {% else %}
-                        <a class="btn-book disabled">Hết phòng</a>
-                    {% endif %}
-                </div>
+{% block styles %}
+    {# Nạp file CSS mới dành riêng cho trang này #}
+    <link rel="stylesheet" href="{% static 'css/booking_page.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="page-header-banner" style="background-image: url('{{ room_type.image.url }}');">
+    <div class="page-header-content">
+        <h1>{{ room_type.name }}</h1>
+        <p>{{ room_type.description }}</p>
+    </div>
+</div>
+
+<div class="container">
+    <form method="get" class="booking-search-widget">
+        <div class="widget-field">
+            <label for="checkin-date">Ngày nhận phòng</label>
+            <input type="date" id="checkin-date" name="check_in" class="form-control" value="{{ request.GET.check_in }}">
+        </div>
+        <div class="widget-field">
+            <label for="checkout-date">Ngày trả phòng</label>
+            <input type="date" id="checkout-date" name="check_out" class="form-control" value="{{ request.GET.check_out }}">
+        </div>
+        <div class="widget-field">
+            <label for="adults-count">Người lớn</label>
+            <input type="number" id="adults-count" name="adults" class="form-control" min="1" value="{{ request.GET.adults|default:2 }}">
+        </div>
+        <div class="widget-field">
+            <label for="children-count">Trẻ em</label>
+            <input type="number" id="children-count" name="children" class="form-control" min="0" value="{{ request.GET.children|default:0 }}">
+        </div>
+    </form>
+</div>
+
+<div class="container room-class-results">
+    {% for class in room_classes %}
+    <div class="result-card">
+        <div class="result-card-image">
+            {% if class.image %}
+            <img src="{{ class.image.url }}" alt="{{ class.name }}">
+            {% else %}
+            <div class="placeholder-image"></div>
+            {% endif %}
+        </div>
+        <div class="result-card-content">
+            <div class="main-info">
+                <h3>{{ class.name }}</h3>
+                <p>{{ class.description|truncatewords:40 }}</p>
+                <ul class="specs-list">
+                    <li><i class="fas fa-ruler-combined"></i> {{ class.area }} m²</li>
+                    <li><i class="fas fa-users"></i> Tối đa {{ class.max_occupancy }} người</li>
+                    <li><i class="fas fa-bed"></i> {{ class.bed_type|default:"Giường đôi" }}</li>
+                </ul>
             </div>
-            {% empty %}
-            <p>Loại phòng này hiện chưa có hạng phòng nào được cập nhật.</p>
-            {% endfor %}
+            <div class="price-and-action">
+                <div class="price-display">
+                    {{ class.base_price|floatformat:"0"|intcomma }} <span>VNĐ/đêm</span>
+                </div>
+                <p class="available-rooms {% if class.available_rooms_count == 0 %}sold-out{% endif %}">
+                    {% if class.available_rooms_count > 0 %}
+                        Còn trống: <strong>{{ class.available_rooms_count }} phòng</strong>
+                    {% else %}
+                        <strong>Đã hết phòng</strong>
+                    {% endif %}
+                </p>
+                {% if class.available_rooms_count > 0 %}
+                    <a href="{% url 'booking_options' class.pk %}" class="btn-book booking-button">Đặt phòng</a>
+                {% else %}
+                    <a class="btn-book disabled">Hết phòng</a>
+                {% endif %}
+            </div>
         </div>
     </div>
+    {% empty %}
+    <p style="text-align: center;">Loại phòng này hiện chưa có hạng phòng nào được cập nhật.</p>
+    {% endfor %}
+</div>
 
-</body>
-</html>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkinDate = document.getElementById('checkin-date');
+    const checkoutDate = document.getElementById('checkout-date');
+    const bookingButtons = document.querySelectorAll('.booking-button');
+
+    function updateBookingLinks() {
+        const checkin = checkinDate.value;
+        const checkout = checkoutDate.value;
+        
+        bookingButtons.forEach(button => {
+            let baseUrl = button.href.split('?')[0]; // Lấy URL gốc không có query params
+            let queryParams = new URLSearchParams();
+            if (checkin) queryParams.set('check_in', checkin);
+            if (checkout) queryParams.set('check_out', checkout);
+            
+            button.href = `${baseUrl}?${queryParams.toString()}`;
+        });
+    }
+
+    // Gắn sự kiện cho các ô nhập ngày
+    checkinDate.addEventListener('change', updateBookingLinks);
+    checkoutDate.addEventListener('change', updateBookingLinks);
+    
+    // Cập nhật link lần đầu khi tải trang
+    updateBookingLinks();
+});
+</script>
+{% endblock %}

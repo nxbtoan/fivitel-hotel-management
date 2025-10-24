@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Tài khoản{% endblock %}
+
+{% block styles %}
+    {# #}
+    <link rel="stylesheet" href="{% static 'css/users.css' %}">
+{% endblock %}
+
+{% block content %}
+{# #}
+<div class="user-profile-page">
+    <div class="user-form-container">
+        <h1 class="page-title">Quản lý Tài khoản</h1>
+        <p class="page-subtitle">Cập nhật thông tin cá nhân của bạn tại đây.</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    {{ form.full_name.label_tag }} 
+                    {{ form.full_name }}
+                    {{ form.full_name.errors }}
+                </div>
+                <div class="form-group">
+                    {{ form.email.label_tag }} 
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div class="form-group">
+                    {{ form.phone_number.label_tag }} 
+                    {{ form.phone_number }}
+                    {{ form.phone_number.errors }}
+                </div>
+                <div class="form-group">
+                    {{ form.date_of_birth.label_tag }} 
+                    {{ form.date_of_birth }}
+                    {{ form.date_of_birth.errors }}
+                </div>
+                <div class="form-group">
+                    {{ form.nationality.label_tag }} 
+                    {{ form.nationality }}
+                    {{ form.nationality.errors }}
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-button">Lưu thay đổi</button>
+        </form>
+        
+        <div class="password-change-link">
+            <a href="{% url 'password_change' %}">Bạn muốn đổi mật khẩu?</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

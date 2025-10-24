@@ -1,0 +1,62 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_title %}Quản lý Loại phòng{% endblock %}
+{% block header_title %}Quản lý Loại phòng{% endblock %}
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'room_type_create' %}" class="btn-action confirm">Thêm Loại phòng mới</a>
+    </div>
+    <div class="table-container">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên Loại phòng</th>
+                    <th>Mô tả</th>
+                    <th style="width: 200px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type in room_types %}
+                <tr>
+                    <td>
+                        {% if type.image %}
+                            <img src="{{ type.image.url }}" style="width: 120px; height: auto; border-radius: 5px;">
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ type.name }}</strong></td>
+                    <td>{{ type.description|truncatewords:20 }}</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'room_type_update' type.pk %}" class="btn-action update">Sửa</a>
+                        <button type="button" class="btn-action cancel open-delete-modal" 
+                                data-delete-url="{% url 'room_type_delete' type.pk %}">Xóa</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; padding: 20px;">Chưa có loại phòng nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="delete-confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn">&times;</span>
+            <h2>Xác nhận Xóa</h2>
+            <p>Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.</p>
+            <form id="delete-form" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action cancel">Vâng, Xóa</button>
+            </form>
+            <button type="button" id="cancel-delete-btn" class="btn-action view">Hủy</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

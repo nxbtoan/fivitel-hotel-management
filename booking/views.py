@@ -1,13 +1,33 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.db import transaction
 from django.db.models import Count, Q
 from django.contrib.auth.decorators import login_required,  user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from .models import RoomType, RoomClass, Room, Service, PaymentProof, Booking
-from .forms import BookingOptionsForm, CheckoutForm, PaymentProofForm
+from services.models import ServiceCategory
+from .forms import BookingOptionsForm, CheckoutForm, PaymentProofForm, BookingEditForm
 from datetime import timedelta, datetime
+
+def homepage(request):
+    """
+    View cho trang chủ, lấy ra các loại phòng và loại dịch vụ nổi bật CÓ ẢNH.
+    """
+    # Lấy tối đa 4 loại phòng đầu tiên có trường 'image' không rỗng
+    featured_room_types = RoomType.objects.exclude(image__isnull=True).exclude(image='').order_by('id')[:4]
+    
+    # Lấy tối đa 4 loại dịch vụ đầu tiên có trường 'image' không rỗng
+    featured_service_categories = ServiceCategory.objects.exclude(image__isnull=True).exclude(image='').order_by('id')[:4]
+
+    context = {
+        'featured_room_types': featured_room_types,
+        'featured_service_categories': featured_service_categories,
+    }
+    return render(request, 'homepage.html', context)
 
 def room_type_list_view(request):
     """
@@ -84,96 +104,107 @@ def booking_options_view(request, room_class_id):
 
 def checkout_view(request):
     """
-    Xử lý Bước 2 (Trang Checkout): Điền thông tin khách hàng và hoàn tất đặt phòng.
-
-    - Đọc dữ liệu từ session (lựa chọn ở bước trước).
-    - Hiển thị form điền thông tin cá nhân.
-    - Khi người dùng nhấn "Đặt phòng" (POST), tạo bản ghi Booking và chuyển hướng.
+    View xử lý trang Checkout - Phiên bản hoàn chỉnh, an toàn và linh hoạt.
+    - Hoạt động cho cả khách đã đăng nhập và khách vãng lai.
+    - Chống lỗi đặt trùng phòng (race condition) bằng transaction.
+    - Xử lý chuyển hướng thông minh dựa trên loại khách và phương thức thanh toán.
     """
-    
     # --- PHẦN 1: LẤY DỮ LIỆU TỪ SESSION VÀ TÍNH TOÁN ---
     booking_options = request.session.get('booking_options')
     if not booking_options:
-        return redirect('homepage') # Bảo vệ, nếu không có session thì về trang chủ
+        messages.error(request, "Phiên đặt phòng đã hết hạn hoặc có lỗi xảy ra. Vui lòng thử lại.")
+        return redirect('homepage')
 
-    room_class = get_object_or_404(RoomClass, pk=booking_options['room_class_id'])
+    # Lấy thông tin cần thiết từ session
+    room_class = get_object_or_404(RoomClass, pk=booking_options.get('room_class_id'))
     selected_services = Service.objects.filter(id__in=booking_options.get('service_ids', []))
+    check_in = datetime.fromisoformat(booking_options.get('check_in')).date()
+    check_out = datetime.fromisoformat(booking_options.get('check_out')).date()
     
-    check_in = datetime.fromisoformat(booking_options['check_in']).date()
-    check_out = datetime.fromisoformat(booking_options['check_out']).date()
-    
-    duration = (check_out - check_in).days
+    # Tính toán giá
+    duration = (check_out - check_in).days if (check_out > check_in) else 0
     room_price = room_class.base_price * duration
     services_price = sum(service.price for service in selected_services)
     total_price = room_price + services_price
 
-    # --- PHẦN 2: XỬ LÝ KHI NGƯỜI DÙNG NHẤN NÚT "ĐẶT PHÒNG" ---
+    # --- PHẦN 2: XỬ LÝ POST REQUEST (KHI NGƯỜI DÙNG NHẤN NÚT "HOÀN TẤT") ---
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
             guest_data = form.cleaned_data
-            
-            available_room = Room.objects.filter(room_class=room_class, status='AVAILABLE').first()
-            if not available_room:
-                # Đây là lúc trang error_page.html sẽ được dùng
-                return render(request, 'booking/error_page.html', {'message': 'Rất tiếc, hạng phòng này vừa hết phòng trống.'})
+            try:
+                # Sử dụng transaction để đảm bảo tất cả các thao tác DB hoặc thành công hoặc thất bại cùng lúc
+                with transaction.atomic():
+                    # Tìm một phòng trống và "khóa" các dòng đang truy vấn lại để tránh người khác đặt cùng lúc
+                    if Room.objects.select_for_update().filter(room_class=room_class, status='AVAILABLE').count() == 0:
+                        messages.error(request, 'Rất tiếc, hạng phòng này vừa hết phòng trống trong lúc bạn thao tác.')
+                        return redirect('room_class_list', room_type_id=room_class.room_type.id)
 
-            # Chuẩn bị dữ liệu để tạo Booking
-            booking_details = {
-                'room_class': room_class,
-                'check_in_date': check_in,
-                'check_out_date': check_out,
-                'total_price': total_price,
-                'payment_method': guest_data['payment_method'],
-            }
+                    # Chuẩn bị dữ liệu để tạo Booking
+                    booking_details = {
+                        'room_class': room_class,
+                        'check_in_date': check_in,
+                        'check_out_date': check_out,
+                        'room_price': room_price,
+                        'services_price': services_price,
+                        'total_price': total_price,
+                        'payment_method': guest_data.get('payment_method'),
+                        'special_requests': guest_data.get('special_requests'),
+                    }
 
-            # Gán thông tin khách hàng
-            if request.user.is_authenticated and guest_data['booking_for'] == 'myself':
-                booking_details['customer'] = request.user
-            else:
-                booking_details.update({
-                    'guest_full_name': guest_data['full_name'],
-                    'guest_email': guest_data['email'],
-                    'guest_phone_number': guest_data['phone_number'],
-                    'guest_nationality': guest_data['nationality'],
-                })
+                    # Xử lý thông tin khách hàng dựa trên việc đăng nhập và lựa chọn
+                    if request.user.is_authenticated:
+                        booking_details['customer'] = request.user
+                        # Nếu người dùng đặt cho chính họ, lấy thông tin từ tài khoản
+                        if guest_data.get('booking_for') == 'SELF':
+                            booking_details.update({
+                                'guest_full_name': request.user.full_name, 'guest_email': request.user.email,
+                                'guest_phone_number': request.user.phone_number, 'guest_nationality': request.user.nationality,
+                            })
+                        else: # Nếu người dùng đặt cho người khác
+                            booking_details.update({
+                                'guest_full_name': guest_data.get('full_name'), 'guest_email': guest_data.get('email'),
+                                'guest_phone_number': guest_data.get('phone_number'), 'guest_nationality': guest_data.get('nationality'),
+                            })
+                    else: # Khách vãng lai
+                        booking_details.update({
+                            'guest_full_name': guest_data.get('full_name'), 'guest_email': guest_data.get('email'),
+                            'guest_phone_number': guest_data.get('phone_number'), 'guest_nationality': guest_data.get('nationality'),
+                        })
+                    
+                    # Tạo bản ghi Booking mới
+                    new_booking = Booking.objects.create(**booking_details)
+                    new_booking.additional_services.set(selected_services)
+                    
+                    # Dọn dẹp session sau khi đã tạo đơn thành công
+                    del request.session['booking_options']
+                    
+                    # --- LOGIC CHUYỂN HƯỚNG THÔNG MINH ---
+                    is_bank_transfer = (new_booking.payment_method == 'BANK_TRANSFER')
+                    
+                    if request.user.is_authenticated:
+                        if is_bank_transfer:
+                            return redirect('payment_guidance', booking_pk=new_booking.pk)
+                        else: # PAY_LATER
+                            return redirect('booking_detail', pk=new_booking.pk)
+                    else: # Khách vãng lai
+                        if is_bank_transfer:
+                            return redirect('guest_payment_guidance', booking_code=new_booking.booking_code)
+                        else: # PAY_LATER
+                            return redirect('guest_booking_detail', booking_code=new_booking.booking_code)
 
-            # Tạo bản ghi Booking mới trong database
-            new_booking = Booking.objects.create(**booking_details)
-            
-            # Gán các dịch vụ đi kèm vào đơn hàng
-            if selected_services:
-                new_booking.additional_services.set(selected_services)
-            
-            # Dọn dẹp session
-            del request.session['booking_options']
-            request.session['last_booking_id'] = new_booking.pk
-            
-            # --- ĐIỂM RẼ NHÁNH QUAN TRỌNG ---
-            if new_booking.payment_method == 'BANK_TRANSFER':
-                # Nếu chọn Chuyển khoản, đến trang hướng dẫn thanh toán
-                return redirect('payment_guidance', booking_pk=new_booking.pk)
-            else: # Nếu là PAY_LATER (Trả sau)
-                # Chuyển thẳng đến trang quản lý các đơn đặt phòng
-                return redirect('my_bookings')
+            except Exception as e:
+                print(f"!!! LỖI BẤT NGỜ TRONG CHECKOUT: {type(e).__name__} - {e}")
+                messages.error(request, f"Lỗi hệ thống không mong muốn: {e}")
+                return redirect('homepage')
+    
+    # --- PHẦN 3: XỬ LÝ GET REQUEST HOẶC KHI POST THẤT BẠI ---
+    else: # Đây là trường hợp GET request
+        form = CheckoutForm() # Form trống cho khách vãng lai
 
-    # --- PHẦN 3: XỬ LÝ KHI NGƯỜI DÙNG MỚI VÀO TRANG (GET) ---
-    else:
-        initial_data = {}
-        if request.user.is_authenticated:
-            initial_data = {
-                'full_name': request.user.full_name,
-                'email': request.user.email,
-                'phone_number': request.user.phone_number,
-                'nationality': request.user.nationality,
-            }
-        form = CheckoutForm(initial=initial_data)
-
-    # --- PHẦN 4: GỬI DỮ LIỆU RA TEMPLATE ---
     context = {
         'form': form,
         'room_class': room_class,
-        'options': booking_options,
         'duration': duration,
         'room_price': room_price,
         'selected_services': selected_services,
@@ -185,24 +216,86 @@ def checkout_view(request):
 @login_required
 def payment_guidance_view(request, booking_pk):
     """
-    Hiển thị trang Hướng dẫn thanh toán và xử lý việc tải lên bằng chứng.
+    Hiển thị trang hướng dẫn thanh toán cho NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP.
     """
     booking = get_object_or_404(Booking, pk=booking_pk, customer=request.user)
     
+    if booking.status != 'PENDING':
+        messages.warning(request, "Đơn hàng này không cần thanh toán hoặc đã được xử lý.")
+        return redirect('booking_detail', pk=booking.pk)
+    
+    # --- SỬA LỖI AttributeError Ở ĐÂY ---
+    # Dùng try-except để xử lý trường hợp chưa có bằng chứng nào được tạo
+    try:
+        proof_instance = booking.payment_proof
+    except PaymentProof.DoesNotExist:
+        proof_instance = None # Nếu chưa có, instance là None
+
     if request.method == 'POST':
-        form = PaymentProofForm(request.POST, request.FILES)
+        # Truyền instance vào form để nó biết là tạo mới hay cập nhật
+        form = PaymentProofForm(request.POST, request.FILES, instance=proof_instance)
         if form.is_valid():
             proof = form.save(commit=False)
             proof.booking = booking
             proof.save()
-            return redirect('my_bookings') # Chuyển đến trang quản lý sau khi tải lên
+            messages.success(request, "Đã tải lên bằng chứng thanh toán thành công.")
+            return redirect('booking_detail', pk=booking.pk)
     else:
-        form = PaymentProofForm()
+        form = PaymentProofForm(instance=proof_instance)
 
     context = {
         'booking': booking,
         'form': form
     }
+    return render(request, 'booking/payment_guidance.html', context)
+
+def guest_booking_detail_view(request, booking_code):
+    """
+    Hiển thị trang chi tiết đơn hàng cho khách vãng lai thông qua mã an toàn.
+    """
+    # Tìm đơn hàng bằng booking_code duy nhất, không cần kiểm tra user
+    booking = get_object_or_404(Booking, booking_code=booking_code)
+    
+    context = {
+        'booking': booking
+    }
+    # Chúng ta sẽ tạo một template mới cho trang này
+    return render(request, 'booking/guest_booking_detail.html', context)
+
+
+def guest_payment_guidance_view(request, booking_code):
+    """
+    Hiển thị trang hướng dẫn thanh toán và cho phép khách vãng lai
+    tải lên bằng chứng thanh toán.
+    """
+    booking = get_object_or_404(Booking, booking_code=booking_code)
+
+    if booking.status != 'PENDING':
+        messages.warning(request, "Đơn hàng này không cần thanh toán hoặc đã được xử lý.")
+        return redirect('guest_booking_detail', booking_code=booking.booking_code)
+
+    try:
+        proof_instance = booking.payment_proof
+    except PaymentProof.DoesNotExist:
+        proof_instance = None # Nếu chưa có, instance là None
+
+    if request.method == 'POST':
+        # Truyền instance vào form để nó biết là tạo mới hay cập nhật
+        form = PaymentProofForm(request.POST, request.FILES, instance=proof_instance)
+        if form.is_valid():
+            proof = form.save(commit=False)
+            proof.booking = booking
+            proof.save()
+            messages.success(request, "Đã tải lên bằng chứng thanh toán thành công. Chúng tôi sẽ sớm xác nhận đơn hàng của bạn.")
+            return redirect('guest_booking_detail', booking_code=booking.booking_code)
+    else:
+        form = PaymentProofForm(instance=proof_instance)
+
+    context = {
+        'booking': booking,
+        'form': form
+    }
+    # Tái sử dụng template payment_guidance.html
     return render(request, 'booking/payment_guidance.html', context)
 
 @login_required
@@ -247,6 +340,56 @@ def cancel_booking_view(request, pk):
         # (Tùy chọn) Thêm message thông báo thành công
     
     return redirect('my_bookings')
+
+@login_required
+def edit_booking_view(request, pk):
+    """
+    Xử lý việc khách hàng chỉnh sửa đơn đặt hàng.
+    Phiên bản nâng cấp: Dùng ModelForm chuyên dụng và tính toán lại giá.
+    """
+    # Lấy đúng đơn hàng của người dùng, đảm bảo an toàn
+    booking = get_object_or_404(Booking, pk=pk, customer=request.user)
+
+    # Sử dụng property is_editable đã có sẵn trong model để kiểm tra
+    if not booking.is_editable:
+        messages.error(request, f"Đơn hàng #{booking.id} không còn có thể chỉnh sửa.")
+        return redirect('booking_detail', pk=booking.pk)
+
+    if request.method == 'POST':
+        # Khởi tạo form với dữ liệu POST và liên kết với instance booking hiện tại
+        form = BookingEditForm(request.POST, instance=booking)
+        if form.is_valid():
+            # Bước 1: Lưu các thay đổi (thông tin khách, dịch vụ) vào database
+            # ModelForm sẽ tự động xử lý việc cập nhật ManyToManyField
+            form.save()
+
+            # Bước 2: Tải lại instance booking từ DB để có danh sách services mới nhất
+            booking.refresh_from_db()
+
+            # Bước 3: Tính toán lại tổng tiền dựa trên các thay đổi
+            num_nights = (booking.check_out_date - booking.check_in_date).days
+            room_price = booking.room_class.base_price * num_nights
+            services_price = sum(service.price for service in booking.additional_services.all())
+            booking.total_price = room_price + services_price
+
+            # Bước 4: Đặt lại trạng thái để lễ tân xác nhận lại (quan trọng!)
+            booking.status = Booking.Status.PENDING
+            
+            # Lưu lại lần cuối cùng với tổng tiền và trạng thái mới
+            booking.save()
+
+            messages.success(request, f"Đơn hàng #{booking.id} đã được cập nhật. Vui lòng chờ lễ tân xác nhận lại.")
+            return redirect('booking_detail', pk=booking.pk)
+    else:
+        # Khi mới vào trang (GET), khởi tạo form với dữ liệu của instance booking
+        form = BookingEditForm(instance=booking)
+
+    context = {
+        'form': form,
+        'booking': booking,
+    }
+    # Render ra một template mới dành riêng cho việc chỉnh sửa
+    return render(request, 'booking/edit_booking.html', context)
 
 # Hàm kiểm tra xem user có phải là nhân viên không (Lễ tân hoặc Admin)
 def is_reception_staff(user):
@@ -393,3 +536,160 @@ def check_out_view(request, pk):
         messages.success(request, f"Check-out thành công cho đơn hàng #{booking.id}. Phòng {room.room_number} đã được chuyển sang trạng thái cần dọn dẹp.")
     
     return redirect('manage_bookings')
+
+@user_passes_test(is_reception_staff)
+def staff_booking_detail_view(request, pk):
+    """
+    Hiển thị trang chi tiết đơn đặt phòng dành cho nhân viên (Lễ tân, Admin).
+    """
+    # Lấy đơn hàng và các thông tin liên quan để tối ưu truy vấn
+    booking = get_object_or_404(
+        Booking.objects.select_related(
+            'room_class', 'customer', 'assigned_room', 'payment_proof'
+        ).prefetch_related('additional_services'), 
+        pk=pk
+    )
+    
+    context = {
+        'booking': booking
+    }
+    return render(request, 'booking/dashboard_booking_detail.html', context)
+
+@login_required
+def edit_booking_view(request, pk):
+    """
+    Xử lý việc chỉnh sửa một đơn đặt phòng đã có.
+    """
+    booking = get_object_or_404(Booking, pk=pk, customer=request.user)
+
+    # Nếu đơn hàng không còn được phép sửa, chuyển hướng về danh sách
+    if not booking.is_editable:
+        messages.error(request, "Đơn đặt phòng này không thể chỉnh sửa.")
+        return redirect('my_bookings')
+
+    if request.method == 'POST':
+        # Khởi tạo form với dữ liệu mới gửi lên
+        form = BookingOptionsForm(request.POST)
+        if form.is_valid():
+            options = form.cleaned_data
+            
+            # Cập nhật lại các thông tin trên đơn hàng
+            booking.check_in_date = options['check_in_date']
+            booking.check_out_date = options['check_out_date']
+            
+            # Tính toán lại tổng tiền
+            duration = (booking.check_out_date - booking.check_in_date).days
+            room_price = booking.room_class.base_price * duration
+            services_price = sum(service.price for service in options['additional_services'])
+            booking.total_price = room_price + services_price
+            
+            # Lưu lại đơn hàng
+            booking.save()
+            
+            # Cập nhật lại các dịch vụ đi kèm
+            booking.additional_services.set(options['additional_services'])
+
+            messages.success(request, f"Đã cập nhật thành công đơn hàng #{booking.id}.")
+            return redirect('my_bookings')
+    else:
+        # Khi mới vào trang, tạo form và điền sẵn dữ liệu từ đơn hàng cũ
+        initial_data = {
+            'check_in_date': booking.check_in_date,
+            'check_out_date': booking.check_out_date,
+            'additional_services': booking.additional_services.all(),
+            # Giả sử số khách không đổi, bạn có thể thêm các trường này nếu muốn
+            # 'adults': booking.adults, 
+        }
+        form = BookingOptionsForm(initial=initial_data)
+
+    context = {
+        'form': form,
+        'booking': booking,
+        # Lấy lại hạng phòng để hiển thị thông tin và tính tiền bằng JS
+        'room_class': booking.room_class 
+    }
+    # Tái sử dụng template của trang Tùy chọn đặt phòng
+    return render(request, 'booking/booking_options.html', context)
+
+def is_admin(user):
+    return user.is_authenticated and user.role == 'ADMIN'
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Mixin để đảm bảo chỉ Admin mới có thể truy cập."""
+    def test_func(self):
+        return is_admin(self.request.user)
+
+class RoomTypeListView(AdminRequiredMixin, ListView):
+    """View hiển thị danh sách tất cả các Loại phòng."""
+    model = RoomType
+    template_name = 'booking/dashboard_roomtype_list.html'
+    context_object_name = 'room_types'
+
+class RoomTypeCreateView(AdminRequiredMixin, CreateView):
+    """View hiển thị form để tạo mới một Loại phòng."""
+    model = RoomType
+    template_name = 'booking/dashboard_roomtype_form.html'
+    fields = ['name', 'description', 'image']
+    success_url = reverse_lazy('room_type_list')
+
+class RoomTypeUpdateView(AdminRequiredMixin, UpdateView):
+    """View hiển thị form để chỉnh sửa một Loại phòng."""
+    model = RoomType
+    template_name = 'booking/dashboard_roomtype_form.html'
+    fields = ['name', 'description', 'image']
+    success_url = reverse_lazy('room_type_list')
+
+class RoomTypeDeleteView(AdminRequiredMixin, DeleteView):
+    """View xử lý việc xóa một Loại phòng."""
+    model = RoomType
+    success_url = reverse_lazy('room_type_list')
+
+class RoomClassListView(AdminRequiredMixin, ListView):
+    """View hiển thị danh sách tất cả các Hạng phòng."""
+    model = RoomClass
+    template_name = 'booking/dashboard_roomclass_list.html'
+    context_object_name = 'room_classes'
+
+class RoomClassCreateView(AdminRequiredMixin, CreateView):
+    """View hiển thị form để tạo mới một Hạng phòng."""
+    model = RoomClass
+    template_name = 'booking/dashboard_roomclass_form.html'
+    fields = ['room_type', 'name', 'description', 'base_price', 'area', 'amenities', 'image']
+    success_url = reverse_lazy('room_class_list_admin') # Đổi tên để tránh trùng lặp
+
+class RoomClassUpdateView(AdminRequiredMixin, UpdateView):
+    """View hiển thị form để chỉnh sửa một Hạng phòng."""
+    model = RoomClass
+    template_name = 'booking/dashboard_roomclass_form.html'
+    fields = ['room_type', 'name', 'description', 'base_price', 'area', 'amenities', 'image']
+    success_url = reverse_lazy('room_class_list_admin')
+
+class RoomClassDeleteView(AdminRequiredMixin, DeleteView):
+    """View xử lý việc xóa một Hạng phòng."""
+    model = RoomClass
+    success_url = reverse_lazy('room_class_list_admin')
+
+class RoomListView(AdminRequiredMixin, ListView):
+    """View hiển thị danh sách tất cả các phòng vật lý."""
+    model = Room
+    template_name = 'booking/dashboard_room_list.html'
+    context_object_name = 'rooms'
+
+class RoomCreateView(AdminRequiredMixin, CreateView):
+    """View hiển thị form để tạo mới một phòng."""
+    model = Room
+    template_name = 'booking/dashboard_room_form.html'
+    fields = ['room_class', 'room_number', 'status']
+    success_url = reverse_lazy('room_list_admin')
+
+class RoomUpdateView(AdminRequiredMixin, UpdateView):
+    """View hiển thị form để chỉnh sửa một phòng."""
+    model = Room
+    template_name = 'booking/dashboard_room_form.html'
+    fields = ['room_class', 'room_number', 'status']
+    success_url = reverse_lazy('room_list_admin')
+
+class RoomDeleteView(AdminRequiredMixin, DeleteView):
+    """View xử lý việc xóa một phòng."""
+    model = Room
+    success_url = reverse_lazy('room_list_admin')

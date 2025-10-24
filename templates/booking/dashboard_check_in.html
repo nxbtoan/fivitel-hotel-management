@@ -1,15 +1,18 @@
+{% extends 'dashboard_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Check-in cho Đơn hàng #{{ booking.id }}</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
+
+{% block dashboard_title %}Quản lý Đặt phòng{% endblock %}
+
+{% block header_title %}Quản lý Đặt phòng{% endblock %}
+
+{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
+{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page">
     <header class="header">
         <h1>Check-in cho Đơn hàng #{{ booking.id }}</h1>
-        <a href="{% url 'manage_bookings' %}">‹ Quay lại Quản lý</a>
+        <a class="btn-action" href="{% url 'manage_bookings' %}">‹ Quay lại Quản lý</a>
     </header>
 
     <div class="container">
@@ -40,5 +43,5 @@
             </form>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

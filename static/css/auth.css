@@ -1,0 +1,160 @@
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Font hiện đại */
+    background: linear-gradient(135deg, #6dd5ed, #2193b0); /* Nền gradient xanh mát */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #333; /* Màu chữ mặc định */
+}
+
+/* --- KHUNG CHỨA FORM CHÍNH --- */
+.auth-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 15px; /* Bo tròn nhiều hơn */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); /* Đổ bóng sâu hơn */
+    width: 100%;
+    max-width: 680px; /* Chiều rộng tối đa */
+    box-sizing: border-box;
+    animation: fadeIn 0.8s ease-out; /* Hiệu ứng fade in */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- LOGO --- */
+.auth-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.auth-logo img {
+    max-width: 150px; /* Kích thước logo */
+    height: auto;
+}
+
+/* --- TIÊU ĐỀ & PHỤ ĐỀ --- */
+.auth-title {
+    text-align: center;
+    color: #1a2a44;
+    font-size: 2em; /* Kích thước lớn hơn */
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.1em;
+    margin-top: -5px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* --- ĐỊNH DẠNG FORM CHUNG --- */
+form p { /* Django mặc định dùng thẻ <p> cho mỗi trường */
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #34495e;
+}
+
+/* Các trường input và select */
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="date"],
+form input[type="number"],
+form select {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* Bo tròn input */
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fcfcfc;
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #333;
+}
+
+form input:focus,
+form select:focus {
+    border-color: #007bff; /* Viền xanh khi focus */
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+    outline: none;
+    background-color: #fff;
+}
+
+/* --- THÔNG BÁO LỖI VÀ HƯỚNG DẪN --- */
+.errorlist {
+    list-style: none;
+    padding: 12px 20px;
+    margin: 10px 0 20px 0;
+    color: #dc3545; /* Màu đỏ cho lỗi */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    font-size: 0.9em;
+}
+.errorlist li {
+    margin-bottom: 5px;
+}
+
+.helptext {
+    font-size: 0.85em;
+    color: #6c757d;
+    display: block;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+/* --- NÚT BẤM CHÍNH --- */
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.2em;
+    font-weight: 700;
+    background: linear-gradient(45deg, #007bff, #0056b3); /* Nút gradient */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px); /* Hiệu ứng nổi */
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+/* --- LIÊN KẾT PHỤ --- */
+.extra-links {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95em;
+    flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+}
+
+.extra-links a {
+    color: #007bff;
+    text-decoration: none;
+    padding: 5px 0; /* Khoảng cách cho các link */
+}
+
+.extra-links a:hover {
+    text-decoration: underline;
+}
+
