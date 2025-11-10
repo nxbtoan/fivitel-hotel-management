@@ -41,7 +41,7 @@ body {
 /* --- TIÊU ĐỀ & PHỤ ĐỀ --- */
 .auth-title {
     text-align: center;
-    color: #1a2a44;
+    color: #EBB923;
     font-size: 2em; /* Kích thước lớn hơn */
     font-weight: 700;
     margin-bottom: 10px;
@@ -158,3 +158,26 @@ form select:focus {
     text-decoration: underline;
 }
 
+/*--- CSS Logo ---*/
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.logo-highlight {
+    color: #EBB923;
+    letter-spacing: 1px;
+}
+
+.logo-city {
+    color: #0A378C;
+}

@@ -15,7 +15,7 @@
         <h1>Chào mừng đến với Fivitel</h1>
         <p>Nơi trải nghiệm nghỉ dưỡng đẳng cấp giao thoa cùng vẻ đẹp Đà Nẵng</p>
 
-        <form action="#" method="get" class="booking-widget">
+        <form action="{% url 'room_type_list_view' %}" method="get" class="booking-widget">
             <div class="widget-field">
                 <label for="checkin">Nhận phòng</label>
                 <input type="date" id="checkin" name="checkin">

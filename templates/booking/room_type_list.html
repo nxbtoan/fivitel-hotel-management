@@ -14,8 +14,9 @@
     <div class="container">
         <div class="card-grid">
             {% for type in room_types %}
-            <a href="{% url 'room_class_list' type.pk %}" class="room-type-card">
-                {% if type.image %}
+            
+            <a href="{% url 'room_class_list' type.pk %}?{{ request.GET.urlencode }}" class="room-type-card">
+            {% if type.image %}
                     <img src="{{ type.image.url }}" alt="{{ type.name }}">
                 {% else %}
                     <div class="placeholder-image"></div>

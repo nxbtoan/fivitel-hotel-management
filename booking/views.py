@@ -50,13 +50,58 @@ def room_class_list_view(request, room_type_id):
     Vô hiệu hóa nút đặt phòng nếu hạng phòng đã hết.
     """
     room_type = get_object_or_404(RoomType, pk=room_type_id)
-    # Sử dụng annotate để tạo một trường mới 'available_rooms_count'
-    # đếm số phòng ('rooms') có trạng thái là 'AVAILABLE'
-    room_classes = room_type.classes.annotate(
-        available_rooms_count=Count('rooms', filter=Q(rooms__status='AVAILABLE'))
-    ).all()
 
-    # Xử lý chuỗi tiện ích để hiển thị
+    # 1. Lấy thông tin tìm kiếm từ URL
+    check_in_str = request.GET.get('check_in')
+    check_out_str = request.GET.get('check_out')
+    adults = int(request.GET.get('adults', 1)) # Mặc định là 1 người lớn
+    children = int(request.GET.get('children', 0)) # Mặc định là 0 trẻ em
+    total_guests = adults + children
+
+    # 2. Lọc cơ bản: Lấy các hạng phòng thuộc loại này VÀ có đủ sức chứa
+    room_classes = room_type.classes.filter(
+        max_occupancy__gte=total_guests
+    ).annotate(
+        total_rooms_count=Count('rooms')
+    )
+
+    # 3. Lọc nâng cao (Nếu có ngày):
+    if check_in_str and check_out_str:
+        try:
+            check_in = datetime.strptime(check_in_str, '%Y-%m-%d').date()
+            check_out = datetime.strptime(check_out_str, '%Y-%m-%d').date()
+
+            if check_in >= check_out:
+                raise ValueError("Ngày trả phòng phải sau ngày nhận phòng")
+
+            # Định nghĩa các đơn hàng bị trùng lặp (overlap)
+            overlap_filter = (
+                Q(booking__check_in_date__lt=check_out) &
+                Q(booking__check_out_date__gt=check_in) &
+                ~Q(booking__status__in=[Booking.Status.CANCELLED, Booking.Status.EXPIRED])
+            )
+
+            # Đếm số phòng đã bị đặt trong khoảng ngày đó
+            room_classes = room_classes.annotate(
+                booked_rooms_count=Count('booking', filter=overlap_filter)
+            ).annotate(
+                # Tính số phòng còn trống = Tổng - Đã đặt
+                available_rooms_count=F('total_rooms_count') - F('booked_rooms_count')
+            )
+            
+        except (ValueError, TypeError):
+            # Nếu ngày không hợp lệ, quay về logic đếm phòng "AVAILABLE" cơ bản
+            messages.error(request, "Ngày không hợp lệ. Vui lòng chọn lại.")
+            room_classes = room_classes.annotate(
+                available_rooms_count=Count('rooms', filter=Q(rooms__status='AVAILABLE'))
+            )
+    else:
+        # Nếu không có ngày, chỉ đếm số phòng có status 'AVAILABLE'
+        room_classes = room_classes.annotate(
+            available_rooms_count=Count('rooms', filter=Q(rooms__status='AVAILABLE'))
+        )
+
+    # Xử lý chuỗi tiện ích (Giữ nguyên)
     for r_class in room_classes:
         r_class.amenities_list = [amenity.strip() for amenity in r_class.amenities.split(',')]
 
