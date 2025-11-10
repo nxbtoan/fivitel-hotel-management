@@ -5,7 +5,8 @@ from django_countries.fields import CountryField
 class CustomUser(AbstractUser):
     class Role(models.TextChoices):
         CUSTOMER = 'CUSTOMER', 'Khách hàng'
-        STAFF = 'STAFF', 'Nhân viên'
+        RECEPTION = 'RECEPTION', 'Lễ tân'
+        SUPPORT = 'SUPPORT', 'CSKH'
         ADMIN = 'ADMIN', 'Quản lý'
 
     role = models.CharField(

@@ -9,7 +9,7 @@ db.sqlite3
 __pycache__/
 *.pyc
 
-# Các file media và static do người dùng tải lên (nếu có)
+# Các file media và static do người dùng tải lên
 /media/
 /static_root/
 

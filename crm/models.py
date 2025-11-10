@@ -1,4 +1,3 @@
-# crm/models.py
 import uuid
 from django.db import models
 from django.conf import settings
@@ -39,6 +38,11 @@ class Ticket(models.Model):
     type = models.CharField(max_length=20, choices=Type.choices, verbose_name="Loại yêu cầu")
     description = models.TextField(verbose_name="Nội dung chi tiết")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW, verbose_name="Trạng thái")
+    resolution_details = models.TextField(
+        verbose_name="Kết quả xử lý (cuối cùng)", 
+        blank=True, null=True,
+        help_text="Ghi lại nguyên nhân, giải pháp, đền bù (nếu có) sau khi ticket đã hoàn thành."
+    )
     assigned_to = models.ForeignKey(
         CustomUser, 
         on_delete=models.SET_NULL, 

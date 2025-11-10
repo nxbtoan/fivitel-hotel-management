@@ -47,7 +47,8 @@ class AdminUserCreationForm(UserCreationForm):
         self.fields['email'].label = "Địa chỉ email"
         self.fields['role'].label = "Vai trò"
         self.fields['role'].choices = [
-            (CustomUser.Role.STAFF, 'Nhân viên'),
+            (CustomUser.Role.RECEPTION, 'Lễ tân'),
+            (CustomUser.Role.SUPPORT, 'CSKH'),
             (CustomUser.Role.ADMIN, 'Quản lý'),
         ]
         self.fields['is_staff'].label = "Là nhân viên"

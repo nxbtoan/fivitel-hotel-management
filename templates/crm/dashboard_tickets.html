@@ -23,7 +23,12 @@
                 <th>Tiêu đề / Loại YC</th>
                 <th>Ngày gửi</th>
                 <th>Trạng thái</th>
-                <th>Nhân viên xử lý</th>
+                
+                {% if header_title == 'Quản lý Khiếu nại' %}
+                    <th>Nhân viên xử lý</th>
+                {% else %}
+                    <th>Bộ phận xử lý</th>
+                {% endif %}
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -41,26 +46,39 @@
                 <td>{{ ticket.subject|default:ticket.get_type_display }}</td>
                 <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
                 <td><span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+                
                 <td>
-                    <form action="{% url 'assign_ticket' ticket.pk %}" method="post" class="assign-form">
-                        {% csrf_token %}
-                        <select name="staff_member" class="form-control form-control-sm">
-                            <option value="">-- Trống --</option>
-                            {% for staff in staff_members %}
-                                <option value="{{ staff.pk }}" {% if ticket.assigned_to == staff %}selected{% endif %}>
-                                    {{ staff.username }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn-action edit" style="margin-left: 5px;">Lưu</button>
-                    </form>
+                    {% if header_title == 'Quản lý Khiếu nại' %}
+                        {% if user.role == 'ADMIN' %}
+                            <form action="{% url 'assign_ticket' ticket.pk %}" method="post" class="assign-form">
+                                {% csrf_token %}
+                                <select name="staff_member" class="form-control form-control-sm">
+                                    <option value="">-- Trống --</option>
+                                    {% for staff in staff_members %}
+                                        <option value="{{ staff.pk }}" {% if ticket.assigned_to == staff %}selected{% endif %}>
+                                            {{ staff.username }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-action edit" style="margin-left: 5px;">Lưu</button>
+                            </form>
+                        {% else %}
+                             {{ ticket.assigned_to.username|default:"Chưa ai nhận" }}
+                        {% endif %}
+                    {% else %}
+                        {% if ticket.type == 'BOOKING_SUPPORT' %}
+                            <span style="color: #0A378C; font-weight: 500;">Lễ tân</span>
+                        {% else %}
+                            <span style="color: #6f42c1; font-weight: 500;">CSKH</span>
+                        {% endif %}
+                    {% endif %}
                 </td>
                 <td class="action-buttons">
                     <a href="{% url 'ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết</a>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" style="text-align: center; padding: 20px;">Không có yêu cầu nào phù hợp.</td></tr>
+            <tr><td colspan="7" style="text-align: center; padding: 20px;">Không có yêu cầu nào phù hợp.</td></tr>
             {% endfor %}
         </tbody>
     </table>

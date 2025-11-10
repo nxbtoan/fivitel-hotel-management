@@ -2,20 +2,18 @@ from django import forms
 from captcha.fields import CaptchaField
 from .models import TicketResponse, Ticket
 from django.forms.widgets import ClearableFileInput
-
+from django.utils import timezone
 
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
-
 
 class ConsultationRequestForm(forms.Form):
     """
     Form cho phép khách hàng gửi yêu cầu tư vấn.
     """
     REQUEST_TYPE_CHOICES = [
-        ('CONSULTATION', 'Tư vấn Dịch vụ'),
-        ('BOOKING_SUPPORT', 'Hỗ trợ Đặt phòng'),
-        ('OTHER', 'Yêu cầu Khác'),
+        (choice[0], choice[1]) for choice in Ticket.Type.choices 
+        if choice[0] != Ticket.Type.COMPLAINT
     ]
 
     full_name = forms.CharField(
@@ -89,8 +87,16 @@ class ComplaintForm(forms.ModelForm):
             'attachment': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_incident_time(self):
+        incident_time = self.cleaned_data.get('incident_time')
+        if incident_time and incident_time > timezone.now():
+            raise forms.ValidationError("Thời gian xảy ra vụ việc không thể ở tương lai.")
+        return incident_time
+    
 class TicketEditForm(forms.ModelForm):
-    """Form cho phép khách hàng sửa nội dung yêu cầu tư vấn."""
+    """
+    Form cho phép khách hàng sửa nội dung yêu cầu tư vấn.
+    """
     class Meta:
         model = Ticket
         fields = ['description'] # Chỉ cho phép sửa trường nội dung
@@ -135,4 +141,22 @@ class CustomerResponseForm(forms.ModelForm):
         }
         labels = {
             'message': 'Nội dung trả lời của bạn'
+        }
+
+class ComplaintResolutionForm(forms.ModelForm):
+    """
+    Form cho phép CSKH nhập kết quả xử lý cuối cùng cho một Khiếu nại.
+    """
+    class Meta:
+        model = Ticket
+        fields = ['resolution_details'] # Chỉ lấy trường "Kết quả xử lý"
+        labels = {
+            'resolution_details': 'Kết quả xử lý (Nguyên nhân, Giải pháp, Đền bù...)'
+        }
+        widgets = {
+            'resolution_details': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Nhập kết quả xử lý cuối cùng tại đây...'
+            }),
         }

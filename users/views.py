@@ -11,8 +11,13 @@ from .forms import CustomerRegistrationForm, AdminUserCreationForm, UserUpdateFo
 from .models import CustomUser
 import random
 
+# ==============================================================================
+# PHẦN 1: VIEWS ĐĂNG KÝ, ĐĂNG NHẬP VÀ XÁC THỰC KHI QUÊN MẬT KHẨU PHÍA NGƯỜI DÙNG
+# ==============================================================================
 def register(request):
-    """View xử lý trang đăng ký công khai cho khách hàng."""
+    """
+    View xử lý trang đăng ký công khai cho khách hàng.
+    """
     if request.method == 'POST':
         form = CustomerRegistrationForm(request.POST)
         if form.is_valid():
@@ -34,10 +39,7 @@ def logout_view(request):
     messages.success(request, "Bạn đã đăng xuất thành công.")
     return redirect('login')
 
-@login_required
-def homepage(request):
-    return render(request, 'homepage.html')
-
+# --- Quy trình Đặt lại Mật khẩu bằng OTP ---
 def request_password_reset_code(request):
     """
     Bước 1: Nhận email, tạo mã OTP, lưu mã vào session, và gửi email.
@@ -103,7 +105,6 @@ def verify_password_reset_code(request):
         
     return render(request, 'registration/password_reset_verify.html', {'form': form})
 
-
 def set_new_password(request):
     """
     Bước 3: Người dùng đã xác thực, cho phép đặt mật khẩu mới.
@@ -139,21 +140,12 @@ def set_new_password(request):
         
     return render(request, 'registration/password_reset_set_new.html', {'form': form})
 
-# --- Các view quản lý nhân sự trong dashboard ---
-
-def is_staff_member(user):
-    return user.is_authenticated and user.is_staff
-
-@user_passes_test(is_staff_member)
-def staff_dashboard_view(request):
-    """
-    Hiển thị trang tổng quan (dashboard) dành riêng cho các nhân viên.
-    View này yêu cầu người dùng phải đăng nhập và có cờ is_staff = True.
-    """
-    context = {
-        'user': request.user
-    }
-    return render(request, 'dashboard.html', context)
+# ==============================================================================
+# PHẦN 2: VIEWS CỦA NGƯỜI DÙNG (KHÁCH HÀNG & CHUNG)
+# ==============================================================================
+@login_required
+def homepage(request):
+    return render(request, 'homepage.html')
 
 @login_required
 def login_redirect_view(request):
@@ -169,7 +161,7 @@ def login_redirect_view(request):
     else:
         # Nếu là khách hàng, chuyển đến trang chủ thông thường
         return redirect('homepage')
-    
+
 @login_required
 def profile_update_view(request):
     """
@@ -193,6 +185,16 @@ def profile_update_view(request):
     }
     return render(request, 'registration/profile_update.html', context)
 
+# ==============================================================================
+# PHẦN 3: HÀM HỖ TRỢ PHÂN QUYỀN (HELPERS & MIXINS)
+# ==============================================================================
+def is_staff_member(user):
+    return user.is_authenticated and user.role in [
+        CustomUser.Role.RECEPTION, 
+        CustomUser.Role.SUPPORT, 
+        CustomUser.Role.ADMIN
+    ]
+
 # Hàm kiểm tra user có phải là Admin không
 def is_admin(user):
     return user.is_authenticated and user.role == 'ADMIN'
@@ -205,37 +207,90 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Mixin để đảm bảo chỉ Admin mới có thể truy cập."""
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == 'ADMIN'
+    
+# ==============================================================================
+# PHẦN 4: VIEWS QUẢN LÝ DASHBOARD (STAFF & ADMIN)
+# ==============================================================================
+@login_required
+@user_passes_test(is_staff_member)
+def staff_dashboard_view(request):
+    """
+    Hiển thị trang tổng quan (dashboard) dành riêng cho các nhân viên.
+    View này yêu cầu người dùng phải đăng nhập và có cờ is_staff = True.
+    """
+    context = {
+        'user': request.user
+    }
+    return render(request, 'dashboard.html', context)
 
 class UserListView(AdminRequiredMixin, ListView):
-    """View hiển thị danh sách tất cả các tài khoản người dùng."""
+    """
+    View hiển thị danh sách tất cả các tài khoản người dùng.
+    """
     model = CustomUser
     template_name = 'users/dashboard_user_list.html'
     context_object_name = 'users'
-    queryset = CustomUser.objects.order_by('username') # Sắp xếp theo username
+    
+    def get_queryset(self):
+        return CustomUser.objects.order_by('username')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 1. Lấy filter
+        role_filter = self.request.GET.get('role')
+
+        # 2. Tạo danh sách NHÂN VIÊN
+        staff_users = CustomUser.objects.filter(is_staff=True).order_by('role', 'username')
+
+        # 3. Áp dụng filter (nếu có) CHỈ cho danh sách nhân viên
+        valid_roles = [CustomUser.Role.RECEPTION, CustomUser.Role.SUPPORT, CustomUser.Role.ADMIN]
+        if role_filter in valid_roles:
+            staff_users = staff_users.filter(role=role_filter)
+        
+        # 4. Tạo danh sách KHÁCH HÀNG
+        customer_users = CustomUser.objects.filter(is_staff=False, role=CustomUser.Role.CUSTOMER).order_by('-date_joined')
+
+        # 5. Gửi các lựa chọn filter
+        context['role_choices'] = [
+            (CustomUser.Role.RECEPTION, CustomUser.Role.RECEPTION.label),
+            (CustomUser.Role.SUPPORT, CustomUser.Role.SUPPORT.label),
+            (CustomUser.Role.ADMIN, CustomUser.Role.ADMIN.label),
+        ]
+
+        # 6. Gửi 2 danh sách riêng biệt ra template
+        context['staff_users'] = staff_users
+        context['customer_users'] = customer_users
+        context['current_filter'] = role_filter
+        
+        return context
 
 class UserCreateView(AdminRequiredMixin, CreateView):
-    """View hiển thị form để tạo mới một người dùng (nhân viên)."""
+    """
+    (Admin) View hiển thị form để tạo mới một người dùng (nhân viên).
+    """
     model = CustomUser
-    form_class = AdminUserCreationForm # Sử dụng form tùy chỉnh
+    form_class = AdminUserCreationForm # Form này đã sửa ở bước trước
     template_name = 'users/dashboard_user_form.html'
     success_url = reverse_lazy('user_list_admin')
 
 class UserUpdateView(AdminRequiredMixin, UpdateView):
-    """View hiển thị form để chỉnh sửa thông tin và vai trò của người dùng."""
+    """
+    (Admin) View hiển thị form để chỉnh sửa thông tin và vai trò của người dùng.
+    """
     model = CustomUser
     template_name = 'users/dashboard_user_form.html'
-    fields = ['username', 'full_name', 'email', 'role', 'is_staff', 'is_active'] # Các trường Admin được phép sửa
+    fields = ['username', 'full_name', 'email', 'role', 'is_active']
     success_url = reverse_lazy('user_list_admin')
 
 @login_required
-@user_passes_test(is_admin) # Chỉ Admin mới được thực hiện
+@user_passes_test(is_admin)
 def toggle_user_active_view(request, pk):
     """
-    Xử lý việc Khóa (deactivate) hoặc Mở khóa (activate) tài khoản người dùng.
+    (Admin) Xử lý việc Khóa (deactivate) hoặc Mở khóa (activate) tài khoản.
     """
     user_to_toggle = get_object_or_404(CustomUser, pk=pk)
     
-    # Không cho phép Admin tự khóa tài khoản của chính mình
     if user_to_toggle == request.user:
         messages.error(request, "Bạn không thể tự khóa tài khoản của chính mình.")
         return redirect('user_list_admin')

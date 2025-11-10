@@ -595,3 +595,67 @@
 .service-management-page .btn-secondary:hover {
     background-color: #dee2e6;
 }
+
+/* ============================================= */
+/* CSS NÂNG CẤP CHO CHAT TRONG CRM               */
+/* ============================================= */
+
+/* Ghi đè lên .response-history cũ */
+.dashboard-page .response-history {
+    max-height: 500px; /* Tăng chiều cao */
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f8f9fa; /* Nền xám nhạt cho toàn khung chat */
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column; /* Sắp xếp tin nhắn theo chiều dọc */
+}
+
+/* Bong bóng chat chung */
+.dashboard-page .chat-bubble {
+    padding: 12px 18px;
+    border-radius: 18px;
+    margin-bottom: 15px;
+    max-width: 80%;
+    line-height: 1.5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Tin nhắn của Khách hàng (Trái, Xám) */
+.dashboard-page .chat-bubble.customer-response {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    color: #333;
+    border-top-left-radius: 4px;
+    margin-right: auto; /* Đẩy sang trái */
+    align-self: flex-start; /* Quan trọng */
+}
+
+/* Tin nhắn của Nhân viên (Phải, Xanh) */
+.dashboard-page .chat-bubble.staff-response {
+    background-color: #0A378C; /* Màu xanh dương chủ đạo */
+    color: #ffffff;
+    border-top-right-radius: 4px;
+    margin-left: auto; /* Đẩy sang phải */
+    align-self: flex-end; /* Quan trọng */
+}
+
+/* Thông tin người gửi và thời gian */
+.dashboard-page .chat-meta {
+    display: block;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.dashboard-page .chat-bubble.customer-response .chat-meta {
+    color: #555;
+}
+.dashboard-page .chat-bubble.staff-response .chat-meta {
+    color: #a5d8ff; /* Màu xanh nhạt */
+}
+
+.dashboard-page .chat-bubble p {
+    margin: 0;
+}

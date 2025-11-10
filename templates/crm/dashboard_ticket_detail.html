@@ -11,23 +11,42 @@
 {% block dashboard_content %}
 <div class="ticket-detail-grid">
     <div class="ticket-main-content">
+        
         <div class="checkout-section">
             <h2>{{ ticket.subject|default:"Nội dung yêu cầu của khách hàng" }}</h2>
             <p style="white-space: pre-wrap; line-height: 1.7;">{{ ticket.description }}</p>
 
             {% if ticket.attachment %}
-                <div class="attachment-box">
+                <div class="attachment-box" style="margin-top: 15px; font-size: 0.9em;">
                     <strong>Tệp đính kèm:</strong>
-                    <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link">
-                        <svg xmlns="http://www.w.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                        Xem tệp
+                    <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link" style="text-decoration: none; font-weight: 600; color: #007bff;">
+                        <i class="fas fa-paperclip"></i> Xem tệp
                     </a>
                 </div>
             {% endif %}
         </div>
 
         <div class="checkout-section">
-            <h2>Gửi phản hồi mới</h2>
+            <h2>Lịch sử Phản hồi</h2>
+            <div class="response-history">
+                {% for response in responses %}
+                    <div class="chat-bubble {% if response.responder.is_staff %}staff-response{% else %}customer-response{% endif %}">
+                        <span class="chat-meta">
+                            {{ response.responder.full_name|default:response.responder.username }}
+                            -
+                            <span class="timestamp">{{ response.created_at|date:"d/m H:i" }}</span>
+                        </span>
+                        <p>{{ response.message|linebreaksbr }}</p>
+                    </div>
+                {% empty %}
+                    <p style="text-align: center; color: #888;">Chưa có phản hồi nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if ticket.status != 'RESOLVED' %}
+        <div class="checkout-section">
+            <h2>Gửi phản hồi mới (Chat)</h2>
             <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="form-field">
@@ -35,9 +54,32 @@
                     {{ form.message|add_attr:"class:form-control" }}
                     {{ form.message.errors }}
                 </div>
-                <button type="submit" class="btn-book" style="margin-top: 15px;">Gửi phản hồi</button>
+                <button type="submit" name="submit_response" class="btn-book" style="margin-top: 15px;">Gửi phản hồi</button>
             </form>
         </div>
+        {% endif %}
+        
+        {% if ticket.type == 'COMPLAINT' %}
+        <div class="checkout-section">
+            {% if ticket.status == 'RESOLVED' and ticket.resolution_details %}
+                <h2>Kết quả xử lý (Đã đóng)</h2>
+                <p style="white-space: pre-wrap; line-height: 1.7; background: #f9f9f9; padding: 15px; border-radius: 8px;">{{ ticket.resolution_details }}</p>
+            {% else %}
+                <h2>Ghi nhận Kết quả xử lý (Đóng Khiếu nại)</h2>
+                <p>Chỉ điền vào mục này khi khiếu nại đã được xử lý xong (sẽ tự động chuyển trạng thái "Đã hoàn thành").</p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="form-field">
+                        {{ resolution_form.resolution_details.label_tag }}
+                        {{ resolution_form.resolution_details|add_attr:"class:form-control" }}
+                        {{ resolution_form.resolution_details.errors }}
+                    </div>
+                    <button type="submit" name="submit_resolution" class="btn-action confirm" style="width: 100%; margin-top: 15px; background-color: #28a745;">Lưu Kết quả và Đóng Khiếu nại</button>
+                </form>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
 
     <aside class="ticket-sidebar">
@@ -59,32 +101,38 @@
             <p><strong>Ngày gửi:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
             <p><strong>Trạng thái:</strong> <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></p>
 
-            {% if ticket.status != 'RESOLVED' %}
+            {% if ticket.status != 'RESOLVED' and ticket.type != 'COMPLAINT' %}
             <form action="{% url 'resolve_ticket' ticket.pk %}" method="post" style="margin-top: 15px;">
                 {% csrf_token %}
-                <button type="submit" class="btn-action confirm" style="width: 100%;" onclick="return confirm('Bạn có chắc chắn muốn đóng yêu cầu này không?')">
+                <button type="submit" class="btn-action confirm" style="width: 100%; background-color: #28a745;" onclick="return confirm('Bạn có chắc chắn muốn đóng yêu cầu này không?')">
                     Đánh dấu là Đã hoàn thành
                 </button>
             </form>
             {% endif %}
         </div>
         
+        {% if user.role == 'ADMIN' and ticket.type == 'COMPLAINT' %}
         <div class="checkout-section">
-            <h2>Lịch sử Phản hồi</h2>
-            <div class="response-history">
-                {% for response in responses %}
-                    <div class="response-item">
-                        <div class="response-header">
-                            <span class="responder-name">{{ response.responder.username }}</span>
-                            <span class="timestamp">{{ response.created_at|date:"d/m H:i" }}</span>
-                        </div>
-                        <p>{{ response.message|linebreaksbr }}</p>
-                    </div>
-                {% empty %}
-                    <p>Chưa có phản hồi nào.</p>
-                {% endfor %}
-            </div>
+            <h2>Phân công Nhân viên</h2>
+            <form action="{% url 'assign_ticket' ticket.pk %}" method="post" class="assign-form" style="display: flex; flex-direction: column; gap: 10px;">
+                {% csrf_token %}
+                <select name="staff_member" class="form-control">
+                    <option value="">-- Trống --</option>
+                    {% for staff in staff_members %}
+                        <option value="{{ staff.pk }}" {% if ticket.assigned_to == staff %}selected{% endif %}>
+                            {{ staff.username }} ({{ staff.get_role_display }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-action edit" style="width: 100%;">Lưu phân công</button>
+            </form>
         </div>
+        {% elif ticket.assigned_to %}
+        <div class="checkout-section">
+             <h2>Nhân viên xử lý</h2>
+             <p style="font-weight: bold; color: #0A378C; font-size: 1.1em;">{{ ticket.assigned_to.full_name|default:ticket.assigned_to.username }}</p>
+        </div>
+        {% endif %}
     </aside>
 </div>
 {% endblock %}

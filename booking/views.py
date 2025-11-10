@@ -492,7 +492,7 @@ def check_and_lock_booking(booking):
     return False
 
 def is_reception_staff(user):
-    return user.is_authenticated and (user.role in ['STAFF', 'ADMIN'])
+    return user.is_authenticated and (user.role in ['RECEPTION', 'ADMIN'])
 
 def is_admin(user):
     return user.is_authenticated and user.role == 'ADMIN'

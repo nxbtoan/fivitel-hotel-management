@@ -1,15 +1,25 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block dashboard_title %}Quản lý Nhân sự{% endblock %}
-{% block header_title %}Quản lý Nhân sự{% endblock %}
+{% block dashboard_title %}Quản lý Người dùng{% endblock %}
+{% block header_title %}Quản lý Người dùng{% endblock %}
 {% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
 {% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
 
 {% block dashboard_content %}
-    <div style="margin-bottom: 20px; text-align: right;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #0A378C; margin: 0;">Quản lý Nhân sự</h2>
         <a href="{% url 'user_create' %}" class="btn-action confirm">Thêm Người dùng mới</a>
     </div>
+
+    <nav class="filter-nav" style="margin-bottom: 20px;">
+        <a href="{% url 'user_list_admin' %}" class="{% if not current_filter %}active{% endif %}">Tất cả Nhân viên</a>
+        {% for value, label in role_choices %}
+            <a href="?role={{ value }}" class="{% if current_filter == value %}active{% endif %}">{{ label }}</a>
+        {% endfor %}
+    </nav>
+
     <div class="table-container">
         <table class="booking-table">
             <thead>
@@ -22,40 +32,92 @@
                     <th style="width: 200px;">Hành động</th>
                 </tr>
             </thead>
-                <tbody>
-                    {% for user_obj in users %} {# Biến đúng là user_obj #}
-                    <tr>
-                        <td><strong>{{ user_obj.username }}</strong></td>
-                        <td>{{ user_obj.full_name }}</td>
-                        <td>{{ user_obj.email }}</td>
-                        <td>{{ user_obj.get_role_display }}</td>
-                        <td>
+            <tbody>
+                {% for user_obj in staff_users %}
+                <tr>
+                    <td><strong>{{ user_obj.username }}</strong></td>
+                    <td>{{ user_obj.full_name }}</td>
+                    <td>{{ user_obj.email }}</td>
+                    <td>{{ user_obj.get_role_display }}</td>
+                    <td>
+                        {% if user_obj.is_active %}
+                            <span class="status-badge status-ACTIVE">Hoạt động</span>
+                        {% else %}
+                            <span class="status-badge status-INACTIVE">Đã khóa</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-buttons">
+                        <a href="{% url 'user_update' user_obj.pk %}" class="btn-action edit">Sửa</a>
+                        {% if user_obj != request.user %} 
+                            <form action="{% url 'user_toggle_active' user_obj.pk %}" method="post" 
+                                onsubmit="return confirm('Bạn có chắc chắn muốn {{ user_obj.is_active|yesno:'Khóa,Mở khóa' }} tài khoản này?');" 
+                                style="display: inline;">
+                                {% csrf_token %}
+                                {% if user_obj.is_active %}
+                                    <button type="submit" class="btn-action cancel">Khóa</button>
+                                {% else %}
+                                    <button type="submit" class="btn-action confirm">Mở khóa</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px;">Không có nhân viên nào phù hợp.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2 style="color: #0A378C; margin-top: 40px; margin-bottom: 20px;">Danh sách Khách hàng</h2>
+
+    <div class="table-container">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Tên đăng nhập</th>
+                    <th>Họ và Tên</th>
+                    <th>Email</th>
+                    <th>Ngày tham gia</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 120px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_obj in customer_users %}
+                <tr>
+                    <td><strong>{{ user_obj.username }}</strong></td>
+                    <td>{{ user_obj.full_name }}</td>
+                    <td>{{ user_obj.email }}</td>
+                    <td>{{ user_obj.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if user_obj.is_active %}
+                            <span class="status-badge status-ACTIVE">Hoạt động</span>
+                        {% else %}
+                            <span class="status-badge status-INACTIVE">Đã khóa</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-buttons">
+                        <form action="{% url 'user_toggle_active' user_obj.pk %}" method="post" 
+                            onsubmit="return confirm('Bạn có chắc chắn muốn {{ user_obj.is_active|yesno:'Khóa,Mở khóa' }} tài khoản này?');" 
+                            style="display: inline;">
+                            {% csrf_token %}
                             {% if user_obj.is_active %}
-                                <span class="status-badge status-ACTIVE">Hoạt động</span>
+                                <button type="submit" class="btn-action cancel">Khóa</button>
                             {% else %}
-                                <span class="status-badge status-INACTIVE">Đã khóa</span>
+                                <button type="submit" class="btn-action confirm">Mở khóa</button>
                             {% endif %}
-                        </td>
-                        <td class="action-buttons">
-                            <a href="{% url 'user_update' user_obj.pk %}" class="btn-action edit">Sửa</a> {# Đã đúng #}
-                            
-                            {# --- SỬA LẠI TỪ user_item THÀNH user_obj Ở ĐÂY --- #}
-                            {% if user_obj != request.user %} 
-                                <form action="{% url 'user_toggle_active' user_obj.pk %}" method="post" 
-                                    onsubmit="return confirm('Bạn có chắc chắn muốn {{ user_obj.is_active|yesno:'Khóa,Mở khóa' }} tài khoản này?');" 
-                                    style="display: inline;">
-                                    {% csrf_token %}
-                                    {% if user_obj.is_active %}
-                                        <button type="submit" class="btn-action cancel">Khóa</button>
-                                    {% else %}
-                                        <button type="submit" class="btn-action confirm">Mở khóa</button>
-                                    {% endif %}
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px;">Không có khách hàng nào.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 
