@@ -2,8 +2,9 @@ from django import forms
 from django.utils import timezone
 from services.models import Service
 from .models import RoomClass, Booking, PaymentProof
-# from django_countries import countries
+
 from django_countries.fields import CountryField
+from django.core.exceptions import ValidationError
 
 class ServiceCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     """
@@ -47,30 +48,18 @@ class BookingOptionsForm(forms.Form):
         widget=ServiceCheckboxSelectMultiple,
         required=False
     )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        check_in = cleaned_data.get("check_in_date")
-        check_out = cleaned_data.get("check_out_date")
-        if check_in and check_out:
-            if check_in < timezone.now().date():
-                self.add_error('check_in_date', "Ngày nhận phòng không thể là ngày trong quá khứ.")
-            if check_out <= check_in:
-                self.add_error('check_out_date', "Ngày trả phòng phải sau ngày nhận phòng.")
-        return cleaned_data
     
 class CheckoutForm(forms.Form):
     """
     Form thu thập thông tin khách hàng ở bước cuối cùng trước khi đặt phòng.
     """
-    # --- Định nghĩa các lựa chọn ---
     BOOKING_FOR_CHOICES = [
         ('SELF', 'Cho tôi'),
         ('SOMEONE_ELSE', 'Cho người khác'),
     ]
+
     PAYMENT_METHOD_CHOICES = [
         ('BANK_TRANSFER', 'Chuyển khoản Ngân hàng'),
-        ('PAY_LATER', 'Thanh toán tại quầy'),
     ]
 
     # --- Định nghĩa các trường ---
@@ -80,10 +69,10 @@ class CheckoutForm(forms.Form):
         initial='SELF',
         required=False
     )
-    full_name = forms.CharField(label="Họ và tên khách ở chính", max_length=100)
-    email = forms.EmailField(label="Email liên hệ")
-    phone_number = forms.CharField(label="Số điện thoại", max_length=20)
-    nationality = CountryField().formfield(label="Quốc tịch")
+    full_name = forms.CharField(label="Họ và tên khách ở chính", max_length=100, required=False)
+    email = forms.EmailField(label="Email liên hệ", required=False)
+    phone_number = forms.CharField(label="Số điện thoại", max_length=20, required=False)
+    nationality = CountryField().formfield(label="Quốc tịch", required=False)
     special_requests = forms.CharField(
         label="Yêu cầu đặc biệt (nếu có)",
         widget=forms.Textarea(attrs={'rows': 4}),
@@ -91,20 +80,55 @@ class CheckoutForm(forms.Form):
     )
     payment_method = forms.ChoiceField(
         choices=PAYMENT_METHOD_CHOICES,
-        widget=forms.RadioSelect,
+        widget=forms.HiddenInput(),
         initial='BANK_TRANSFER',
         required=True
     )
 
-    # --- PHẦN QUAN TRỌNG NHẤT ĐỂ THÊM CLASS CSS ---
     def __init__(self, *args, **kwargs):
+        """
+        Lấy 'request' được truyền từ view vào.
+        """
+        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        # Tự động thêm class 'form-control' cho các trường input, select, textarea
+
+        # Thêm class 'form-control'
         self.fields['full_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['email'].widget.attrs.update({'class': 'form-control'})
         self.fields['phone_number'].widget.attrs.update({'class': 'form-control'})
         self.fields['nationality'].widget.attrs.update({'class': 'form-control'})
         self.fields['special_requests'].widget.attrs.update({'class': 'form-control'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Lấy request (đã được truyền từ view)
+        user = self.request.user if self.request else None
+        
+        # Lấy lựa chọn đặt phòng
+        booking_for = cleaned_data.get('booking_for')
+        
+        # Kiểm tra xem có phải là khách vãng lai HOẶC đặt cho người khác không
+        is_guest = not (user and user.is_authenticated)
+        is_booking_for_other = (user and user.is_authenticated and booking_for == 'SOMEONE_ELSE')
+
+        if is_guest or is_booking_for_other:
+            # Nếu là 1 trong 2 trường hợp trên, các trường thông tin PHẢI được điền
+            errors = {}
+            if not cleaned_data.get('full_name'):
+                errors['full_name'] = ValidationError("Vui lòng nhập họ và tên.")
+            if not cleaned_data.get('email'):
+                errors['email'] = ValidationError("Vui lòng nhập email.")
+            if not cleaned_data.get('phone_number'):
+                errors['phone_number'] = ValidationError("Vui lòng nhập số điện thoại.")
+            if not cleaned_data.get('nationality'):
+                errors['nationality'] = ValidationError("Vui lòng chọn quốc tịch.")
+                
+            if errors:
+                # Gửi tất cả lỗi tìm thấy cùng lúc
+                raise ValidationError(errors)
+                
+        return cleaned_data
 
 class BookingEditForm(forms.ModelForm):
     """
@@ -114,26 +138,30 @@ class BookingEditForm(forms.ModelForm):
     class Meta:
         model = Booking
         # Chỉ định các trường được phép chỉnh sửa
-        fields = ['guest_full_name', 'guest_email', 'guest_phone_number', 'additional_services']
+        fields = ['guest_full_name', 'guest_email', 'guest_phone_number', 'additional_services', 'special_requests']
         labels = {
             'guest_full_name': 'Họ tên người nhận phòng',
             'guest_email': 'Email người nhận phòng',
             'guest_phone_number': 'Số điện thoại người nhận phòng',
             'additional_services': 'Cập nhật các dịch vụ đi kèm',
+            'special_requests': 'Yêu cầu đặc biệt',
         }
         # Dùng CheckboxSelectMultiple để có giao diện chọn dịch vụ tốt hơn
         widgets = {
             'additional_services': forms.CheckboxSelectMultiple,
+            'special_requests': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
         }
 
 class PaymentProofForm(forms.ModelForm):
     """
     Form để khách hàng tải lên ảnh bằng chứng đã chuyển khoản.
     """
+    image = forms.ImageField(
+        label='Chọn ảnh bằng chứng thanh toán',
+        required=True,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'})
+    )
+    
     class Meta:
         model = PaymentProof
         fields = ['image']
-        labels = {
-            'image': 'Chọn ảnh bằng chứng thanh toán'
-        }
-

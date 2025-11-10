@@ -19,6 +19,11 @@
                   data-phone="{{ user.phone_number|default:'' }}"
                   data-nationality="{{ user.nationality.code|default:'' }}">
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
                 
                 <section class="booking-section">
                     <h3>1. Thông tin khách hàng</h3>
@@ -36,10 +41,26 @@
                     <p style="font-size: 0.9em; color: #555;">Nhập thông tin của khách ở chính.</p>
                     
                     <div id="guest-details" class="form-grid" style="margin-top: 20px;">
-                        <div class="form-field full-width">{{ form.full_name.label_tag }} {{ form.full_name }}</div>
-                        <div class="form-field">{{ form.email.label_tag }} {{ form.email }}</div>
-                        <div class="form-field">{{ form.phone_number.label_tag }} {{ form.phone_number }}</div>
-                        <div class="form-field full-width">{{ form.nationality.label_tag }} {{ form.nationality }}</div>
+                        <div class="form-field full-width">
+                        {{ form.full_name.label_tag }} 
+                        {{ form.full_name }}
+                        {{ form.full_name.errors }}
+                        </div>
+                        <div class="form-field">
+                        {{ form.email.label_tag }} 
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                        </div>
+                        <div class="form-field">
+                        {{ form.phone_number.label_tag }} 
+                        {{ form.phone_number }}
+                        {{ form.phone_number.errors }}
+                        </div>
+                        <div class="form-field full-width">
+                        {{ form.nationality.label_tag }} 
+                        {{ form.nationality }}
+                        {{ form.nationality.errors }}
+                        </div>
                     </div>
                 </section>
 
@@ -51,22 +72,15 @@
                 <section class="booking-section">
                     <h3>3. Chọn phương thức thanh toán</h3>
                     <div class="payment-options">
-                        {% for choice in form.payment_method %}
-                        <label class="payment-option-card" for="{{ choice.id_for_label }}">
-                            <div class="payment-wrapper">
-                                {{ choice.tag }}
-                                <div class="payment-info">
-                                    <strong>{{ choice.choice_label }}</strong>
-                                    {% if choice.data.value == 'PAY_LATER' %}
-                                    <p>Thanh toán toàn bộ chi phí trực tiếp tại quầy lễ tân khi bạn nhận phòng.</p>
-                                    {% elif choice.data.value == 'BANK_TRANSFER' %}
-                                    <p>Chuyển khoản trực tiếp. Lễ tân sẽ liên hệ với bạn để hướng dẫn chi tiết.</p>
-                                    {% endif %}
-                                </div>
+                        <div class="payment-option-card-static">
+                            <i class="fa fa-university" aria-hidden="true" style="margin-right: 15px; font-size: 1.5em; color: #0A378C;"></i>
+                            <div class="payment-info">
+                                <strong>Chuyển khoản Ngân hàng</strong>
+                                <p>Hình thức thanh toán duy nhất. Lễ tân sẽ liên hệ với bạn để hướng dẫn chi tiết.</p>
                             </div>
-                        </label>
-                        {% endfor %}
+                        </div>
                     </div>
+                    {{ form.payment_method }}
                 </section>
             </form>
         </main>

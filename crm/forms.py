@@ -89,7 +89,18 @@ class ComplaintForm(forms.ModelForm):
             'attachment': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
-
+class TicketEditForm(forms.ModelForm):
+    """Form cho phép khách hàng sửa nội dung yêu cầu tư vấn."""
+    class Meta:
+        model = Ticket
+        fields = ['description'] # Chỉ cho phép sửa trường nội dung
+        labels = {
+            'description': 'Nội dung yêu cầu mới'
+        }
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 6}),
+        }
+        
 class TicketResponseForm(forms.ModelForm):
     """
     Form để nhân viên CSKH nhập nội dung phản hồi.
@@ -107,7 +118,6 @@ class TicketResponseForm(forms.ModelForm):
         labels = {
             'message': 'Nội dung phản hồi'
         }
-
 
 class CustomerResponseForm(forms.ModelForm):
     """

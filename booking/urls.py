@@ -21,4 +21,6 @@ urlpatterns = [
 
     # --- BAO GỒM TẤT CẢ CÁC URL CỦA DASHBOARD ---
     path('dashboard/', include('booking.dashboard_urls')),
+
+    path('dashboard/checkin-booking/<int:pk>/', views.check_in_booking_view, name='check_in_booking'),
 ]

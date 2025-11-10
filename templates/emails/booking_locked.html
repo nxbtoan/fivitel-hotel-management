@@ -1,0 +1,64 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng đã hết hạn chỉnh sửa</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f4; }
+        table { border-collapse: collapse; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .content { padding: 30px; font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }
+        .header { padding: 20px 30px; border-bottom: 1px solid #eeeeee; }
+        .logo { max-width: 150px; }
+        .footer { padding: 30px; font-size: 12px; color: #888888; text-align: center; }
+        .button { background-color: #e6a73c; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; }
+        .info-box { background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="header">
+                            <img src="https://your-domain.com/static/images/logo.png" alt="Fivitel Logo" class="logo">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            <h1 style="color: #0A378C; font-size: 24px;">Đơn hàng #{{ booking.id }} đã hết hạn chỉnh sửa</h1>
+                            <p>Chào {{ booking.guest_full_name }},</p>
+                            <p>Đã quá 2 giờ kể từ khi bạn tạo đơn hàng #{{ booking.id }}. Đơn hàng của bạn hiện đã được <strong>khóa và không thể chỉnh sửa</strong> được nữa.</p>
+                            
+                            <div class="info-box">
+                                <p style="margin: 0;">Thông tin đơn hàng của bạn đã được chốt. Vui lòng tiến hành thanh toán để xác nhận giữ phòng.</p>
+                            </div>
+                            
+                            <ul style="padding-left: 20px; margin: 20px 0;">
+                                <li><strong>Hạng phòng:</strong> {{ booking.room_class.name }}</li>
+                                <li><strong>Tổng tiền:</strong> {{ booking.total_price|floatformat:0|intcomma }} VNĐ</li>
+                                <li><strong>Trạng thái:</strong> {{ booking.get_status_display }}</li>
+                            </ul>
+                            
+                            <p style="text-align: center; margin: 30px 0;">
+                                <a href="https://your-domain.com{% url 'payment_guidance' booking.pk %}" class="button" target="_blank">Đến trang Thanh toán</a>
+                            </p>
+                            
+                            <p>Trân trọng,<br>Đội ngũ Fivitel.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="footer">
+                            Fivitel Đà Nẵng<br>
+                            388 Trần Hưng Đạo, Sơn Trà, Đà Nẵng
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

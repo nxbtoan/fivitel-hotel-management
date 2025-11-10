@@ -1,0 +1,501 @@
+.page-banner {
+    background-color: #f8f8f8;
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('../images/page-banner-bg.jpg'); /* Tận dụng ảnh nền cũ */
+    background-size: cover;
+    background-position: center;
+    padding: 60px 0;
+    text-align: center;
+    color: #fff;
+}
+.page-banner h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.page-banner p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Khu vực danh sách dịch vụ */
+.service-list-section {
+    padding: 60px 0;
+}
+
+.service-category-group {
+    margin-bottom: 50px;
+}
+
+.category-header {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    align-items: center;
+}
+
+.category-header .category-image {
+    flex: 0 0 400px; /* Kích thước cố định cho ảnh */
+}
+.category-header .category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.category-header .category-info {
+    padding: 30px;
+}
+.category-header .category-info h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+.category-header .category-info p {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Lưới các thẻ dịch vụ con */
+.service-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.service-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.service-card-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.service-card-content {
+    padding: 20px;
+}
+
+.service-card .service-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.service-card .service-description {
+    font-size: 0.9rem;
+    color: #777;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    height: 65px; /* Giới hạn chiều cao mô tả */
+    overflow: hidden;
+}
+
+.service-card .service-price {
+    font-size: 0.9rem;
+    color: #555;
+}
+.service-card .service-price span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e6a73c; /* Màu vàng gold */
+}
+
+.no-services {
+    font-style: italic;
+    color: #888;
+}
+
+a.service-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex; /* Giúp card co giãn tốt */
+}
+
+.service-card {
+    display: flex;
+    flex-direction: column; /* Đẩy nội dung xuống dưới */
+    width: 100%; /* Đảm bảo card chiếm hết link */
+}
+
+.service-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Đẩy phần giá xuống cuối card */
+}
+
+.service-card .service-description {
+    flex-grow: 1; /* Chiếm không gian thừa */
+}
+
+.service-card .service-price {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px; /* Thêm margin */
+}
+.service-card .service-price span {
+    font-size: 1.2rem; /* Làm giá to rõ */
+    font-weight: 600;
+    color: #e6a73c;
+}
+
+.service-detail-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #e6a73c;
+    transition: all 0.2s ease;
+}
+.service-card:hover .service-detail-link {
+    color: #d3952a;
+    text-decoration: underline;
+}
+.service-detail-link i {
+    margin-left: 5px;
+}
+
+.detail-container { padding: 40px 0; }
+.detail-header {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+.detail-header .back-link {
+    display: inline-block;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+.detail-header .back-link:hover { color: #e6a73c; }
+.detail-header .back-link i { margin-right: 8px; }
+.detail-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+}
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 50px;
+}
+
+/* Cột trái: Gallery */
+.detail-gallery .gallery-main-image {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+}
+.detail-gallery .gallery-main-image img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+.gallery-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+.gallery-thumbnails .thumb-item {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+.gallery-thumbnails .thumb-item:hover { opacity: 1; }
+.gallery-thumbnails .thumb-item.active {
+    opacity: 1;
+    border-color: #e6a73c;
+}
+
+/* Cột phải: Thông tin */
+.detail-info h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.simple-pricing-box {
+    background: #fdfaf3;
+    border: 1px solid #f0e6d2;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+.simple-pricing-box .simple-price {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #e6a73c;
+    line-height: 1;
+}
+.simple-pricing-box .simple-price span {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+.simple-pricing-box .simple-price-unit {
+    font-size: 1rem;
+    color: #777;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+.detail-info p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.7;
+}
+
+.btn-book-service {
+    display: inline-block;
+    background-color: #e6a73c;
+    color: #fff;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.btn-book-service:hover { background-color: #d3952a; }
+.btn-book-service i { margin-right: 8px; }
+
+/* Phần Tabs */
+.detail-tabs {
+    border-top: 1px solid #eee;
+    padding-top: 30px;
+}
+.tab-headers {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 25px;
+}
+.tab-link {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #888;
+    position: relative;
+    bottom: -2px;
+}
+.tab-link.active {
+    color: #e6a73c;
+    border-bottom: 2px solid #e6a73c;
+}
+.tab-content {
+    display: none;
+    line-height: 1.7;
+    color: #555;
+    padding: 10px;
+}
+.tab-content.active { display: block; }
+.tab-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.highlights-list, .terms-list {
+    list-style: none;
+    padding-left: 0;
+}
+.highlights-list li {
+    padding-left: 30px;
+    position: relative;
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+}
+.highlights-list li i {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    color: #05a56d; 
+}
+.terms-list li {
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 20px;
+}
+.terms-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #e6a73c;
+    font-weight: 600;
+}
+
+
+.service-management-page .form-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    max-width: 900px; /* Tăng độ rộng để chứa formset */
+    margin: 40px auto;
+}
+
+.service-management-page .form-container h2 {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: #0A378C;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* Lưới 2 cột cho các trường thông tin chính */
+.service-management-page .form-grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px; /* Tăng khoảng cách ngang */
+}
+
+.service-management-page .form-field {
+    margin-bottom: 20px;
+}
+.service-management-page .form-field.full-width {
+    grid-column: 1 / -1; /* Trường này chiếm trọn 2 cột */
+}
+
+.service-management-page .form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+    font-size: 0.95em;
+}
+
+/* Style chung cho input, select, textarea */
+.service-management-page .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #f8f9fa;
+    box-sizing: border-box; /* Quan trọng để padding không làm vỡ layout */
+    font-size: 1em;
+    color: #333;
+    font-family: inherit; /* Đảm bảo dùng font Roboto */
+}
+
+.service-management-page .form-control:focus {
+    border-color: #0A378C;
+    box-shadow: 0 0 0 4px rgba(10, 55, 140, 0.15);
+    outline: none;
+    background-color: #ffffff;
+}
+
+.service-management-page textarea.form-control {
+    min-height: 120px;
+}
+
+/* Style cho ô upload file */
+.service-management-page .form-control-file {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.95em;
+}
+
+.service-management-page .form-field p {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.service-management-page .form-field p a {
+    color: #007bff;
+    font-weight: 600;
+}
+
+
+/* --- CSS CHO GALLERY FORMSET (PHẦN BỊ LỖI) --- */
+.service-management-page .gallery-formset {
+    display: grid;
+    /* Hiển thị 3 cột trên lưới */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 25px;
+    margin-top: 15px;
+}
+
+.service-management-page .gallery-form-item {
+    background: #fdfdfd;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.service-management-page .form-field-checkbox {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.service-management-page .form-field-checkbox label {
+    margin-bottom: 0;
+    font-weight: 500;
+    color: #dc3545; /* Màu đỏ cho chữ "Xóa" */
+}
+
+/* --- CSS CHO CÁC NÚT BẤM VÀ LỖI --- */
+
+/* Nút "Lưu Dịch vụ" (dùng lại style của dashboard) */
+.service-management-page .btn-book {
+    background-color: #28a745;
+    padding: 12px 25px; /* Làm nút to hơn */
+    border-radius: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 1em; /* Cỡ chữ to hơn */
+    transition: background-color 0.2s;
+}
+.service-management-page .btn-book:hover {
+    background-color: #218838;
+}
+
+/* CSS cho thông báo lỗi (nếu có) */
+.service-management-page .form-error-text {
+    color: #d93025;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.service-management-page .form-errors {
+    background: #fbeae9;
+    border: 1px solid #d93025;
+    color: #d93025;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    list-style: none;
+}

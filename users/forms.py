@@ -12,6 +12,7 @@ class CustomerRegistrationForm(UserCreationForm):
         model = CustomUser
         # Các trường khách hàng cần điền
         fields = ("username", "full_name", "email", "date_of_birth", "nationality", "phone_number")
+        widgets = {'date_of_birth': forms.DateInput(attrs={'type': 'date'}),}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,7 +36,8 @@ class AdminUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         # Các trường Admin cần điền khi tạo nhân viên
-        fields = ("username", "full_name", "email", 'role', "is_staff")
+        fields = ("username", "full_name", "email", "date_of_birth", 'role', "is_staff")
+        widgets = {'date_of_birth': forms.DateInput(attrs={'type': 'date'}),}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,6 +46,10 @@ class AdminUserCreationForm(UserCreationForm):
         self.fields['full_name'].label = "Họ và Tên"
         self.fields['email'].label = "Địa chỉ email"
         self.fields['role'].label = "Vai trò"
+        self.fields['role'].choices = [
+            (CustomUser.Role.STAFF, 'Nhân viên'),
+            (CustomUser.Role.ADMIN, 'Quản lý'),
+        ]
         self.fields['is_staff'].label = "Là nhân viên"
 
 class UserUpdateForm(forms.ModelForm):
@@ -70,3 +76,30 @@ class UserUpdateForm(forms.ModelForm):
             existing_attrs = field.widget.attrs
             # Thêm class 'form-control' vào
             existing_attrs['class'] = existing_attrs.get('class', '') + ' form-control'
+
+class PasswordResetEmailForm(forms.Form):
+    """Form nhập email để yêu cầu mã."""
+    email = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not CustomUser.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Không tìm thấy tài khoản nào với địa chỉ email này.")
+        return email
+
+class PasswordResetCodeForm(forms.Form):
+    """Form nhập mã OTP."""
+    code = forms.CharField(label="Mã xác thực", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '6 chữ số'}))
+
+class SetNewPasswordForm(forms.Form):
+    """Form nhập mật khẩu mới."""
+    new_password1 = forms.CharField(label="Mật khẩu mới", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password2 = forms.CharField(label="Xác nhận mật khẩu", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get("new_password1")
+        new_password2 = cleaned_data.get("new_password2")
+        if new_password1 and new_password2 and new_password1 != new_password2:
+            raise forms.ValidationError("Hai mật khẩu không khớp.")
+        return cleaned_data

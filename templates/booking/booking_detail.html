@@ -13,6 +13,14 @@
     <a href="{% url 'my_bookings' %}" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại danh sách đơn hàng</a>
     <h1 class="page-title" style="text-align: left; margin-bottom: 30px;">Chi tiết Đơn hàng #{{ booking.id }}</h1>
 
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="detail-grid">
         <main class="main-content">
             
@@ -20,115 +28,162 @@
                 <h3>Hành trình Đơn hàng</h3>
                 <ol class="status-timeline">
                     {% with current_status=booking.status %}
-                    <li class="timeline-step {% if current_status == 'PENDING' or current_status == 'CONFIRMED' or current_status == 'CHECKED_IN' or current_status == 'COMPLETED' %}completed{% endif %} {% if current_status == 'PENDING' %}current{% endif %}">
+                    <li class="timeline-step {% if current_status in 'PENDING_REVIEW,PENDING_PAYMENT,READY_FOR_PAYMENT,PAYMENT_PENDING_VERIFICATION,PAID,CONFIRMED,CHECKED_IN,COMPLETED' %}completed{% endif %} {% if current_status == 'PENDING_REVIEW' %}current{% endif %}">
                         <div class="step-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="step-label">Chờ xác nhận</div>
+                        <div class="step-label">Đang xem xét</div>
                     </li>
-                    <li class="timeline-step {% if current_status == 'CONFIRMED' or current_status == 'CHECKED_IN' or current_status == 'COMPLETED' %}completed{% endif %} {% if current_status == 'CONFIRMED' %}current{% endif %}">
+                    <li class="timeline-step {% if current_status in 'READY_FOR_PAYMENT,PENDING_PAYMENT,PAYMENT_PENDING_VERIFICATION,PAID,CONFIRMED,CHECKED_IN,COMPLETED' %}completed{% endif %} {% if current_status == 'READY_FOR_PAYMENT' or current_status == 'PENDING_PAYMENT' %}current{% endif %}">
+                        <div class="step-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="step-label">Chờ thanh toán</div>
+                    </li>
+                    <li class="timeline-step {% if current_status in 'PAYMENT_PENDING_VERIFICATION,PAID,CONFIRMED,CHECKED_IN,COMPLETED' %}completed{% endif %} {% if current_status == 'PAYMENT_PENDING_VERIFICATION' %}current{% endif %}">
+                        <div class="step-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="step-label">Chờ xác nhận TT</div>
+                    </li>
+                    <li class="timeline-step {% if current_status in 'PAID,CONFIRMED,CHECKED_IN,COMPLETED' %}completed{% endif %} {% if current_status == 'PAID' or current_status == 'CONFIRMED' %}current{% endif %}">
                         <div class="step-icon"><i class="fas fa-check"></i></div>
                         <div class="step-label">Đã xác nhận</div>
                     </li>
-                    <li class="timeline-step {% if current_status == 'CHECKED_IN' or current_status == 'COMPLETED' %}completed{% endif %} {% if current_status == 'CHECKED_IN' %}current{% endif %}">
-                        <div class="step-icon"><i class="fas fa-key"></i></div>
-                        <div class="step-label">Đã nhận phòng</div>
-                    </li>
-                    <li class="timeline-step {% if current_status == 'COMPLETED' %}completed{% endif %}">
-                        <div class="step-icon"><i class="fas fa-star"></i></div>
-                        <div class="step-label">Hoàn thành</div>
-                    </li>
                     {% endwith %}
                 </ol>
-            </section>
-
-            <section class="detail-card">
-                <h3>Chi tiết hành trình</h3>
-                <div class="info-grid">
-                    <div class="info-item"><strong>Ngày nhận phòng:</strong><span>{{ booking.check_in_date|date:"d/m/Y" }}</span></div>
-                    <div class="info-item"><strong>Ngày trả phòng:</strong><span>{{ booking.check_out_date|date:"d/m/Y" }}</span></div>
-                    <div class="info-item"><strong>Số đêm:</strong><span>{{ booking.duration }} đêm</span></div>
-                    <div class="info-item"><strong>Số khách:</strong><span>{{ booking.adults }} người lớn, {{ booking.children }} trẻ em</span></div>
-                </div>
+                
+                {% if booking.status == 'EXPIRED' %}
+                <div class="alert alert-danger">Đơn hàng đã hết hạn.</div>
+                {% endif %}
+                {% if booking.status == 'CANCELLED' %}
+                <div class="alert alert-secondary">Đơn hàng đã bị hủy.</div>
+                {% endif %}
             </section>
             
             <section class="detail-card">
-                <h3>Thông tin khách hàng</h3>
+                <h3>Thông tin Khách hàng</h3>
                 <div class="info-grid">
-                    <div class="info-item"><strong>Họ tên:</strong><span>{{ booking.guest_full_name }}</span></div>
-                    <div class="info-item"><strong>Email:</strong><span>{{ booking.guest_email }}</span></div>
-                    <div class="info-item"><strong>Số điện thoại:</strong><span>{{ booking.guest_phone_number }}</span></div>
+                    <div class="info-item">
+                        <strong>Khách hàng (ở chính)</strong>
+                        <span>{{ booking.guest_full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Email liên hệ</strong>
+                        <span>{{ booking.guest_email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Số điện thoại</strong>
+                        <span>{{ booking.guest_phone_number }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Quốc tịch</strong>
+                        <span>{{ booking.guest_nationality.name|default:'Chưa cập nhật' }}</span>
+                    </div>
+                    {% if booking.customer %}
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <strong style="color: #0A378C;">Người đặt (Thành viên)</strong>
+                        <span>{{ booking.customer.full_name|default:booking.customer.username }}</span>
+                    </div>
+                    {% endif %}
                 </div>
             </section>
             
-            {% if booking.additional_services.all %}
             <section class="detail-card">
                 <h3>Dịch vụ đi kèm</h3>
-                <ul class="amenities-list-detailed">
+                <ul class="service-summary-list">
                     {% for service in booking.additional_services.all %}
-                    <li><i class="fas fa-check-circle"></i> {{ service.name }}</li>
+                        <li class="summary-item">
+                            <span>{{ service.name }}</span>
+                            <span>{{ service.price|floatformat:0|intcomma }} VNĐ</span>
+                        </li>
+                    {% empty %}
+                        <p class="text-muted">Không có dịch vụ nào được chọn.</p>
                     {% endfor %}
                 </ul>
             </section>
-            {% endif %}
+
         </main>
 
         <aside class="detail-sidebar">
-            <div class="detail-card room-image-card">
-                <h3>{{ booking.room_class.name }}</h3>
+        
+            <div class="detail-card room-image-card" style="padding: 0; margin-bottom: 30px;">
                 <img src="{{ booking.room_class.image.url }}" alt="{{ booking.room_class.name }}">
+                <div class="room-name-overlay">{{ booking.room_class.name }}</div>
             </div>
 
-            <div class="detail-card">
+            <div class="detail-card" style="margin-bottom: 30px;">
                 <h3>Tóm tắt thanh toán</h3>
                 <div class="summary-details">
-                    <div class="summary-item"><span>Phương thức:</span> <span>{{ booking.get_payment_method_display }}</span></div>
                     <div class="summary-item">
-                        <span>Tiền phòng:</span> <span>{{ booking.room_price|intcomma }} VNĐ</span>                    
+                        <span>Ngày nhận - trả</span>
+                        <span>{{ booking.check_in_date|date:"d/m/Y" }} - {{ booking.check_out_date|date:"d/m/Y" }}</span>
                     </div>
                     <div class="summary-item">
-                        <span>Tiền dịch vụ:</span> <span>{{ booking.services_price|intcomma }} VNĐ</span>
+                        <span>Tiền phòng</span>
+                        <span>{{ booking.room_price|floatformat:0|intcomma }} đ</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tiền dịch vụ</span>
+                        <span>{{ booking.services_price|floatformat:0|intcomma }} đ</span>
                     </div>
                 </div>
                 <div class="summary-total">
                     <span>TỔNG CỘNG</span>
-                    <span class="grand-total-price">{{ booking.total_price|intcomma }} đ</span>
+                    <span class="summary-grand-total">{{ booking.total_price|floatformat:0|intcomma }} đ</span>
                 </div>
             </div>
 
             <div class="detail-card actions-card">
                 <h3>Hành động</h3>
                 <div class="action-list">
-                    {% if booking.payment_method == 'BANK_TRANSFER' and booking.status == 'PENDING' %}
-                        {% if booking.payment_proof and booking.payment_proof.image %}
-                            <div class="payment-proof">
-                                <img src="{{ booking.payment_proof.image.url }}" 
-                                    alt="Bằng chứng thanh toán" 
-                                    class="proof-thumbnail"
-                                    onclick="openProofModal(this.src)">
-                            </div>
-                        {% else %}
-                            <p class="text-muted">Chưa có bằng chứng thanh toán.</p>
-                        {% endif %}
-                        <a href="{% url 'payment_guidance' booking.pk %}" class="btn-upload-proof">
-                            Tải lại bằng chứng thanh toán
+
+                    {% if booking.is_payment_ready %}
+                        <a href="{% url 'payment_guidance' booking.pk %}" class="btn-book">
+                            <i class="fas fa-credit-card"></i> Thanh toán ngay
                         </a>
+                        {% if booking.status == 'PENDING_PAYMENT' %}
+                            <p class="text-danger small-text">Đơn đặt gấp. Vui lòng thanh toán trong vòng 2 giờ.</p>
+                        {% elif booking.status == 'PENDING_REVIEW' %}
+                            <p class="text-muted small-text">Bạn có thể thanh toán ngay để chốt đơn hoặc chỉnh sửa bên dưới.</p>
+                        {% elif booking.status == 'READY_FOR_PAYMENT' %}
+                             <p class="text-muted small-text">Đơn hàng đã bị khóa. Vui lòng thanh toán.</p>
+                        {% endif %}
                     {% endif %}
 
                     {% if booking.is_editable %}
+                        <hr style="border: none; border-top: 1px dashed #ccc;">
                         <a href="{% url 'edit_booking' booking.pk %}" class="btn-secondary">
-                            Chỉnh sửa Dịch vụ
+                            <i class="fas fa-edit"></i> Chỉnh sửa Dịch vụ
                         </a>
+                        <p class="text-muted small-text">Bạn có thể sửa đơn trong vòng 2 giờ.</p>
                     {% endif %}
-
+                    
                     {% if booking.is_cancellable %}
                         <form action="{% url 'cancel_booking' booking.pk %}" method="post"
                             onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
                             {% csrf_token %}
-                            <button type="submit" class="btn-danger">Hủy đơn hàng</button>
+                            <button type="submit" class="btn-danger"><i class="fas fa-times"></i> Hủy đơn hàng</button>
                         </form>
                     {% endif %}
+
+                    {% if booking.status == 'PAYMENT_PENDING_VERIFICATION' %}
+                        <p class="text-info">Đã nhận chứng từ. Vui lòng chờ kế toán xác nhận.</p>
+                        <a href="{% url 'payment_guidance' booking.pk %}" class="btn-secondary">
+                            <i class="fas fa-upload"></i> Tải lại bằng chứng
+                        </a>
+                    {% endif %}
+
+                    {% if booking.status in 'PAID,CONFIRMED,CHECKED_IN,COMPLETED' %}
+                        <p class="text-success">Đơn hàng đã được xác nhận. Cảm ơn bạn!</p>
+                    {% endif %}
+
+                    {% if booking.status == 'CANCELLED' or booking.status == 'EXPIRED' %}
+                        <p class="text-muted">
+                            {% if booking.status == 'CANCELLED' %}
+                                Đơn hàng này đã bị hủy.
+                            {% else %}
+                                Đơn hàng này đã hết hạn.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
                 </div>
             </div>
-
         </aside>
     </div>
 </div>
@@ -157,7 +212,7 @@ function closeProofModal() {
     const modal = document.querySelector('.proof-modal');
     if (modal) {
         modal.classList.remove('show');
-        setTimeout(() => modal.remove(), 300); // đợi animation kết thúc
+        setTimeout(() => modal.remove(), 300);
     }
 }
 </script>

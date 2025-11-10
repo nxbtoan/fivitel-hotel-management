@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dịch vụ của chúng tôi{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-banner">
+    <h1 class="page-title">CÁC DỊCH VỤ CỦA CHÚNG TÔI</h1>
+    <p class="page-subtitle">Khám phá không gian nghỉ dưỡng lý tưởng, được thiết kế tinh tế để phù hợp với mọi nhu cầu của bạn, từ công tác cho đến kỳ nghỉ cùng gia đình.</p>
+</div>
+
+<section class="service-list-section">
+    <div class="container">
+        
+        {% for category in categories %}
+        <div class="service-category-group" id="category-{{ category.id }}">
+            
+            <div class="category-header">
+            </div>
+
+            <div class="service-items-grid">
+                {% for service in category.active_services %}
+                
+                <a href="{{ service.get_absolute_url }}" class="service-card-link">
+                    <div class="service-card">
+                        {% if service.image %}
+                        <div class="service-card-image">
+                            <img src="{{ service.image.url }}" alt="{{ service.name }}">
+                        </div>
+                        {% endif %}
+                        <div class="service-card-content">
+                            <h3 class="service-name">{{ service.name }}</h3>
+                            <p class="service-description">{{ service.description|truncatewords:20 }}</p>
+                            
+                            <div class="service-price">
+                                <span>{{ service.price|floatformat:0|intcomma }} VNĐ</span>
+                                {% if service.price_unit %}
+                                    / {{ service.price_unit }}
+                                {% endif %}
+                            </div>
+                            <div class="service-detail-link">
+                                Xem chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                    <p class="no-services">Không có dịch vụ nào trong mục này hiện đang hoạt động.</p>
+                {% endfor %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

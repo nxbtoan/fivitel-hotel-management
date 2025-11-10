@@ -1,12 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.core.mail import send_mail
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .forms import CustomerRegistrationForm, AdminUserCreationForm, UserUpdateForm 
+from .forms import CustomerRegistrationForm, AdminUserCreationForm, UserUpdateForm, PasswordResetEmailForm, PasswordResetCodeForm, SetNewPasswordForm
 from .models import CustomUser
+import random
 
 def register(request):
     """View xử lý trang đăng ký công khai cho khách hàng."""
@@ -34,6 +37,107 @@ def logout_view(request):
 @login_required
 def homepage(request):
     return render(request, 'homepage.html')
+
+def request_password_reset_code(request):
+    """
+    Bước 1: Nhận email, tạo mã OTP, lưu mã vào session, và gửi email.
+    """
+    if request.method == 'POST':
+        form = PasswordResetEmailForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = CustomUser.objects.get(email__iexact=email)
+            
+            # 1. Tạo mã OTP 6 chữ số
+            code = str(random.randint(100000, 999999))
+            
+            # 2. Lưu mã và user_id vào session để kiểm tra ở bước sau
+            request.session['reset_otp_code'] = code
+            request.session['reset_otp_user_id'] = user.id
+            # Đặt thời gian hết hạn (ví dụ: 10 phút)
+            request.session.set_expiry(600) 
+            
+            # 3. Gửi email
+            try:
+                send_mail(
+                    subject='[Fivitel] Mã xác thực đặt lại mật khẩu của bạn',
+                    message=f'Mã xác thực của bạn là: {code}\n\nMã này sẽ hết hạn trong 10 phút.',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                )
+                messages.success(request, "Đã gửi mã xác thực đến email của bạn. Vui lòng kiểm tra.")
+            except Exception as e:
+                messages.error(request, f"Lỗi khi gửi email: {e}")
+                return redirect('password_reset_request')
+                
+            # 4. Chuyển hướng đến trang xác thực mã
+            return redirect('password_reset_verify')
+    else:
+        form = PasswordResetEmailForm()
+    
+    return render(request, 'registration/password_reset_request.html', {'form': form})
+
+
+def verify_password_reset_code(request):
+    """
+    Bước 2: Nhận mã OTP người dùng nhập, so sánh với mã trong session.
+    """
+    if 'reset_otp_user_id' not in request.session:
+        messages.error(request, "Phiên đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng thử lại.")
+        return redirect('password_reset_request')
+
+    if request.method == 'POST':
+        form = PasswordResetCodeForm(request.POST)
+        if form.is_valid():
+            submitted_code = form.cleaned_data['code']
+            stored_code = request.session.get('reset_otp_code')
+            
+            if submitted_code == stored_code:
+                # Xác thực thành công, đánh dấu trong session và chuyển đến bước 3
+                request.session['reset_otp_verified'] = True
+                return redirect('password_reset_set_new')
+            else:
+                messages.error(request, "Mã xác thực không chính xác.")
+    else:
+        form = PasswordResetCodeForm()
+        
+    return render(request, 'registration/password_reset_verify.html', {'form': form})
+
+
+def set_new_password(request):
+    """
+    Bước 3: Người dùng đã xác thực, cho phép đặt mật khẩu mới.
+    """
+    user_id = request.session.get('reset_otp_user_id')
+    is_verified = request.session.get('reset_otp_verified')
+    
+    # Kiểm tra xem người dùng đã đi đúng 2 bước trước chưa
+    if not user_id or not is_verified:
+        messages.error(request, "Bạn không có quyền truy cập trang này. Vui lòng thử lại.")
+        return redirect('password_reset_request')
+        
+    try:
+        user = CustomUser.objects.get(pk=user_id)
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Tài khoản không còn tồn tại.")
+        return redirect('password_reset_request')
+
+    if request.method == 'POST':
+        form = SetNewPasswordForm(request.POST)
+        if form.is_valid():
+            # Đặt mật khẩu mới cho user
+            user.set_password(form.cleaned_data['new_password1'])
+            user.save()
+            
+            # Xóa toàn bộ session sau khi hoàn tất
+            request.session.flush()
+            
+            messages.success(request, "Đổi mật khẩu thành công! Vui lòng đăng nhập.")
+            return redirect('login')
+    else:
+        form = SetNewPasswordForm()
+        
+    return render(request, 'registration/password_reset_set_new.html', {'form': form})
 
 # --- Các view quản lý nhân sự trong dashboard ---
 
@@ -93,11 +197,15 @@ def profile_update_view(request):
 def is_admin(user):
     return user.is_authenticated and user.role == 'ADMIN'
 
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Mixin để đảm bảo chỉ Nhân viên mới có thể truy cập."""
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role in ['STAFF', 'ADMIN']
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Mixin để đảm bảo chỉ Admin mới có thể truy cập."""
     def test_func(self):
-        return is_admin(self.request.user)
-    
+        return self.request.user.is_authenticated and self.request.user.role == 'ADMIN'
+
 class UserListView(AdminRequiredMixin, ListView):
     """View hiển thị danh sách tất cả các tài khoản người dùng."""
     model = CustomUser
@@ -119,7 +227,25 @@ class UserUpdateView(AdminRequiredMixin, UpdateView):
     fields = ['username', 'full_name', 'email', 'role', 'is_staff', 'is_active'] # Các trường Admin được phép sửa
     success_url = reverse_lazy('user_list_admin')
 
-class UserDeleteView(AdminRequiredMixin, DeleteView):
-    """View xử lý việc xóa một người dùng."""
-    model = CustomUser
-    success_url = reverse_lazy('user_list_admin')
+@login_required
+@user_passes_test(is_admin) # Chỉ Admin mới được thực hiện
+def toggle_user_active_view(request, pk):
+    """
+    Xử lý việc Khóa (deactivate) hoặc Mở khóa (activate) tài khoản người dùng.
+    """
+    user_to_toggle = get_object_or_404(CustomUser, pk=pk)
+    
+    # Không cho phép Admin tự khóa tài khoản của chính mình
+    if user_to_toggle == request.user:
+        messages.error(request, "Bạn không thể tự khóa tài khoản của chính mình.")
+        return redirect('user_list_admin')
+
+    if request.method == 'POST':
+        user_to_toggle.is_active = not user_to_toggle.is_active
+        user_to_toggle.save()
+
+        action = "Mở khóa" if user_to_toggle.is_active else "Khóa"
+        messages.success(request, f"Đã {action} tài khoản '{user_to_toggle.username}' thành công.")
+        return redirect('user_list_admin')
+    else:
+        return redirect('user_list_admin')

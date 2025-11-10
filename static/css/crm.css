@@ -270,38 +270,85 @@
 
 .crm-customer-page .list-container {
     padding: 60px 0;
+    margin: 0 auto;
 }
 
 /* --- Thiết kế Thẻ Yêu cầu (Ticket Card) --- */
-.ticket-card-list { display: flex; flex-direction: column; gap: 25px; }
-.ticket-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
-    transition: box-shadow 0.3s ease;
+.ticket-list-header {
+    display: grid;
+    /* Căn 4 cột: Tiêu đề | Ngày gửi | Trạng thái | Hành động */
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr;
+    gap: 20px;
+    padding: 10px 25px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    border-bottom: 2px solid #eee;
+}
+
+.ticket-card-list { 
     display: flex;
     flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các hàng */
 }
-.ticket-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-.ticket-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 25px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #eee;
-}
-.ticket-card-header .ticket-id { font-weight: 700; font-family: monospace; }
+/* Thiết kế mỗi "hàng" như một thẻ card */
+.ticket-card {
+    display: grid;
+    /* Căn 4 cột - PHẢI KHỚP VỚI HEADER */
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr;
+    gap: 20px;
+    align-items: center; /* Căn giữa các mục theo chiều dọc */
 
-.ticket-card-body { padding: 25px; }
-.ticket-card-body h3 { margin: 0 0 15px 0; font-size: 1.3em; }
-.ticket-card-body .ticket-date { color: #555; font-size: 0.9em; }
-
-.ticket-card-actions {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     padding: 20px 25px;
-    margin-top: auto;
-    border-top: 1px solid #eee;
+    transition: box-shadow 0.3s ease;
+    
+    /* Viền màu để phân biệt loại */
+    border-left: 5px solid var(--primary-blue); /* Mặc định là Tư vấn */
+}
+.ticket-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.ticket-card.type-complaint {
+    border-left-color: #dc3545; /* Màu đỏ cho Khiếu nại */
+}
+
+/* Cột 1: Thông tin (Tiêu đề + Phản hồi cuối) */
+.ticket-card .ticket-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.25em;
+    color: var(--text-dark);
+}
+.ticket-card .ticket-info .last-reply {
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+    margin: 0;
+}
+.ticket-card .ticket-info .last-reply strong {
+    color: #333;
+    font-style: normal;
+}
+
+/* Cột 2: Ngày gửi */
+.ticket-card .ticket-date {
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Cột 3: Trạng thái (Badge) */
+.ticket-card .ticket-status {
+    /* (Style cho status-badge đã có sẵn) */
+}
+
+/* Cột 4: Nút hành động */
+.ticket-card .ticket-actions {
     text-align: right;
 }
 
@@ -405,6 +452,342 @@
     color: #333;
 }
 
+.my-tickets-list .detail-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.my-tickets-list .detail-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.my-tickets-list .info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-tickets-list .info-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.my-tickets-list .info-item strong {
+  font-weight: 600;
+  color: #222;
+  min-width: 130px; /* giữ độ rộng nhãn cho đều */
+}
+
+.my-tickets-list .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.my-tickets-list .status-WAITING {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.my-tickets-list .status-RESOLVED {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.my-tickets-list .status-CLOSED {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.assign-form {
+    display: flex;
+    align-items: center; /* Căn giữa các thành phần theo chiều dọc */
+    gap: 8px; /* Thêm khoảng cách nhỏ giữa select và button */
+}
+
+/* Tùy chỉnh ô chọn nhân viên */
+.assign-form select {
+    flex-grow: 1; /* Cho phép ô select tự động giãn ra */
+    min-width: 150px; /* Chiều rộng tối thiểu để không bị quá hẹp */
+    padding: 6px 10px; /* Giảm padding để gọn hơn trong bảng */
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 0.9em; /* Giảm cỡ chữ một chút */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.assign-form select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.15);
+    outline: none;
+}
+
+/* =========================================================== */
+/* FORM CHỈNH SỬA YÊU CẦU (CUSTOMER EDIT REQUEST)              */
+/* =========================================================== */
+
+.edit-ticket-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #ddd;
+}
+.edit-ticket-form .form-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+.edit-ticket-form .form-title svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--primary-blue);
+}
+
+.edit-ticket-form .form-group {
+    margin-bottom: 15px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+}
+.btn-save-edit {
+    flex-grow: 1;
+    background-color: var(--primary-yellow);
+    color: var(--text-dark);
+}
+.btn-cancel-edit {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Nâng cấp Form Trả Lời (Reply Form) */
+.reply-form {
+    padding: 25px;
+    border-top: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.reply-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+.reply-form textarea {
+    width: 100%;
+    box-sizing: border-box; /* Đảm bảo padding không làm vỡ layout */
+    padding: 12px 16px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fff;
+    font-size: 1em;
+    min-height: 100px;
+    resize: vertical;
+}
+.reply-form textarea:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(10, 55, 140, 0.15);
+    outline: none;
+}
+
+/* --- Toggle button outside the form --- */
+.toggle-edit-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    color: var(--primary-blue);
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.toggle-edit-btn:hover {
+    border-color: var(--primary-blue);
+    background-color: #e2e6ea;
+}
+
+/* ============================================= */
+/* NÂNG CẤP TRANG HỖ TRỢ ZALO                    */
+/* ============================================= */
+
+.form-page-wrapper {
+    background-color: var(--background-light, #f8f9fa);
+    padding: 60px 20px;
+    min-height: 80vh;
+}
+
+/* Lưới để chứa 2 thẻ card */
+.zalo-support-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 1000px; /* Giới hạn chiều rộng của 2 thẻ */
+    margin: 0 auto; /* Tự động căn giữa 2 thẻ này */
+}
+
+/* --- Style cho MỖI THẺ CARD --- */
+.zalo-card {
+    background: #fff;
+    border: 1px solid #e9ecef; /* Thêm border như bạn yêu cầu */
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08); /* Hiệu ứng "nổi lên 1 tí" */
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.zalo-card h3 {
+    font-size: 1.8em;
+    color: var(--primary-blue);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.zalo-card p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.7;
+    flex-grow: 1; /* Đẩy các nút bấm xuống dưới */
+}
+
+/* Thẻ bên trái (QR) */
+.zalo-card.qr-card img {
+    max-width: 250px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+/* Thẻ bên phải (Thông tin) */
+.zalo-card.info-card {
+    justify-content: center; /* Căn giữa nội dung trong thẻ */
+}
+.zalo-card .btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+.zalo-card .btn {
+    display: block;
+    padding: 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    border: none;
+}
+.zalo-card .btn i {
+    margin-right: 10px;
+}
+.zalo-card .btn-zalo {
+    background-color: #0068ff;
+    color: white;
+}
+.zalo-card .btn-zalo:hover {
+    background-color: #005ae0;
+    transform: translateY(-2px);
+}
+.zalo-card .btn-call {
+    background-color: #28a745;
+    color: white;
+}
+.zalo-card .btn-call:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* ============================================= */
+/*  CSS TÙY CHỈNH CHO SWEETALERT2                */
+/* ============================================= */
+
+/* Dùng font 'Roboto' mà bạn đã nạp trong base.html */
+.fivitel-modal {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid #eee;
+}
+
+/* Tiêu đề */
+.fivitel-modal .fivitel-title {
+    font-weight: 600;
+    font-size: 1.75rem; /* 28px */
+    color: #222;
+    padding-top: 10px;
+}
+
+/* Icon (dấu tick xanh) */
+.fivitel-modal .swal2-icon.swal2-success .swal2-success-line-tip,
+.fivitel-modal .swal2-icon.swal2-success .swal2-success-line-long {
+    background-color: #05a56d; /* Màu xanh lá đậm hơn */
+}
+
+/* Nội dung text */
+.fivitel-modal .fivitel-text {
+    font-size: 1.05rem; /* 17px */
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Nút bấm (dùng chung) */
+.fivitel-modal .swal2-confirm,
+.fivitel-modal .swal2-cancel {
+    border-radius: 8px;
+    padding: 0.75em 1.5em;
+    font-weight: 500;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+/* Nút "Về Trang chủ" (màu vàng giống nút submit) */
+.fivitel-modal .swal2-confirm {
+    background-color: #e6a73c !important; /* Màu vàng gold */
+    color: #fff !important;
+}
+.fivitel-modal .swal2-confirm:hover {
+    background-color: #d3952a !important; /* Đậm hơn khi hover */
+}
+
+/* Nút "Xem danh sách" (màu xám) */
+.fivitel-modal .swal2-cancel {
+    background-color: #f0f0f0 !important;
+    color: #555 !important;
+}
+.fivitel-modal .swal2-cancel:hover {
+    background-color: #e0e0e0 !important;
+}
 
 /* --- ANIMATIONS --- */
 @keyframes fadeInUp {

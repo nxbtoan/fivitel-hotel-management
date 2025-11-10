@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa Yêu cầu{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}"> {# Tái sử dụng CSS cũ #}
+{% endblock %}
+
+{% block content %}
+<div class="crm-customer-page">
+    <div class="crm-form-container">
+        <h1 class="page-title">Chỉnh sửa Yêu cầu #{{ ticket.id }}</h1>
+        <p class="page-subtitle">Bạn chỉ có thể chỉnh sửa nội dung trong vòng 1 giờ sau khi gửi.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group full-width">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+            
+            <div class="form-actions" style="display: flex; gap: 15px; margin-top: 20px;">
+                <button type="submit" class="submit-button" style="flex-grow: 1;">Lưu thay đổi</button>
+                <a href="{% url 'customer_ticket_detail' ticket.pk %}" class="btn-secondary" style="text-decoration: none; padding: 15px 25px;">Hủy bỏ</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

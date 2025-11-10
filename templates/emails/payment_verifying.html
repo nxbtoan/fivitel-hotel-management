@@ -1,0 +1,55 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang xác nhận Thanh toán</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f4; }
+        table { border-collapse: collapse; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .content { padding: 30px; font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }
+        .header { padding: 20px 30px; border-bottom: 1px solid #eeeeee; }
+        .logo { max-width: 150px; }
+        .footer { padding: 30px; font-size: 12px; color: #888888; text-align: center; }
+        .button { background-color: #0A378C; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="header">
+                            <img src="https://your-domain.com/static/images/logo.png" alt="Fivitel Logo" class="logo">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            <h1 style="color: #0A378C; font-size: 24px;">Đã nhận Chứng từ cho Đơn hàng #{{ booking.id }}</h1>
+                            <p>Chào {{ booking.guest_full_name }},</p>
+                            <p>Chúng tôi đã nhận được chứng từ thanh toán bạn vừa tải lên cho đơn hàng #{{ booking.id }}.</p>
+                            <p>Đơn hàng của bạn đã được chuyển sang trạng thái <strong>"{{ booking.get_status_display }}"</strong>. Bộ phận kế toán sẽ kiểm tra và xác nhận thanh toán của bạn trong thời gian sớm nhất (thường trong vòng 2-4 giờ làm việc).</p>
+                            <p>Bạn sẽ nhận được email "Xác nhận Thanh toán Thành công" ngay sau khi giao dịch được xác thực.</p>
+                            
+                            <p style="text-align: center; margin: 30px 0;">
+                                <a href="https://your-domain.com{% url 'booking_detail' booking.pk %}" class="button" target="_blank">Xem lại chi tiết đơn hàng</a>
+                            </p>
+                            
+                            <p>Cảm ơn bạn đã hoàn tất thủ tục thanh toán.<br>Đội ngũ Fivitel.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="footer">
+                            Fivitel Đà Nẵng<br>
+                            388 Trần Hưng Đạo, Sơn Trà, Đà Nẵng
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ service.name }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-container container">
+    
+    <div class="detail-header">
+        <a href="{% url 'public_service_list' %}#category-{{ service.category.id }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Quay lại {{ service.category.name }}
+        </a>
+        <h1>{{ service.name }}</h1>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-gallery">
+            <div class="gallery-main-image">
+                <img id="main-image" src="{{ service.image.url|default:'#' }}" alt="{{ service.name }}">
+            </div>
+            <div class="gallery-thumbnails">
+                <img src="{{ service.image.url|default:'#' }}" alt="{{ service.name }}" class="thumb-item active" onclick="changeImage('{{ service.image.url|default:'#' }}')">
+                
+                {% for img in service.gallery_images.all %}
+                <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="thumb-item" onclick="changeImage('{{ img.image.url }}')">
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="detail-info">
+            <h2>Chi phí Dịch vụ</h2>
+            
+            <div class="simple-pricing-box">
+                <div class="simple-price">
+                    {{ service.price|floatformat:0|intcomma }} <span>VNĐ</span>
+                </div>
+                {% if service.price_unit %}
+                <div class="simple-price-unit">/ {{ service.price_unit }}</div>
+                {% endif %}
+            </div>
+            
+            <p style="margin-top: 15px;">{{ service.description|linebreaks }}</p>
+            
+            <a href="{% url 'consultation_request' %}" class="btn-book-service">
+                <i class="fas fa-calendar-check"></i> Liên hệ Đặt lịch
+            </a>
+        </div>
+    </div>
+
+    <div class="detail-tabs">
+        <div class="tab-headers">
+            <button class="tab-link active" onclick="openTab(event, 'tab-highlights')">Điểm nổi bật</button>
+            <button class="tab-link" onclick="openTab(event, 'tab-terms')">Điều khoản</button>
+        </div>
+
+        <div id="tab-highlights" class="tab-content active">
+            <h3>Điểm nổi bật</h3>
+            <ul class="highlights-list">
+                {% for item in service.get_highlights_list %}
+                    <li><i class="fas fa-check-circle"></i> {{ item }}</li>
+                {% empty %}
+                    <li>Đang cập nhật...</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div id="tab-terms" class="tab-content">
+            <h3>Điều khoản & Điều kiện</h3>
+            <ul class="terms-list">
+                 {% for item in service.get_terms_list %}
+                    <li>{{ item }}</li>
+                 {% empty %}
+                    <li>Đang cập nhật...</li>
+                 {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // JavaScript cho Gallery ảnh
+    function changeImage(imageUrl) {
+        document.getElementById('main-image').src = imageUrl;
+        document.querySelectorAll('.thumb-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.src === imageUrl) { item.classList.add('active'); }
+        });
+    }
+
+    // JavaScript cho Tabs
+    function openTab(evt, tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+        document.getElementById(tabName).style.display = 'block';
+        evt.currentTarget.classList.add('active');
+    }
+</script>
+{% endblock %}

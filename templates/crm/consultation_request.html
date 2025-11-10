@@ -17,7 +17,7 @@
         Chúng tôi sẽ phản hồi trong thời gian sớm nhất.
       </p>
 
-      <form method="post" novalidate>
+      <form method="post" novalidate id="ajax-form">
         {% csrf_token %}
 
         <div class="form-grid">
@@ -67,12 +67,128 @@
           <div class="captcha-field">
             {{ form.captcha }}
           </div>
+
+          <div id="captcha-error" class="form-error-text" style="color: red; font-size: 0.9em; margin-top: 5px;"></div>
           {{ form.captcha.errors }}
         </div>
 
-        <button type="submit" class="submit-button">Gửi yêu cầu</button>
+        <button type="submit" class="submit-button" id="submit-btn">Gửi yêu cầu</button>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ajax-form');
+    const submitButton = document.getElementById('submit-btn');
+    const captchaError = document.getElementById('captcha-error');
+
+    if (!form || !submitButton) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+        
+        if (captchaError) captchaError.innerText = '';
+
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+        })
+        .then(response => {
+            if (!response.ok) { 
+                return response.json().then(errData => { throw errData; });
+            }
+            return response.json(); 
+        })
+        .then(data => {
+            if (data.success) {
+                // === THAY ĐỔI LỚN BẮT ĐẦU TỪ ĐÂY ===
+                
+                // Giữ nút "Đang gửi..." trong 3 giây
+                setTimeout(() => {
+                    // Hiển thị modal với CSS tùy chỉnh
+                    showSuccessModal(data); 
+
+                    // Reset nút bấm và form
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Gửi yêu cầu';
+                    form.reset();
+
+                }, 3000); // 3000ms = 3 giây
+                // === KẾT THÚC THAY ĐỔI ===
+            }
+        })
+        .catch(errorData => {
+            // NẾU LỖI: Báo lỗi và reset nút ngay lập tức
+            console.error('Lỗi:', errorData);
+            let errorMessage = 'Biểu mẫu có lỗi, vui lòng kiểm tra lại.';
+            
+            if (captchaError && errorData.errors && errorData.errors.captcha) {
+                captchaError.innerText = errorData.errors.captcha[0].message;
+                errorMessage = 'Captcha không hợp lệ. Vui lòng thử lại.';
+            }
+
+            Swal.fire({
+                title: 'Lỗi!',
+                text: errorMessage,
+                icon: 'error',
+                customClass: { // Dùng CSS tùy chỉnh cho cả lỗi
+                    popup: 'fivitel-modal',
+                    title: 'fivitel-title',
+                    htmlContainer: 'fivitel-text',
+                }
+            });
+
+            // Reset nút ngay
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Gửi yêu cầu';
+        });
+    });
+
+    // Tách hàm hiển thị modal ra cho sạch
+    function showSuccessModal(data) {
+        let modalConfig = {
+            title: 'Gửi thành công!',
+            html: 'Yêu cầu tư vấn của bạn đã được gửi. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.',
+            icon: 'success',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: '<i class="fa fa-home"></i> Về Trang chủ',
+            showCancelButton: true,
+            reverseButtons: true,
+            // Áp dụng CSS tùy chỉnh
+            customClass: {
+                popup: 'fivitel-modal',
+                title: 'fivitel-title',
+                htmlContainer: 'fivitel-text',
+            }
+        };
+
+        if (data.is_guest) {
+            modalConfig.showCancelButton = false;
+        } else {
+            modalConfig.cancelButtonText = '<i class="fa fa-list"></i> Xem danh sách';
+        }
+
+        Swal.fire(modalConfig).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = data.home_url; 
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                if (!data.is_guest) {
+                    window.location.href = data.success_url_list; 
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

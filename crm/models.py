@@ -34,12 +34,19 @@ class Ticket(models.Model):
     guest_phone_number = models.CharField(max_length=20, blank=True, verbose_name="SĐT khách vãng lai")
     subject = models.CharField(max_length=255, verbose_name="Tiêu đề", blank=True)
     incident_time = models.DateTimeField(verbose_name="Thời gian xảy ra vụ việc", null=True, blank=True)
-    attachment = models.FileField(upload_to='ticket_attachments/', verbose_name="Tệp đính kèm", null=True, blank=True)
+    attachment = models.FileField(upload_to='media/ticket_attachments/', verbose_name="Tệp đính kèm", null=True, blank=True)
     complaint_type = models.CharField(max_length=20, choices=ComplaintType.choices, verbose_name="Loại khiếu nại", blank=True, null=True)
     type = models.CharField(max_length=20, choices=Type.choices, verbose_name="Loại yêu cầu")
     description = models.TextField(verbose_name="Nội dung chi tiết")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW, verbose_name="Trạng thái")
-    assigned_to = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tickets', verbose_name="Nhân viên xử lý")
+    assigned_to = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True, 
+        related_name='assigned_tickets', 
+        verbose_name="Nhân viên xử lý",
+        limit_choices_to={'is_staff': True} 
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

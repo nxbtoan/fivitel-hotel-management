@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load booking_extras %}
 
-{% block title %}Yêu cầu của tôi - Fivitel{% endblock %}
+{% block title %}{{ page_title|default:"Yêu cầu của tôi" }} - Fivitel{% endblock %}
 
 {% block styles %}
     <link rel="stylesheet" href="{% static 'css/crm.css' %}">
@@ -11,46 +12,66 @@
 {% block content %}
 <div class="crm-customer-page">
     <div class="page-banner">
-        <h1 class="page-title">Các yêu cầu đã gửi</h1>
-        <p class="page-subtitle">Theo dõi lịch sử các yêu cầu tư vấn và khiếu nại của bạn.</p>
+        <h1 class="page-title">{{ page_title|default:"Yêu cầu của tôi" }}</h1>
+        <p class="page-subtitle">{{ page_subtitle|default:"Theo dõi lịch sử các yêu cầu của bạn." }}</p>
     </div>
 
     <div class="container list-container">
         {% if tickets %}
+            <div class="ticket-list-header">
+                <span>Yêu cầu</span>
+                <span>Ngày gửi</span>
+                <span>Trạng thái</span>
+                <span style="text-align: right;">Hành động</span>
+            </div>
+            
             <div class="ticket-card-list">
                 {% for ticket in tickets %}
-                <div class="ticket-card">
-                    <div class="ticket-card-header">
-                        <span class="ticket-id">Yêu cầu #{{ ticket.ticket_id|truncatechars:8 }}...</span>
+                <div class="ticket-card {% if ticket.type == 'COMPLAINT' %}type-complaint{% endif %}">
+                    
+                    <div class="ticket-info">
+                        <h3>{{ ticket.subject|default:ticket.get_type_display }}</h3>
+                        {% if ticket.last_response_message %}
+                            <p class="last-reply">
+                                <strong>{% if ticket.last_responder_name == user.full_name %}Bạn:{% else %}{{ ticket.last_responder_name|default:'Nhân viên' }}:{% endif %}</strong>
+                                {{ ticket.last_response_message|truncatewords:15 }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="ticket-date">
+                        {{ ticket.created_at|date:"d/m/Y H:i" }}
+                    </div>
+
+                    <div class="ticket-status">
                         <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
                     </div>
-                    <div class="ticket-card-body">
-                        <h3>{{ ticket.subject|default:ticket.get_type_display }}</h3>
-                        <p class="ticket-date">Ngày gửi: {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
-
-                        {% if ticket.last_response_message %}
-                            <div class="last-reply">
-                                <hr>
-                                <p><strong>Phản hồi cuối:</strong></p>
-                                <p class="reply-content">
-                                    <strong class="responder-name">
-                                        {% if ticket.last_responder_name == user.full_name %}Bạn:{% else %}{{ ticket.last_responder_name }}:{% endif %}
-                                    </strong>
-                                    {{ ticket.last_response_message|truncatewords:20 }}
-                                </p>
-                            </div>
+                    
+                    <div class="ticket-actions">
+                        <a href="{% url 'customer_ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết</a>
+                        
+                        {# Nút Sửa (nếu có) #}
+                        {% if ticket.type == 'CONSULTATION' %}
+                            {% load tz %} 
+                            {% timezone "Asia/Ho_Chi_Minh" %} 
+                            {% now "U" as current_timestamp %}
+                            {% endtimezone %}
+                            {% if ticket.status != 'RESOLVED' and current_timestamp|sub:ticket.created_at.timestamp < 3600 %}
+                                <a href="{% url 'customer_ticket_detail' ticket.pk %}" class="btn-action edit" style="margin-left: 5px;">Sửa</a>
+                            {% endif %}
                         {% endif %}
-                        </div>
-                    <div class="ticket-card-actions">
-                        <a href="{% url 'customer_ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết & Hội thoại</a>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="no-bookings-card">
-                <p>Bạn chưa có yêu cầu nào.</p>
-                <a href="{% url 'consultation_request' %}" class="btn-primary">Gửi Yêu cầu Tư vấn</a>
+                 <p>Bạn chưa có yêu cầu nào.</p>
+                {% if 'complaints' in request.path %}
+                    <a href="{% url 'submit_complaint' %}" class="btn-primary">Gửi Khiếu nại</a>
+                {% else %}
+                    <a href="{% url 'consultation_request' %}" class="btn-primary">Gửi Yêu cầu Tư vấn</a>
+                {% endif %}
             </div>
         {% endif %}
     </div>

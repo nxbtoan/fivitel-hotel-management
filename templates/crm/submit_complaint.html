@@ -18,7 +18,7 @@
         Vui lòng cung cấp thông tin chi tiết để chúng tôi có thể hỗ trợ bạn tốt nhất.
       </p>
 
-      <form method="post" enctype="multipart/form-data" novalidate>
+      <form method="post" enctype="multipart/form-data" novalidate id="ajax-form">
         {% csrf_token %}
 
         <!-- Tiêu đề khiếu nại -->
@@ -73,11 +73,106 @@
         </div>
 
         <!-- Nút gửi -->
-        <button type="submit" class="submit-button">
+        <button type="submit" class="submit-button" id="submit-btn">
           <i class="fa fa-paper-plane me-2"></i> Gửi Khiếu nại
         </button>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ajax-form');
+    const submitButton = document.getElementById('submit-btn');
+
+    if (!form || !submitButton) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+        
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+        })
+        .then(response => {
+            if (!response.ok) { 
+                 return response.json().then(errData => { throw errData; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // === THAY ĐỔI LỚN BẮT ĐẦU TỪ ĐÂY ===
+
+                // Giữ nút "Đang gửi..." trong 3 giây
+                setTimeout(() => {
+                    // Hiển thị modal với CSS tùy chỉnh
+                    showSuccessModal(data);
+
+                    // Reset nút bấm và form
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fa fa-paper-plane me-2"></i> Gửi Khiếu nại';
+                    form.reset();
+                    
+                }, 3000); // 3000ms = 3 giây
+                // === KẾT THÚC THAY ĐỔI ===
+            }
+        })
+        .catch(errorData => {
+            // NẾU LỖI: Báo lỗi và reset nút ngay lập tức
+            console.error('Lỗi:', errorData);
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Biểu mẫu có lỗi, vui lòng kiểm tra lại các trường thông tin.',
+                icon: 'error',
+                customClass: { // Dùng CSS tùy chỉnh cho cả lỗi
+                    popup: 'fivitel-modal',
+                    title: 'fivitel-title',
+                    htmlContainer: 'fivitel-text',
+                }
+            });
+
+            // Reset nút ngay
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="fa fa-paper-plane me-2"></i> Gửi Khiếu nại';
+        });
+    });
+
+    // Tách hàm hiển thị modal ra cho sạch
+    function showSuccessModal(data) {
+        Swal.fire({
+            title: 'Gửi thành công!',
+            html: 'Chúng tôi đã nhận được khiếu nại của bạn và sẽ xem xét, phản hồi trong thời gian sớm nhất.',
+            icon: 'success',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa fa-home"></i> Về Trang chủ',
+            cancelButtonText: '<i class="fa fa-list"></i> Xem danh sách khiếu nại',
+            reverseButtons: true,
+            // Áp dụng CSS tùy chỉnh
+            customClass: {
+                popup: 'fivitel-modal',
+                title: 'fivitel-title',
+                htmlContainer: 'fivitel-text',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = data.home_url; 
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                window.location.href = data.success_url_list; 
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

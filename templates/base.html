@@ -13,11 +13,14 @@
     
     {# Nạp Google Fonts #}
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    {# Nạp các thư viện bên ngoài #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
-
-    {# "Khe cắm" cho các trang con nạp CSS riêng nếu cần #}
+    
     {% block styles %}{% endblock %}
 </head>
 <body>
@@ -25,8 +28,8 @@
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <a href="{% url 'homepage' %}" class="logo">
-                    <img src="{% static 'images/logo.png' %}" alt="FIVITEL Logo" class="logo-img">
+                <a href="{% url 'homepage' %}" class="logo-text">
+                     <span class="logo-highlight">FIVITEL</span> <span class="logo-city">DaNang</span>
                 </a>
             </div>
 
@@ -34,7 +37,7 @@
                 <ul>
                     <li><a href="{% url 'homepage' %}#about">Về chúng tôi</a></li>
                     <li><a href="{% url 'room_type_list_view' %}">Đặt phòng</a></li>
-                    <li><a href="{% url 'homepage' %}#services">Dịch vụ</a></li>
+                    <li><a href="{% url 'public_service_list' %}">Dịch vụ</a></li>
                     
                     <li class="nav-dropdown">
                         <a href="#">Liên hệ & Khiếu nại <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
@@ -55,7 +58,8 @@
                         </div>
                         <div id="dropdown-menu" class="dropdown-menu">
                             <a href="{% url 'my_bookings' %}">Đơn hàng của tôi</a>
-                            <a href="{% url 'my_tickets' %}">Yêu cầu của tôi</a>
+                            <a href="{% url 'my_requests' %}">Yêu cầu Tư vấn</a>
+                            <a href="{% url 'my_complaints' %}">Khiếu nại của tôi</a>
                             <a href="{% url 'profile_update' %}">Quản lý tài khoản</a>
                             {% if user.is_staff %}
                             <div class="dropdown-divider"></div>
@@ -78,7 +82,9 @@
     <footer class="main-footer">
         <div class="container footer-grid">
             <div class="footer-col">
-                <img src="{% static 'images/logo-footer.png' %}" alt="Fivitel Logo" class="footer-logo">
+                <div class="logo-text">
+                    <span class="logo-highlight">FIVITEL</span> <span class="logo-city">DaNang</span>
+                </div>
                 <p>Fivitel Hotel - Nơi trải nghiệm nghỉ dưỡng đẳng cấp giao thoa cùng vẻ đẹp Đà Nẵng. Chúng tôi cam kết mang đến dịch vụ 5 sao và những kỷ niệm khó quên.</p>
             </div>
             <div class="footer-col">
@@ -108,6 +114,10 @@
         </div>
     </footer>
 
+    <a href="{% url 'zalo_support' %}" class="floating-contact-btn">
+        <i class="fas fa-comment-dots"></i> Hỗ trợ
+    </a>
+
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close">&times;</span>
         <img src="" alt="Lightbox Image" class="lightbox-content" id="lightbox-img">
@@ -116,6 +126,7 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{% static 'js/animations.js' %}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

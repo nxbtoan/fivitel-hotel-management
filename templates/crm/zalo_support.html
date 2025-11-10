@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hỗ trợ qua Zalo{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page-wrapper">
+    <div class="container">
+        <div class="zalo-support-grid">
+            
+            <div class="zalo-card qr-card">
+                <h3>Quét mã để chat ngay</h3>
+                <img src="{% static 'images/zalo-qr.png' %}" alt="Mã QR Zalo Fivitel Hotel">
+                <p>Sử dụng ứng dụng Zalo để quét mã và kết nối trực tiếp với nhân viên hỗ trợ của chúng tôi.</p>
+            </div>
+
+            <div class="zalo-card info-card">
+                <h3>Hỗ trợ Nhanh 24/7</h3>
+                <p>Kết nối với đội ngũ Fivitel qua Zalo hoặc Hotline để được giải đáp thắc mắc ngay lập tức.</p>
+                <div class="btn-stack">
+                    <a href="https://zalo.me/0912345678" target="_blank" class="btn btn-zalo">
+                        <i class="fas fa-comment"></i> Chat ngay qua Zalo
+                    </a>
+                    <a href="tel:0912345678" class="btn btn-call">
+                        <i class="fas fa-phone-alt"></i> Gọi Hotline: 0912.345.678
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

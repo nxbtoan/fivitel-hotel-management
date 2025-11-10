@@ -7,6 +7,8 @@
     <title>{% block dashboard_title %}Bảng điều khiển{% endblock %} - Fivitel</title>
     
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
+    <link rel="stylesheet" href="{% static 'css/services.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
     
     {% block dashboard_styles %}{% endblock %}
@@ -27,7 +29,7 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="{% block container_class %}container{% endblock %}">
         {% block dashboard_content %}{% endblock %}
     </div>
 

@@ -17,11 +17,6 @@ __pycache__/
 .vscode/
 .idea/
 
-# Các file ảnh
-payment_proofs/
-room_classes/
-room_classes/
-
 # Các file BackUp Data
 fixtures/
 .json

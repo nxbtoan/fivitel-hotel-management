@@ -141,3 +141,12 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Cấu hình email SMTP với Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'contact.fiviteldn@gmail.com' # Email của bạn
+EMAIL_HOST_PASSWORD = 'lzun qecw gpnm qpia' # Mật khẩu ứng dụng 16 ký tự
+DEFAULT_FROM_EMAIL = 'Fivitel Hotel <your-email@gmail.com>'

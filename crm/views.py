@@ -1,12 +1,17 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import OuterRef, Subquery
 from django.contrib.auth.decorators import login_required
+from django.views.generic import UpdateView
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import timedelta
 
-from .forms import ConsultationRequestForm, TicketResponseForm, CustomerResponseForm, ComplaintForm
-from .models import Ticket, TicketResponse
+from .forms import ConsultationRequestForm, TicketResponseForm, CustomerResponseForm, ComplaintForm, TicketEditForm
+from .models import Ticket, TicketResponse, CustomUser
 
 # ==============================================================================
 # VIEWS DÀNH CHO KHÁCH HÀNG (USER-FACING)
@@ -19,8 +24,6 @@ def consultation_request_view(request):
     - Xử lý phương thức POST: Xác thực dữ liệu và tạo một Ticket mới.
     - Hiển thị pop-up thông báo thành công sau khi gửi.
     """
-    success = False
-
     # Xử lý khi người dùng gửi form
     if request.method == 'POST':
         form = ConsultationRequestForm(request.POST)
@@ -45,11 +48,21 @@ def consultation_request_view(request):
                 })
 
             Ticket.objects.create(**ticket_details)
-            
-            # Đặt tín hiệu thành công là True
-            success = True
-            # Tạo một form mới, trống để hiển thị lại trên trang
-            form = ConsultationRequestForm() 
+
+            success_url_list = None
+            if request.user.is_authenticated:
+                success_url_list = reverse('my_requests')
+
+            return JsonResponse({
+                'success': True,
+                'is_guest': not request.user.is_authenticated,
+                'home_url': reverse('homepage'),
+                'success_url_list': success_url_list
+            })
+        
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
     else: # Khi người dùng mới truy cập (GET)
         initial_data = {}
         if request.user.is_authenticated:
@@ -62,47 +75,107 @@ def consultation_request_view(request):
 
     context = {
         'form': form,
-        'success': success # Gửi tín hiệu thành công sang template
     }
     return render(request, 'crm/consultation_request.html', context)
 
 @login_required
-def my_tickets_view(request):
-    """
-    Hiển thị danh sách các yêu cầu của khách hàng.
-    Nâng cấp: Lấy thêm thông tin về phản hồi cuối cùng cho mỗi yêu cầu.
-    """
-    # Tạo một subquery để lấy tin nhắn của phản hồi mới nhất
-    latest_response_message = TicketResponse.objects.filter(
-        ticket=OuterRef('pk')
-    ).order_by('-created_at').values('message')[:1]
+def my_requests_view(request):
+    """Hiển thị danh sách CHỈ các Yêu cầu Tư vấn của khách hàng."""
+    
+    # Lấy phản hồi cuối cùng (tương tự logic nâng cấp trước)
+    latest_response_message = TicketResponse.objects.filter(ticket=OuterRef('pk')).order_by('-created_at').values('message')[:1]
+    latest_responder_name = TicketResponse.objects.filter(ticket=OuterRef('pk')).order_by('-created_at').values('responder__full_name')[:1]
 
-    # Tạo một subquery để lấy tên người phản hồi mới nhất
-    latest_responder_name = TicketResponse.objects.filter(
-        ticket=OuterRef('pk')
-    ).order_by('-created_at').values('responder__full_name')[:1]
-
-    # Truy vấn chính: Lấy tất cả ticket của user và đính kèm thông tin từ subquery
-    tickets = Ticket.objects.filter(customer=request.user).annotate(
+    # Lọc các loại KHÔNG PHẢI là Khiếu nại
+    tickets = Ticket.objects.filter(
+        customer=request.user
+    ).exclude(
+        type=Ticket.Type.COMPLAINT 
+    ).annotate(
         last_response_message=Subquery(latest_response_message),
         last_responder_name=Subquery(latest_responder_name)
     ).order_by('-created_at')
 
     context = {
-        'tickets': tickets
+        'tickets': tickets,
+        'page_title': 'Các Yêu cầu Tư vấn', # Tiêu đề động
+        'page_subtitle': 'Theo dõi lịch sử các yêu cầu tư vấn và hỗ trợ của bạn.' # Phụ đề động
     }
+    # Tái sử dụng template my_tickets.html
     return render(request, 'crm/my_tickets.html', context)
 
 @login_required
+def my_complaints_view(request):
+    """Hiển thị danh sách CHỈ các Khiếu nại của khách hàng."""
+    
+    latest_response_message = TicketResponse.objects.filter(ticket=OuterRef('pk')).order_by('-created_at').values('message')[:1]
+    latest_responder_name = TicketResponse.objects.filter(ticket=OuterRef('pk')).order_by('-created_at').values('responder__full_name')[:1]
+    
+    # Chỉ lọc các loại là Khiếu nại
+    tickets = Ticket.objects.filter(
+        customer=request.user,
+        type=Ticket.Type.COMPLAINT
+    ).annotate(
+        last_response_message=Subquery(latest_response_message),
+        last_responder_name=Subquery(latest_responder_name)
+    ).order_by('-created_at')
+
+    context = {
+        'tickets': tickets,
+        'page_title': 'Các Khiếu nại của tôi', # Tiêu đề động
+        'page_subtitle': 'Theo dõi lịch sử các khiếu nại đã gửi của bạn.' # Phụ đề động
+    }
+    # Tái sử dụng template my_tickets.html
+    return render(request, 'crm/my_tickets.html', context)
+@login_required
 def customer_ticket_detail_view(request, pk):
     """
-    Hiển thị chi tiết một yêu cầu và cho phép khách hàng gửi phản hồi.
-    """    
-    ticket = get_object_or_404(Ticket, pk=pk, customer=request.user) # Đảm bảo khách chỉ xem được ticket của mình
+    Hiển thị chi tiết một yêu cầu cho khách hàng và xử lý việc họ gửi trả lời.
+    """
+    ticket = get_object_or_404(Ticket, pk=pk, customer=request.user)
     responses = ticket.responses.select_related('responder').order_by('created_at')
+
+    # Kiểm tra quyền chỉnh sửa (chỉ trong 1h, chưa RESOLVED, và là tư vấn)
+    time_limit = timedelta(hours=1)
+    can_edit = (
+        ticket.type == Ticket.Type.CONSULTATION
+        and ticket.status != Ticket.Status.RESOLVED
+        and (timezone.now() - ticket.created_at) < time_limit
+    )
+
+    # Form mặc định (dù GET hay POST vẫn cần)
+    reply_form = CustomerResponseForm()
+    edit_form = TicketEditForm(instance=ticket)
+
+    if request.method == 'POST':
+        # 1️. GỬI TRẢ LỜI MỚI
+        if 'submit_reply' in request.POST:
+            reply_form = CustomerResponseForm(request.POST)
+            if reply_form.is_valid():
+                response = reply_form.save(commit=False)
+                response.ticket = ticket
+                response.responder = request.user
+                response.save()
+                ticket.status = Ticket.Status.AWAITING_STAFF_RESPONSE
+                ticket.save()
+                messages.success(request, "Đã gửi trả lời thành công.")
+                return redirect('customer_ticket_detail', pk=ticket.pk)
+
+        # 2. LƯU CHỈNH SỬA NỘI DUNG GỐC
+        elif 'submit_edit' in request.POST and can_edit:
+            edit_form = TicketEditForm(request.POST, instance=ticket)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, "Đã cập nhật yêu cầu thành công.")
+                return redirect('customer_ticket_detail', pk=ticket.pk)
+
+    # Luôn có context để render (kể cả khi GET)
     context = {
         'ticket': ticket,
-        'responses': responses
+        'responses': responses,
+        'reply_form': reply_form,
+        'edit_form': edit_form,
+        'can_edit': can_edit,
     }
     return render(request, 'crm/customer_ticket_detail.html', context)
 
@@ -112,7 +185,11 @@ def customer_ticket_detail_view(request, pk):
 
 def is_crm_staff(user):
     """Hàm kiểm tra quyền, trả về True nếu user là CSKH hoặc Admin."""
-    return user.is_authenticated and (user.role in ['CRM_STAFF', 'ADMIN'])
+    return user.is_authenticated and (user.role in ['STAFF', 'ADMIN'])
+
+def is_admin(user):
+    """Kiểm tra xem user có phải là Admin không."""
+    return user.is_authenticated and user.role == 'ADMIN'
 
 @user_passes_test(is_crm_staff)
 def manage_requests_view(request):
@@ -122,7 +199,8 @@ def manage_requests_view(request):
     status_filter = request.GET.get('status')
     
     # Lọc ra tất cả ticket KHÔNG PHẢI là khiếu nại
-    tickets = Ticket.objects.exclude(type=Ticket.Type.COMPLAINT).select_related('customer').order_by('-created_at')
+    tickets = Ticket.objects.exclude(type=Ticket.Type.COMPLAINT).select_related('customer', 'assigned_to').order_by('-created_at')
+    staff_members = CustomUser.objects.filter(is_staff=True)
 
     if status_filter in Ticket.Status.values:
         tickets = tickets.filter(status=status_filter)
@@ -131,8 +209,9 @@ def manage_requests_view(request):
         'tickets': tickets,
         'current_filter': status_filter,
         'ticket_statuses': Ticket.Status.choices,
-        'header_title': 'Quản lý Yêu cầu', # Tiêu đề động cho template
-        'back_url_to_dashboard': True # Tín hiệu để link quay lại trỏ về dashboard chính
+        'header_title': 'Quản lý Yêu cầu',
+        'staff_members': staff_members,
+        'back_url_to_dashboard': True
     }
     return render(request, 'crm/dashboard_tickets.html', context)
 
@@ -144,7 +223,8 @@ def manage_complaints_view(request):
     status_filter = request.GET.get('status')
 
     # Chỉ lọc ra các ticket là KHIẾU NẠI
-    tickets = Ticket.objects.filter(type=Ticket.Type.COMPLAINT).select_related('customer').order_by('-created_at')
+    tickets = Ticket.objects.filter(type=Ticket.Type.COMPLAINT).select_related('customer', 'assigned_to').order_by('-created_at')
+    staff_members = CustomUser.objects.filter(is_staff=True)
 
     if status_filter in Ticket.Status.values:
         tickets = tickets.filter(status=status_filter)
@@ -153,8 +233,9 @@ def manage_complaints_view(request):
         'tickets': tickets,
         'current_filter': status_filter,
         'ticket_statuses': Ticket.Status.choices,
-        'header_title': 'Quản lý Khiếu nại', # Tiêu đề động cho template
-        'back_url_to_dashboard': True # Tín hiệu để link quay lại trỏ về dashboard chính
+        'header_title': 'Quản lý Khiếu nại',
+        'staff_members': staff_members,
+        'back_url_to_dashboard': True
     }
     return render(request, 'crm/dashboard_tickets.html', context)
 
@@ -162,7 +243,6 @@ def manage_complaints_view(request):
 def ticket_detail_view(request, pk):
     """
     Hiển thị chi tiết một yêu cầu và xử lý phản hồi.
-    Nâng cấp: Tự động xác định URL để quay lại danh sách tương ứng.
     """
     ticket = get_object_or_404(Ticket, pk=pk)
     responses = ticket.responses.select_related('responder').order_by('created_at')
@@ -199,41 +279,6 @@ def ticket_detail_view(request, pk):
     }
     return render(request, 'crm/dashboard_ticket_detail.html', context)
 
-@login_required
-def customer_ticket_detail_view(request, pk):
-    """
-    Hiển thị chi tiết một yêu cầu cho khách hàng và xử lý việc họ gửi trả lời.
-    """
-    ticket = get_object_or_404(Ticket, pk=pk, customer=request.user)
-    responses = ticket.responses.select_related('responder').order_by('created_at')
-
-    # Xử lý khi khách hàng gửi form trả lời
-    if request.method == 'POST':
-        form = CustomerResponseForm(request.POST)
-        if form.is_valid():
-            response = form.save(commit=False)
-            response.ticket = ticket
-            response.responder = request.user # Người trả lời là khách hàng đang đăng nhập
-            response.save()
-            
-            # CẬP NHẬT TRẠNG THÁI TICKET: Chuyển lại thành "Mới" để nhân viên chú ý
-            ticket.status = Ticket.Status.AWAITING_STAFF_RESPONSE            
-            ticket.save()
-            
-            messages.success(request, "Đã gửi trả lời thành công.")
-            # Tải lại chính trang này để xem tin nhắn mới
-            return redirect('customer_ticket_detail', pk=ticket.pk)
-    else:
-        # Khi mới vào trang, tạo một form trống
-        form = CustomerResponseForm()
-
-    context = {
-        'ticket': ticket,
-        'responses': responses,
-        'form': form # Gửi form sang template
-    }
-    return render(request, 'crm/customer_ticket_detail.html', context)
-
 @user_passes_test(is_crm_staff)
 def resolve_ticket_view(request, pk):
     """View để nhân viên đánh dấu một ticket là đã hoàn thành."""
@@ -262,17 +307,45 @@ def complaint_submission_view(request):
             ticket.status = Ticket.Status.NEW
             ticket.save() # Lưu ticket vào DB
 
-            # Xử lý các file đính kèm
-            files = request.FILES.getlist('attachments')
-            for f in files:
-                TicketAttachment.objects.create(ticket=ticket, file=f)
-            
-            messages.success(request, "Gửi khiếu nại thành công! Chúng tôi sẽ xem xét và phản hồi sớm nhất.")
-            return redirect('my_tickets') # Chuyển hướng về trang danh sách yêu cầu
+            return JsonResponse({
+                'success': True,
+                'home_url': reverse('homepage'),
+                'success_url_list': reverse('my_complaints')
+            })
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+            return render(request, 'crm/submit_complaint.html', context)
     else:
         form = ComplaintForm()
 
     context = {
-        'form': form
+        'form': form,
     }
     return render(request, 'crm/submit_complaint.html', context)
+
+@user_passes_test(is_admin)
+def assign_ticket_view(request, pk):
+    """Xử lý việc gán một ticket cho một nhân viên."""
+    if request.method == 'POST':
+        ticket = get_object_or_404(Ticket, pk=pk)
+        staff_id = request.POST.get('staff_member')
+        
+        if staff_id:
+            staff_member = get_object_or_404(CustomUser, pk=staff_id, is_staff=True)
+            ticket.assigned_to = staff_member
+            ticket.save()
+            messages.success(request, f"Đã gán yêu cầu #{ticket.id} cho nhân viên {staff_member.username}.")
+        else: # Nếu chọn "Trống"
+            ticket.assigned_to = None
+            ticket.save()
+            messages.info(request, f"Đã bỏ gán nhân viên cho yêu cầu #{ticket.id}.")
+
+    # Quay lại trang trước đó (trang danh sách)
+    return redirect(request.META.get('HTTP_REFERER', 'manage_requests'))
+
+def zalo_support_view(request):
+    """
+    Hiển thị trang thông tin hỗ trợ qua Zalo.
+    """
+    return render(request, 'crm/zalo_support.html')

@@ -1,5 +1,6 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block dashboard_title %}Chi tiết Đơn hàng{% endblock %}
 {% block header_title %}Chi tiết Đơn hàng #{{ booking.id }}{% endblock %}
@@ -7,32 +8,57 @@
 {% block header_back_text %}‹ Quay lại Quản lý{% endblock %}
 
 {% block dashboard_content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" style="padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
 <div class="ticket-detail-grid">
     <div class="ticket-main-content">
         <div class="checkout-section">
             <h2>Thông tin Khách hàng</h2>
+            
+            <p><strong>Khách hàng (ở chính):</strong> {{ booking.guest_full_name }}</p>
+            <p><strong>Email:</strong> {{ booking.guest_email }}</p>
+            <p><strong>SĐT:</strong> {{ booking.guest_phone_number }}</p>
+            <p><strong>Quốc tịch:</strong> {{ booking.guest_nationality.name|default:'Chưa cập nhật' }}</p>
+            
             {% if booking.customer %}
-                <p><strong>Khách hàng:</strong> {{ booking.customer.full_name|default:booking.customer.username }} (Thành viên)</p>
-                <p><strong>Email:</strong> {{ booking.customer.email }}</p>
-                <p><strong>SĐT:</strong> {{ booking.customer.phone_number }}</p>
+                <hr style="border-style: dashed; margin: 15px 0;">
+                <p style="font-size: 0.9em; color: #555;"><strong>Người đặt:</strong> {{ booking.customer.full_name|default:booking.customer.username }} (Thành viên)</p>
             {% else %}
-                <p><strong>Khách hàng:</strong> {{ booking.guest_full_name }} (Khách vãng lai)</p>
-                <p><strong>Email:</strong> {{ booking.guest_email }}</p>
-                <p><strong>SĐT:</strong> {{ booking.guest_phone_number }}</p>
+                 <p style="font-size: 0.9em; color: #555;"><strong>Người đặt:</strong> (Khách vãng lai)</p>
             {% endif %}
-            <p><strong>Quốc tịch:</strong> {% if booking.customer %}{{ booking.customer.nationality.name }}{% else %}{{ booking.guest_nationality.name }}{% endif %}</p>
-        </div>
+        </div>>
 
         <div class="checkout-section">
             <h2>Dịch vụ đi kèm đã chọn</h2>
             <ul>
                 {% for service in booking.additional_services.all %}
-                    <li>{{ service.name }} - ({{ service.price }} VNĐ)</li>
+                    <li>{{ service.name }} - ({{ service.price|floatformat:0|intcomma }} VNĐ)</li>
                 {% empty %}
                 <li>Không có dịch vụ nào được chọn.</li>
                 {% endfor %}
             </ul>
         </div>
+        
+        {% if booking.payment_method == 'BANK_TRANSFER' %}
+        <div class="checkout-section">
+            <h2>Bằng chứng Thanh toán</h2>
+            {% if booking.payment_proof and booking.payment_proof.image %}
+                <a href="{{ booking.payment_proof.image.url }}" target="_blank">
+                    <img src="{{ booking.payment_proof.image.url }}" style="width: 100%; border-radius: 5px;" alt="Bằng chứng thanh toán">
+                </a>
+            {% else %}
+                <p>Khách hàng chưa tải lên bằng chứng.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </div>
 
     <aside class="ticket-sidebar">
@@ -49,24 +75,60 @@
             </p>
             <p><strong>Ngày nhận:</strong> {{ booking.check_in_date|date:"d/m/Y" }}</p>
             <p><strong>Ngày trả:</strong> {{ booking.check_out_date|date:"d/m/Y" }}</p>
+            <p><strong>Ngày tạo đơn:</strong> {{ booking.created_at|date:"d/m/Y H:i" }}</p>
+            
+            {% if booking.payment_date %}
+            <p><strong>Ngày tải TT:</strong> {{ booking.payment_date|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+
             <p><strong>Trạng thái:</strong> <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></p>
             <p><strong>Thanh toán:</strong> {{ booking.get_payment_method_display }}</p>
             <hr>
-            <p style="font-size: 1.2em;"><strong>Tổng tiền:</strong> <strong style="color: #0A378C;">{{ booking.total_price }} VNĐ</strong></p>
+            <p style="font-size: 1.2em;"><strong>Tổng tiền:</strong> <strong style="color: #0A378C;">{{ booking.total_price|floatformat:0|intcomma }} VNĐ</strong></p>
         </div>
-
-        {% if booking.payment_method == 'BANK_TRANSFER' %}
+        
         <div class="checkout-section">
-            <h2>Bằng chứng Thanh toán</h2>
-            {% if booking.payment_proof %}
-                <a href="{{ booking.payment_proof.image.url }}" target="_blank">
-                    <img src="{{ booking.payment_proof.image.url }}" style="width: 100%; border-radius: 5px;" alt="Bằng chứng thanh toán">
-                </a>
-            {% else %}
-                <p>Khách hàng chưa tải lên bằng chứng.</p>
-            {% endif %}
+            <h2>Hành động của Nhân viên</h2>
+            <div class="action-buttons" style="flex-direction: column; gap: 15px; align-items: stretch;">
+
+                {% if booking.status == 'PAYMENT_PENDING_VERIFICATION' %}
+                    <form action="{% url 'confirm_booking' booking.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action confirm" style="width: 100%;">Xác nhận Thanh toán</button>
+                    </form>
+                    <p style="font-size: 0.9em; text-align: center;">Khách đã upload bằng chứng. Bấm để xác nhận đơn đã được thanh toán.</p>
+
+                {% elif booking.status == 'PAID' %}
+                    <a href="{% url 'check_in' booking.pk %}" class="btn-action checkin" style="text-align: center;">Gán phòng</a>
+                    <p style="font-size: 0.9em; text-align: center;">Đơn đã thanh toán. Bấm để chọn phòng trống và gán cho khách.</p>
+
+                {% elif booking.status == 'CONFIRMED' %}
+                    <form action="{% url 'check_in_booking' booking.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action checkin" style="width: 100%;">Xác nhận Check-in</button>
+                    </form>
+                    <p style="font-size: 0.9em; text-align: center;">Phòng đã gán: <strong>{{ booking.assigned_room.room_number }}</strong>. Bấm để xác nhận khách đã nhận phòng.</p>
+                    
+                {% elif booking.status == 'CHECKED_IN' %}
+                    <form action="{% url 'check_out' booking.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action checkout" style="width: 100%;" onclick="return confirm('Xác nhận khách hàng đã trả phòng?')">Xác nhận Check-out</button>
+                    </form>
+
+                {% elif booking.status in 'PENDING_REVIEW,PENDING_PAYMENT,READY_FOR_PAYMENT' %}
+                    <form action="{% url 'cancel_booking_by_staff' booking.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action cancel" style="width: 100%;" onclick="return confirm('Bạn có chắc muốn HỦY đơn hàng này?')">Hủy đơn hàng</button>
+                    </form>
+                    <p style="font-size: 0.9em; text-align: center;">Hủy đơn hàng này của khách.</p>
+                
+                {% else %}
+                    <p style="text-align: center; color: #6c757d;">Không có hành động nào.</p>
+                {% endif %}
+
+            </div>
         </div>
-        {% endif %}
+        
     </aside>
 </div>
 {% endblock %}

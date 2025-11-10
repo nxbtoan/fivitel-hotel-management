@@ -56,9 +56,32 @@ body {
     width: 100%;
 }
 
-.logo-img {
-    height: 50px;
-    width: auto;
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.logo-highlight {
+    color: var(--primary-yellow);
+    letter-spacing: 1px;
+}
+
+.logo-city {
+    color: var(--primary-blue);
+}
+
+.logo-text:hover {
+    transform: scale(1.03);
+    transition: 0.2s ease-in-out;
 }
 
 /* Thanh điều hướng */
@@ -981,6 +1004,36 @@ body {
     transform: translateY(-3px);
 }
 
+/* ============================================= */
+/* NÚT HỖ TRỢ NỔI (FLOATING BUTTON)              */
+/* ============================================= */
+.floating-contact-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--primary-blue);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease;
+}
+
+.floating-contact-btn i {
+    font-size: 1.2em; /* Kích thước icon */
+}
+
+.floating-contact-btn:hover {
+    transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
+    color: white;
+}
 
 
 /* ============================================= */

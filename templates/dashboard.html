@@ -3,8 +3,7 @@
 
 {% block dashboard_content %}
 <div class="dashboard-grid">
-    {# Khối chức năng cho Lễ tân và Admin #}
-    {% if user.role == 'RECEPTIONIST' or user.role == 'ADMIN' %}
+    {% if user.role == 'STAFF' or user.role == 'ADMIN' %}
     <div class="widget">
         <h3>🏨 Quản lý Đặt phòng</h3>
         <p>Xem, xác nhận, hoặc hủy các đơn đặt phòng của khách hàng. Quản lý trạng thái check-in và check-out.</p>
@@ -14,7 +13,7 @@
     {% endif %}
 
     {# Khối chức năng cho CSKH và Admin #}
-    {% if user.role == 'CRM_STAFF' or user.role == 'ADMIN' %}
+    {% if user.role == 'STAFF' or user.role == 'ADMIN' %}
     <div class="widget">
         <h3>💬 Xử lý Yêu cầu Khách hàng</h3>
         <p>Tiếp nhận, phản hồi và theo dõi các yêu cầu tư vấn, khiếu nại từ khách hàng qua hệ thống CRM.</p>
@@ -36,7 +35,6 @@
         <h3>👥 Quản lý Nhân sự</h3>
         <p>Tạo mới, phân quyền và quản lý tài khoản cho các nhân viên trong hệ thống.</p>
         <a href="{% url 'user_list_admin' %}" class="widget-button">Đi đến Quản lý Nhân viên</a>        
-        <a href="/admin/auth/group/" class="widget-button secondary">Quản lý Nhóm quyền</a>
     </div>
     {% endif %}
 

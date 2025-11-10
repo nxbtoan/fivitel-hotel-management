@@ -22,6 +22,13 @@
 .dashboard-page .user-details { display: flex; flex-direction: column; align-items: flex-end; }
 .dashboard-page .logout-button, .dashboard-page .back-link { color: white; text-decoration: none; font-weight: bold; }
 .dashboard-page .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+.dashboard-page .container-full-width {
+    max-width: none;
+    width: 100%;
+    margin: 40px 0;
+    padding: 0 30px;
+    box-sizing: border-box;
+}
 
 .dashboard-page .btn-dashboard-home {
     display: inline-block;
@@ -114,12 +121,14 @@
 /* Các nút hành động trong bảng */
 .dashboard-page .action-buttons { display: flex; gap: 10px; align-items: center; }
 .dashboard-page .btn-action { padding: 6px 12px; border-radius: 5px; border: none; color: white; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9em; }
-.dashboard-page .btn-action.confirm { background-color: #28a745; }
-.dashboard-page .btn-action.cancel { background-color: #dc3545; color: white; border-radius: 8px; border: none; font-size: 1.1em; cursor: pointer;}
+.dashboard-page .btn-action.confirm { background-color: #09ABF7; }
+.dashboard-page .btn-action.cancel { background-color: #dc3545; color: white; }
 .dashboard-page .btn-action.checkin { background-color: #17a2b8; }
 .dashboard-page .btn-action.checkout { background-color: #ffc107; color: #333; }
 .dashboard-page .btn-action.view { background-color: #007bff; }
 .dashboard-page .btn-action.update { background-color: #007bff; }
+.dashboard-page .btn-action.edit { background-color: #ffc107; color: #333; }
+.dashboard-page .btn-action.search { background-color: #28a745; }
 
 /* ============================================= */
 /* CSS CHO TRANG QUẢN LÝ PHÒNG (dashboard_rooms) */
@@ -147,7 +156,17 @@
     color: white;
     border-color: #0A378C;
 }
-.dashboard-page .btn-book { background-color: #0A378C; color: white; padding: 15px 25px; border-radius: 8px; border: none; font-size: 1.1em; cursor: pointer; }
+.dashboard-page .btn-book {
+    background-color: #28a745;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 0.9em; 
+}
 
 /* ============================================= */
 /* CSS CHO TRANG CHI TIẾT TICKET (CRM)           */
@@ -190,6 +209,10 @@
 .dashboard-page .status-IN_PROGRESS { background-color: #ffc107; color: #333; }
 .dashboard-page .status-AWAITING_STAFF { background-color: #fd7e14; }
 .dashboard-page .status-RESOLVED { background-color: #28a745; }
+.dashboard-page .status-ACTIVE { background-color: #28a745; }
+.dashboard-page .status-INACTIVE { background-color: #626262; }
+
+
 
 /* ============================================= */
 /* CSS DÀNH RIÊNG CHO TRANG CHI TIẾT YÊU CẦU (CRM) */
@@ -339,15 +362,43 @@
 /* ============================================= */
 /* BADGES TRẠNG THÁI                             */
 /* ============================================= */
-.dashboard-page .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; color: #fff; }
-.dashboard-page .status-PENDING, .dashboard-page .status-IN_PROGRESS { background-color: #ffc107; color: #333; }
-.dashboard-page .status-CONFIRMED { background-color: #17a2b8; }
-.dashboard-page .status-CHECKED_IN { background-color: #007bff; }
-.dashboard-page .status-COMPLETED, .dashboard-page .status-RESOLVED { background-color: #28a745; }
-.dashboard-page .status-CANCELLED { background-color: #6c757d; }
+.dashboard-page .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+/* --- Trạng thái Đơn hàng (Booking) --- */
+.dashboard-page .status-PENDING_REVIEW { background-color: #ffc107; color: #333; } /* Vàng (Đang xem xét) */
+.dashboard-page .status-PENDING_PAYMENT { background-color: #fd7e14; } /* Cam (Chờ TT Gấp) */
+.dashboard-page .status-READY_FOR_PAYMENT { background-color: #17a2b8; } /* Xanh lơ (Sẵn sàng TT) */
+.dashboard-page .status-PAYMENT_PENDING_VERIFICATION { background-color: #6f42c1; } /* Tím (Chờ Xác nhận TT) */
+.dashboard-page .status-PAID { background-color: #007bff; } /* Xanh dương (Đã TT) */
+.dashboard-page .status-CONFIRMED { background-color: #0069d9; } /* Xanh dương đậm (Đã gán phòng) */
+.dashboard-page .status-CHECKED_IN { background-color: #0056b3; } /* Xanh dương sẫm (Đã check-in) */
+.dashboard-page .status-COMPLETED { background-color: #28a745; } /* Xanh lá (Hoàn thành) */
+.dashboard-page .status-CANCELLED { background-color: #6c757d; } /* Xám (Hủy) */
+.dashboard-page .status-EXPIRED { background-color: #dc3545; } /* Đỏ (Hết hạn) */
+
+/* --- Trạng thái Phòng (Room) --- */
 .dashboard-page .room-status-AVAILABLE { background-color: #28a745; }
 .dashboard-page .room-status-CLEANING { background-color: #ffc107; color: #333; }
 .dashboard-page .room-status-OCCUPIED { background-color: #dc3545; }
+.dashboard-page .room-status-MAINTENANCE { background-color: #6c757d; }
+
+/* --- Trạng thái Dịch vụ (Service) --- */
+.dashboard-page .status-ACTIVE { background-color: #28a745; }
+.dashboard-page .status-INACTIVE { background-color: #6c757d; }
+
+/* --- Trạng thái Ticket (CRM) --- */
+.dashboard-page .status-NEW { background-color: #007bff; }
+.dashboard-page .status-IN_PROGRESS { background-color: #ffc107; color: #333; }
+.dashboard-page .status-AWAITING_STAFF { background-color: #fd7e14; }
+.dashboard-page .status-RESOLVED { background-color: #28a745; }
 
 /* ============================================= */
 /* CSS CHO CÁC FORM THÊM/SỬA TRÊN DASHBOARD      */
@@ -412,6 +463,7 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
+    align-items: center;
 }
 
 /* --- Bảng dữ liệu --- */

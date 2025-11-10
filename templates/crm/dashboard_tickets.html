@@ -23,6 +23,7 @@
                 <th>Tiêu đề / Loại YC</th>
                 <th>Ngày gửi</th>
                 <th>Trạng thái</th>
+                <th>Nhân viên xử lý</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -40,6 +41,20 @@
                 <td>{{ ticket.subject|default:ticket.get_type_display }}</td>
                 <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
                 <td><span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+                <td>
+                    <form action="{% url 'assign_ticket' ticket.pk %}" method="post" class="assign-form">
+                        {% csrf_token %}
+                        <select name="staff_member" class="form-control form-control-sm">
+                            <option value="">-- Trống --</option>
+                            {% for staff in staff_members %}
+                                <option value="{{ staff.pk }}" {% if ticket.assigned_to == staff %}selected{% endif %}>
+                                    {{ staff.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-action edit" style="margin-left: 5px;">Lưu</button>
+                    </form>
+                </td>
                 <td class="action-buttons">
                     <a href="{% url 'ticket_detail' ticket.pk %}" class="btn-action view">Xem chi tiết</a>
                 </td>

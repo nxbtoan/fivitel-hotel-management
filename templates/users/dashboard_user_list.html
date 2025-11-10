@@ -22,24 +22,40 @@
                     <th style="width: 200px;">Hành động</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for user_obj in users %}
-                <tr>
-                    <td><strong>{{ user_obj.username }}</strong></td>
-                    <td>{{ user_obj.full_name }}</td>
-                    <td>{{ user_obj.email }}</td>
-                    <td>{{ user_obj.get_role_display }}</td>
-                    <td>{% if user_obj.is_active %}Hoạt động{% else %}Bị khóa{% endif %}</td>
-                    <td class="action-buttons">
-                        <a href="{% url 'user_update' user_obj.pk %}" class="btn-action update">Sửa</a>
-                        {% if user_obj != request.user %} {# Không cho phép tự xóa chính mình #}
-                        <button type="button" class="btn-action cancel open-delete-modal" 
-                                data-delete-url="{% url 'user_delete' user_obj.pk %}">Xóa</button>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                <tbody>
+                    {% for user_obj in users %} {# Biến đúng là user_obj #}
+                    <tr>
+                        <td><strong>{{ user_obj.username }}</strong></td>
+                        <td>{{ user_obj.full_name }}</td>
+                        <td>{{ user_obj.email }}</td>
+                        <td>{{ user_obj.get_role_display }}</td>
+                        <td>
+                            {% if user_obj.is_active %}
+                                <span class="status-badge status-ACTIVE">Hoạt động</span>
+                            {% else %}
+                                <span class="status-badge status-INACTIVE">Đã khóa</span>
+                            {% endif %}
+                        </td>
+                        <td class="action-buttons">
+                            <a href="{% url 'user_update' user_obj.pk %}" class="btn-action edit">Sửa</a> {# Đã đúng #}
+                            
+                            {# --- SỬA LẠI TỪ user_item THÀNH user_obj Ở ĐÂY --- #}
+                            {% if user_obj != request.user %} 
+                                <form action="{% url 'user_toggle_active' user_obj.pk %}" method="post" 
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn {{ user_obj.is_active|yesno:'Khóa,Mở khóa' }} tài khoản này?');" 
+                                    style="display: inline;">
+                                    {% csrf_token %}
+                                    {% if user_obj.is_active %}
+                                        <button type="submit" class="btn-action cancel">Khóa</button>
+                                    {% else %}
+                                        <button type="submit" class="btn-action confirm">Mở khóa</button>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
         </table>
     </div>
 
