@@ -3,13 +3,17 @@
 
 {% block dashboard_title %}Quản lý Người dùng{% endblock %}
 {% block header_title %}Quản lý Người dùng{% endblock %}
-{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'staff_dashboard' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Dashboard
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: #0A378C; margin: 0;">Quản lý Nhân sự</h2>
+        <h2 class="dashboard-section-title" style="margin: 0;">Quản lý Nhân sự</h2>
         <a href="{% url 'user_create' %}" class="btn-action confirm">Thêm Người dùng mới</a>
     </div>
 
@@ -71,7 +75,7 @@
         </table>
     </div>
 
-    <h2 style="color: #0A378C; margin-top: 40px; margin-bottom: 20px;">Danh sách Khách hàng</h2>
+    <h2 class="dashboard-section-title">Danh sách Khách hàng</h2>
 
     <div class="table-container">
         <table class="booking-table">

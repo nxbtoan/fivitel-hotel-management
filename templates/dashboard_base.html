@@ -6,21 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block dashboard_title %}Bảng điều khiển{% endblock %} - Fivitel</title>
     
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'css/crm.css' %}">
-    <link rel="stylesheet" href="{% static 'css/services.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     
     {% block dashboard_styles %}{% endblock %}
 </head>
 <body class="dashboard-page">
     
     <header class="header">
-        <h1>{% block header_title %}Bảng điều khiển Fivitel{% endblock %}</h1>
-        <div class="header-home-link">
-            <a href="{% url 'staff_dashboard' %}" class="btn-dashboard-home">Trang chính Dashboard</a>
+        <div class="header-left">
+            {% block header_back_link %}
+                {% endblock %}
+            
+            <h1 class="header-title">{% block header_title %}Bảng điều khiển Fivitel{% endblock %}</h1>
         </div>
+
         <div class="header-user-info">
+            <a href="{% url 'homepage' %}" class="btn-dashboard-home" target="_blank" title="Xem trang chủ">
+                <i class="fas fa-home"></i> Xem trang chủ
+            </a>
             <div class="user-details">
                 <span class="username">Xin chào, <strong>{{ user.username }}</strong></span>
                 <span class="user-role">{{ user.get_role_display }}</span>
@@ -30,6 +37,17 @@
     </header>
 
     <div class="{% block container_class %}container{% endblock %}">
+        
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    
         {% block dashboard_content %}{% endblock %}
     </div>
 

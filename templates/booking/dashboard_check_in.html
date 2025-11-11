@@ -1,47 +1,41 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block dashboard_title %}Quản lý Đặt phòng{% endblock %}
+{% block dashboard_title %}Check-in Đơn hàng #{{ booking.id }}{% endblock %}
 
-{% block header_title %}Quản lý Đặt phòng{% endblock %}
+{% block header_title %}Check-in cho Đơn hàng #{{ booking.id }}{% endblock %}
 
-{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+{% block header_back_link %}
+    <a href="{% url 'manage_bookings' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Quản lý
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="dashboard-page">
-    <header class="header">
-        <h1>Check-in cho Đơn hàng #{{ booking.id }}</h1>
-        <a class="btn-action" href="{% url 'manage_bookings' %}">‹ Quay lại Quản lý</a>
-    </header>
+<div class="checkout-section">
+    <h2>Thông tin Đặt phòng</h2>
+    <p><strong>Khách hàng:</strong> {% if booking.customer %}{{ booking.customer.full_name }}{% else %}{{ booking.guest_full_name }}{% endif %}</p>
+    <p><strong>Hạng phòng:</strong> {{ booking.room_class.name }}</p>
+    <p><strong>Ngày nhận:</strong> {{ booking.check_in_date|date:"d/m/Y" }} - <strong>Ngày trả:</strong> {{ booking.check_out_date|date:"d/m/Y" }}</p>
+</div>
 
-    <div class="container">
-        <div class="checkout-section">
-            <h2>Thông tin Đặt phòng</h2>
-            <p><strong>Khách hàng:</strong> {% if booking.customer %}{{ booking.customer.full_name }}{% else %}{{ booking.guest_full_name }}{% endif %}</p>
-            <p><strong>Hạng phòng:</strong> {{ booking.room_class.name }}</p>
-            <p><strong>Ngày nhận:</strong> {{ booking.check_in_date|date:"d/m/Y" }} - <strong>Ngày trả:</strong> {{ booking.check_out_date|date:"d/m/Y" }}</p>
-        </div>
-
-        <div class="checkout-section">
-            <h2>Chọn phòng trống để gán</h2>
-            <form method="post">
-                {% csrf_token %}
-                {% if available_rooms %}
-                    <div class="room-selection">
-                        {% for room in available_rooms %}
-                            <div class="room-choice">
-                                <input type="radio" name="selected_room" value="{{ room.id }}" id="room_{{ room.id }}">
-                                <label for="room_{{ room.id }}">Phòng {{ room.room_number }}</label>
-                            </div>
-                        {% endfor %}
+<div class="checkout-section">
+    <h2>Chọn phòng trống để gán</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if available_rooms %}
+            <div class="room-selection">
+                {% for room in available_rooms %}
+                    <div class="room-choice">
+                        <input type="radio" name="selected_room" value="{{ room.id }}" id="room_{{ room.id }}" {% if forloop.first %}checked{% endif %}>
+                        <label for="room_{{ room.id }}">Phòng {{ room.room_number }}</label>
                     </div>
-                    <button type="submit" class="btn-book" style="width: 100%; margin-top: 20px;">Xác nhận Check-in</button>
-                {% else %}
-                    <p style="color: red;"><strong>Không còn phòng trống cho hạng phòng này.</strong></p>
-                {% endif %}
-            </form>
-        </div>
-    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn-book" style="width: 100%; margin-top: 20px;">Xác nhận Gán phòng & Check-in</button>
+        {% else %}
+            <p style="color: red; font-weight: 500;">Không còn phòng trống cho hạng phòng này.</p>
+        {% endif %}
+    </form>
 </div>
 {% endblock %}

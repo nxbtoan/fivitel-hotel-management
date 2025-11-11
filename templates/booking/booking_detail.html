@@ -82,7 +82,15 @@
                     {% endif %}
                 </div>
             </section>
-            
+
+            {% if booking.special_requests %}
+            <section class="detail-card">
+                <h3>Yêu cầu đặc biệt</h3>
+                <div class="info-item">
+                    <p style="white-space: pre-wrap; line-height: 1.6; color: #333; margin: 0;">{{ booking.special_requests }}</p>
+                </div>
+            </section>
+            {% endif %}
             <section class="detail-card">
                 <h3>Dịch vụ đi kèm</h3>
                 <ul class="service-summary-list">

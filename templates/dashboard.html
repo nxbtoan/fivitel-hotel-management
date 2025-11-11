@@ -1,6 +1,9 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
 
+{% block dashboard_title %}Trang chính{% endblock %}
+{% block header_title %}Tổng quan Dashboard{% endblock %}
+
 {% block dashboard_content %}
 <div class="dashboard-grid">
     
@@ -18,14 +21,18 @@
         <h3>💬 Xử lý Yêu cầu Khách hàng</h3>
         <p>Tiếp nhận, phản hồi và theo dõi các yêu cầu tư vấn, khiếu nại từ khách hàng qua hệ thống CRM.</p>
         
-        {% if user.role == 'RECEPTION' or user.role == 'ADMIN' %}
-            <a href="{% url 'manage_requests' %}" class="widget-button">Yêu cầu Đặt phòng</a>
-        {% endif %}
-        
-        {% if user.role == 'SUPPORT' or user.role == 'ADMIN' %}
-            <a href="{% url 'manage_requests' %}" class="widget-button secondary">Yêu cầu Tư vấn</a>
+        {% if user.role == 'RECEPTION' %}
+            <a href="{% url 'manage_requests' %}" class="widget-button">Quản lý Yêu cầu Đặt phòng</a>
+
+        {% elif user.role == 'SUPPORT' %}
+            <a href="{% url 'manage_requests' %}" class="widget-button secondary">Quản lý Yêu cầu Tư vấn</a>
             <a href="{% url 'manage_complaints' %}" class="widget-button">Quản lý Khiếu nại</a>
+        
+        {% elif user.role == 'ADMIN' %}
+            <a href="{% url 'manage_requests' %}" class="widget-button">Tất cả Yêu cầu</a>
+            <a href="{% url 'manage_complaints' %}" class="widget-button secondary">Quản lý Khiếu nại</a>
         {% endif %}
+
     </div>
     {% endif %}
 

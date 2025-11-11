@@ -3,8 +3,12 @@
 
 {% block dashboard_title %}Quản lý Loại phòng{% endblock %}
 {% block header_title %}Quản lý Loại phòng{% endblock %}
-{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'staff_dashboard' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Dashboard
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
     <div style="margin-bottom: 20px; text-align: right;">
@@ -25,7 +29,7 @@
                 <tr>
                     <td>
                         {% if type.image %}
-                            <img src="{{ type.image.url }}" style="width: 120px; height: auto; border-radius: 5px;">
+                            <img src="{{ type.image.url }}" class="table-thumbnail" alt="{{ type.name }}">
                         {% endif %}
                     </td>
                     <td><strong>{{ type.name }}</strong></td>

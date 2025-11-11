@@ -1,49 +1,118 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% load booking_extras %}
 
-{% block title %}Chỉnh sửa Đơn hàng{% endblock %}
+{% block title %}Chỉnh sửa Đơn hàng #{{ booking.id }}{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="options-container" style="max-width: 700px; margin: 2rem auto;">
-    <div class="checkout-section">
-        <h1 class="page-title">Chỉnh sửa Đơn hàng #{{ booking.id }}</h1>
-        <p class="page-subtitle">Bạn có thể cập nhật thông tin người nhận phòng và các dịch vụ đi kèm. Sau khi lưu, đơn hàng sẽ cần được lễ tân xác nhận lại.</p>
+<div class="container booking-detail-page">
+    <a href="{% url 'booking_detail' booking.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại chi tiết</a>
+    <h1 class="page-title" style="text-align: left; margin-bottom: 30px;">Chỉnh sửa Đơn hàng #{{ booking.id }}</h1>
 
-        <form method="post" novalidate>
-            {% csrf_token %}
+    <div class="detail-grid">
+        
+        <main class="main-content">
+            <form method="post" novalidate>
+                {% csrf_token %}
 
-            <div class="form-field full-width" style="margin-top: 20px;">
-                {{ form.guest_full_name.label_tag }}
-                {{ form.guest_full_name|add_attr:"class:form-control" }}
-                {{ form.guest_full_name.errors }}
+                <section class="detail-card">
+                    <h3>Thông tin người ở chính</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-field full-width">
+                            {{ form.guest_full_name.label_tag }}
+                            {{ form.guest_full_name|add_attr:"class:form-control" }}
+                            {{ form.guest_full_name.errors }}
+                        </div>
+                        <div class="form-field">
+                            {{ form.guest_email.label_tag }}
+                            {{ form.guest_email|add_attr:"class:form-control" }}
+                            {{ form.guest_email.errors }}
+                        </div>
+                        <div class="form-field">
+                            {{ form.guest_phone_number.label_tag }}
+                            {{ form.guest_phone_number|add_attr:"class:form-control" }}
+                            {{ form.guest_phone_number.errors }}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <h3>Dịch vụ đi kèm</h3>
+                    <div class="form-field full-width">
+                        <div class="choice-list" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                            {% for choice in form.additional_services %}
+                            <label class="choice-card" for="{{ choice.id_for_label }}">
+                                <div class="choice-wrapper">
+                                    {{ choice.tag }}
+                                    <div class="choice-info">
+                                        <strong>{{ choice.choice_label }}</strong>
+                                    </div>
+                                    <span class="choice-price">
+                                        {{ choice.choice_label.instance.price|floatformat:0|intcomma }} VNĐ
+                                    </span>
+                                </div>
+                            </label>
+                            {% empty %}
+                            <p class="text-muted">Không có dịch vụ nào.</p>
+                            {% endfor %}
+                        </div>
+                        {{ form.additional_services.errors }}
+                    </div>
+                </section>
+                
+                <section class="detail-card">
+                    <h3>Yêu cầu đặc biệt</h3>
+                    <div class="form-field full-width">
+                        {{ form.special_requests.label_tag }}
+                        {{ form.special_requests }} {{ form.special_requests.errors }}
+                    </div>
+                </section>
+                
+                <div class="action-list">
+                    <button type="submit" class="btn-book">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                    <a href="{% url 'booking_detail' booking.pk %}" class="btn-secondary" style="margin-left: 20px;">
+                        <i class="fas fa-times"></i> Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </main>
+
+        <aside class="detail-sidebar">
+            <div class="detail-card room-image-card" style="padding: 0; margin-bottom: 30px;">
+                <img src="{{ booking.room_class.image.url }}" alt="{{ booking.room_class.name }}">
+                <div class="room-name-overlay">{{ booking.room_class.name }}</div>
             </div>
-            <div class="form-field full-width" style="margin-top: 20px;">
-                {{ form.guest_email.label_tag }}
-                {{ form.guest_email|add_attr:"class:form-control" }}
-                {{ form.guest_email.errors }}
-            </div>
-            <div class="form-field full-width" style="margin-top: 20px;">
-                {{ form.guest_phone_number.label_tag }}
-                {{ form.guest_phone_number|add_attr:"class:form-control" }}
-                {{ form.guest_phone_number.errors }}
-            </div>
 
-            <hr style="margin: 30px 0;">
-
-            <div class="form-field full-width">
-                <label>{{ form.additional_services.label }}</label>
-                <div class="service-checkbox-list">
-                    {{ form.additional_services }}
-                    {{ form.additional_services.errors }}
+            <div class="detail-card" style="margin-bottom: 30px;">
+                <h3>Tóm tắt thanh toán</h3>
+                <div class="summary-details">
+                    <div class="summary-item">
+                        <span>Ngày nhận - trả</span>
+                        <span>{{ booking.check_in_date|date:"d/m/Y" }} - {{ booking.check_out_date|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tiền phòng</span>
+                        <span>{{ booking.room_price|floatformat:0|intcomma }} đ</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tiền dịch vụ</span>
+                        <span>{{ booking.services_price|floatformat:0|intcomma }} đ</span>
+                    </div>
+                </div>
+                <div class="summary-total">
+                    <span>TỔNG CỘNG</span>
+                    <span class="summary-grand-total">{{ booking.total_price|floatformat:0|intcomma }} đ</span>
                 </div>
             </div>
-
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
-                <button type="submit" class="btn-book">Lưu thay đổi</button>
-                <a href="{% url 'booking_detail' booking.pk %}" class="btn-secondary">Hủy bỏ</a>
-            </div>
-        </form>
+        </aside>
+        
     </div>
 </div>
 {% endblock %}

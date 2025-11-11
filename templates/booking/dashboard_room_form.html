@@ -4,8 +4,12 @@
 
 {% block dashboard_title %}{% if object %}Sửa Phòng{% else %}Thêm Phòng mới{% endif %}{% endblock %}
 {% block header_title %}{% if object %}Sửa Phòng: {{ object.room_number }}{% else %}Thêm Phòng mới{% endif %}{% endblock %}
-{% block header_back_url %}{% url 'room_list_admin' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'room_list_admin' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Danh sách
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
 <div class="checkout-section">
@@ -13,16 +17,16 @@
         {% csrf_token %}
         <div class="form-grid">
             <div class="form-field">{{ form.room_number.label_tag }} {{ form.room_number|add_attr:"class:form-control" }}</div>
-            <div class="form-field">{{ form.room_class.label_tag }} {{ form.room_class }}</div>
+            <div class="form-field">{{ form.room_class.label_tag }} {{ form.room_class|add_attr:"class:form-control" }}</div>
         </div>
         <div class="form-field full-width" style="margin-top: 20px;">
             {{ form.status.label_tag }}
-            {{ form.status }}
+            {{ form.status|add_attr:"class:form-control" }}
         </div>
         
         <div style="margin-top: 30px;">
             <button type="submit" class="btn-book">Lưu lại</button>
-            <a href="{% url 'room_list_admin' %}" class="btn-action cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
+            <a href="{% url 'room_list_admin' %}" class="btn-book cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
         </div>
     </form>
 </div>

@@ -3,8 +3,12 @@
 
 {% block dashboard_title %}{{ header_title }}{% endblock %}
 {% block header_title %}{{ header_title }}{% endblock %}
-{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'staff_dashboard' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Dashboard
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
 <nav class="filter-nav">
@@ -15,7 +19,7 @@
 </nav>
 
 <div class="table-container">
-    <table class="crm-table">
+    <table class="booking-table">
         <thead>
             <tr>
                 <th>Mã YC</th>
@@ -52,7 +56,7 @@
                         {% if user.role == 'ADMIN' %}
                             <form action="{% url 'assign_ticket' ticket.pk %}" method="post" class="assign-form">
                                 {% csrf_token %}
-                                <select name="staff_member" class="form-control form-control-sm">
+                                <select name="staff_member" class="form-control-inline">
                                     <option value="">-- Trống --</option>
                                     {% for staff in staff_members %}
                                         <option value="{{ staff.pk }}" {% if ticket.assigned_to == staff %}selected{% endif %}>

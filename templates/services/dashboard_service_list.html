@@ -3,15 +3,19 @@
 
 {% block dashboard_title %}Quản lý Dịch vụ{% endblock %}
 {% block header_title %}Quản lý Dịch vụ{% endblock %}
-{% block header_back_url %}{% url 'staff_dashboard' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Dashboard{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'staff_dashboard' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Dashboard
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
 <div class="service-management-page">
-    <div class="actions-bar" style="justify-content: space-between;">
-        <form method="get" class="search-form" style="display: flex; gap: 10px; align-items: center; ">
+    <div class="actions-bar">
+        <form method="get" class="search-form">
             <input type="text" name="q" placeholder="Tìm tên dịch vụ, loại..." class="form-control" value="{{ search_query }}">
-            <button type="submit" class="btn-action search">Tìm</button>
+            <button type="submit" class="btn-action search"><i class="fas fa-search"></i> Tìm</button>
         </form>
         <div style="text-align: right;">
             <a href="{% url 'service_create' %}" class="btn-action confirm">Thêm Dịch vụ mới</a>
@@ -34,22 +38,22 @@
                 <tr>
                     <td>
                         {% if service.image %}
-                            <img src="{{ service.image.url }}" alt="{{ service.name }}" style="max-width: 100px; height: auto; border-radius: 5px;">
+                            <img src="{{ service.image.url }}" alt="{{ service.name }}" class="table-thumbnail-service">
                         {% else %}
-                            <span style="color: #888;">Không có ảnh</span>
+                            <span class="no-image-text">Không có ảnh</span>
                         {% endif %}
                     </td>
                     <td><strong>{{ service.name }}</strong></td>
                     <td>{{ service.category.name }}</td>
-                    <td>{{ service.price }} VNĐ</td>
-                    <td>
+                    <td>{{ service.price|floatformat:0 }} VNĐ</td>
+                    <td class="action-buttons">
                         <a href="{% url 'service_update' service.pk %}" class="btn-action update">Sửa</a>
                         <button type="button" class="btn-action cancel open-delete-modal" 
                                 data-delete-url="{% url 'service_delete' service.pk %}">Xóa</button>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" style="text-align: center; padding: 20px;">Chưa có dịch vụ nào.</td></tr>
+                <tr><td colspan="5" style="text-align: center; padding: 20px;">Chưa có dịch vụ nào.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

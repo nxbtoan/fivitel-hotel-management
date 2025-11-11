@@ -4,6 +4,12 @@
 {% block dashboard_title %}{% if is_new %}Tạo mới{% else %}Chỉnh sửa{% endif %} Dịch vụ{% endblock %}
 {% block header_title %}{% if is_new %}Tạo mới{% else %}Chỉnh sửa{% endif %} Dịch vụ{% endblock %}
 
+{% block header_back_link %}
+    <a href="{% url 'service_list' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Danh sách
+    </a>
+{% endblock %}
+
 {% block dashboard_content %}
 <div class="service-management-page">
     <div class="form-container">
@@ -11,7 +17,7 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <h2>Thông tin Dịch vụ Chính</h2>
+            <h2 class="form-section-title">Thông tin Dịch vụ Chính</h2>
             
             {% if form.non_field_errors %}
                 <div class="form-errors">{{ form.non_field_errors }}</div>
@@ -49,7 +55,7 @@
                 <div class="form-field">
                     {{ form.image.label_tag }}
                     {% if service.image %}
-                        <p>Ảnh hiện tại: <a href="{{ service.image.url }}" target="_blank">{{ service.image.name|truncatechars:30 }}</a></p>
+                        <p class="current-image-text">Ảnh hiện tại: <a href="{{ service.image.url }}" target="_blank">{{ service.image.name|truncatechars:30 }}</a></p>
                     {% endif %}
                     {{ form.image|add_attr:"class:form-control-file" }}
                     {% if form.image.errors %}<div class="form-error-text">{{ form.image.errors }}</div>{% endif %}
@@ -72,9 +78,9 @@
                 {% if form.terms_conditions.errors %}<div class="form-error-text">{{ form.terms_conditions.errors }}</div>{% endif %}
             </div>
 
-            <hr style="margin: 30px 0;">
+            <hr class="form-divider">
 
-            <h2>Thư viện ảnh (Gallery)</h2>
+            <h2 class="form-section-title">Thư viện ảnh (Gallery)</h2>
             
             {{ formset.management_form }}
             
@@ -85,10 +91,11 @@
             <div class="gallery-formset">
                 {% for image_form in formset %}
                 <div class="gallery-form-item">
-                    {{ image_form.id }} <div class="form-field">
+                    {{ image_form.id }}
+                    <div class="form-field">
                         {{ image_form.image.label_tag }}
                         {% if image_form.instance.pk and image_form.instance.image %}
-                             <p>Ảnh hiện tại: <a href="{{ image_form.instance.image.url }}" target="_blank">{{ image_form.instance.image.name|truncatechars:30 }}</a></p>
+                             <p class="current-image-text">Ảnh hiện tại: <a href="{{ image_form.instance.image.url }}" target="_blank">{{ image_form.instance.image.name|truncatechars:30 }}</a></p>
                         {% endif %}
                         {{ image_form.image|add_attr:"class:form-control-file" }}
                         {% if image_form.image.errors %}<div class="form-error-text">{{ image_form.image.errors }}</div>{% endif %}

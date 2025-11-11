@@ -11,7 +11,9 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 class RoomType(models.Model):
-    """Danh mục phòng cao nhất (VD: Standard, Deluxe, Suite)."""
+    """
+    Danh mục phòng cao nhất (VD: Standard, Deluxe, Suite).
+    """
     name = models.CharField(max_length=100, verbose_name="Tên loại phòng")
     description = models.TextField(blank=True, verbose_name="Mô tả chung")
     image = models.ImageField(upload_to='media/room_types/', blank=True, null=True, verbose_name="Ảnh đại diện")
@@ -20,7 +22,9 @@ class RoomType(models.Model):
         return self.name
 
 class RoomClass(models.Model):
-    """Các hạng phòng cụ thể trong một Loại phòng (VD: Deluxe Hướng Vườn)."""
+    """C
+    ác hạng phòng cụ thể trong một Loại phòng (VD: Deluxe Hướng Vườn).
+    """
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name='classes', verbose_name="Thuộc loại phòng")
     name = models.CharField(max_length=100, verbose_name="Tên hạng phòng")
     description = models.TextField(verbose_name="Mô tả chi tiết")
@@ -28,12 +32,19 @@ class RoomClass(models.Model):
     area = models.CharField(max_length=50, verbose_name="Diện tích")
     amenities = models.TextField(verbose_name="Tiện ích", help_text="Mỗi tiện ích cách nhau bởi dấu phẩy")
     image = models.ImageField(upload_to='media/room_classes/', blank=True, null=True, verbose_name="Ảnh hạng phòng")
+    max_occupancy = models.PositiveIntegerField(
+        default=2, 
+        verbose_name="Sức chứa tối đa",
+        help_text="Số người lớn + trẻ em tối đa mà phòng này có thể chứa."
+    )
 
     def __str__(self):
         return f"{self.room_type.name} - {self.name}"
 
 class Room(models.Model):
-    """Các phòng vật lý, có số phòng cụ thể (VD: D201)."""
+    """
+    Các phòng vật lý, có số phòng cụ thể (VD: D201).
+    """
     class Status(models.TextChoices):
         AVAILABLE = 'AVAILABLE', 'Còn trống'
         OCCUPIED = 'OCCUPIED', 'Đang có khách'

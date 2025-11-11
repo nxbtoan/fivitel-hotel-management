@@ -5,8 +5,11 @@
 {% block dashboard_title %}{{ header_title }}{% endblock %}
 {% block header_title %}{{ header_title }}{% endblock %}
 
-{% block header_back_url %}{{ back_url }}{% endblock %}
-{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+{% block header_back_link %}
+    <a href="{{ back_url }}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Danh sách
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
 <div class="ticket-detail-grid">
@@ -17,9 +20,9 @@
             <p style="white-space: pre-wrap; line-height: 1.7;">{{ ticket.description }}</p>
 
             {% if ticket.attachment %}
-                <div class="attachment-box" style="margin-top: 15px; font-size: 0.9em;">
+                <div class="attachment-box">
                     <strong>Tệp đính kèm:</strong>
-                    <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link" style="text-decoration: none; font-weight: 600; color: #007bff;">
+                    <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link">
                         <i class="fas fa-paperclip"></i> Xem tệp
                     </a>
                 </div>
@@ -34,7 +37,7 @@
                         <span class="chat-meta">
                             {{ response.responder.full_name|default:response.responder.username }}
                             -
-                            <span class="timestamp">{{ response.created_at|date:"d/m H:i" }}</span>
+                            <span class="timestamp">{{ response.created_at|date:"d/m/Y H:i" }}</span>
                         </span>
                         <p>{{ response.message|linebreaksbr }}</p>
                     </div>

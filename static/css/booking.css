@@ -493,23 +493,52 @@
 /* ============================================= */
 /* NÚT BẤM (BUTTON)                              */
 /* ============================================= */
-.btn-book {
-    background-color: #0A378C;
-    color: white;
-    padding: 15px 25px;
+.btn-book,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+
     border-radius: 8px;
-    text-decoration: none;
     font-weight: bold;
-    text-align: center;
-    border: none;
     font-size: 1.1em;
+    padding: 15px 25px;
+    text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+
+    line-height: 1;
+    border-width: 2px;
+    border-style: solid;
+    box-sizing: border-box;
 }
 
-.btn-book:hover {
-    background-color: #082b6e;
+.btn-book {
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-color: var(--primary-blue);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
+.btn-book:hover {
+    background-color: #fff;
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--primary-yellow);
+    color: #fff;
+    border-color: var(--primary-yellow);
+}
+.btn-secondary:hover {
+    background-color: #fff;
+    color: var(--primary-yellow);
+    transform: translateY(-2px);
+}
+
 
 /* ============================================= */
 /* CÁC KHỐI FORM (SECTION)                       */
@@ -557,18 +586,18 @@
     font-size: 0.9em;
 }
 
-.form-field input[type="text"],
-.form-field input[type="email"],
-.form-field input[type="number"],
-.form-field textarea {
+.form-field .form-control {
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1em;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box; 
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.form-field input:focus, .form-field textarea:focus {
+.form-field .form-control:focus {
     border-color: #0A378C;
     outline: none;
     box-shadow: 0 0 0 3px rgba(10, 55, 140, 0.1);
@@ -705,27 +734,6 @@
 }
 
 /* ============================================= */
-/* NÚT BẤM (BUTTON)                              */
-/* ============================================= */
-.btn-book {
-    background-color: #0A378C;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    border: none;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-book:hover {
-    background-color: #082b6e;
-}
-
-/* ============================================= */
 /* TRANG CHI TIẾT ĐƠN HÀNG (NÂNG CẤP TOÀN DIỆN)   */
 /* ============================================= */
 .booking-detail-page {
@@ -854,6 +862,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    align-items: stretch;
 }
 
 .room-image-card {
@@ -960,25 +969,6 @@
     transform: translateY(-2px);
 }
 
-.btn-secondary {
-    display: inline-block;
-    background-color: var(--primary-yellow);
-    color: #fff;
-    border: 2px solid var(--primary-yellow);
-    border-radius: 8px;
-    padding: 12px 25px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.btn-secondary:hover {
-    background-color: #fff;
-    color: var(--primary-yellow);
-    transform: translateY(-2px);
-}
-
 .btn-danger {
     display: block;
     width: 100%;
@@ -1055,12 +1045,53 @@
 .btn-action.edit { background-color: #ffc107; color: #333; }
 .btn-action.cancel { background-color: #dc3545; }
 
-.status-IN_PROGRESS { background-color: #ffc107; color: #333; }
-.status-PENDING { background-color: #ffc107; color: #333; }
-.status-CONFIRMED { background-color: #17a2b8; }
-.status-CHECKED_IN { background-color: #007bff; }
-.status-COMPLETED { background-color: #28a745; }
-.status-CANCELLED { background-color: #6c757d; }
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+.status-PENDING,
+.status-PENDING_REVIEW { 
+    background-color: #ffc107;
+    color: #333; 
+}
+
+.status-PENDING_PAYMENT { 
+    background-color: #fd7e14;
+}
+
+.status-READY_FOR_PAYMENT { 
+    background-color: #17a2b8;
+}
+
+.status-PAYMENT_PENDING_VERIFICATION { 
+    background-color: #6f42c1;
+}
+.status-PAID { 
+    background-color: #007bff;
+}
+
+.status-CONFIRMED { 
+    background-color: #0069d9;
+}
+.status-CHECKED_IN { 
+    background-color: #20c997;
+}
+.status-COMPLETED { 
+    background-color: #28a745;
+}
+
+.status-CANCELLED { 
+    background-color: #6c757d;
+}
+.status-EXPIRED { 
+    background-color: #dc3545;
+}
 
 /* ============================================= */
 /* TRANG HƯỚNG DẪN THANH TOÁN                   */
@@ -1249,10 +1280,3 @@
 .small-text { font-size: 0.85em; }
 .action-list > * { margin-bottom: 15px; }
 .action-list > *:last-child { margin-bottom: 0; }
-.btn-book {
-        display: inline; width: 100%; text-align: center;
-        background-color: #0A378C; color: #fff; padding: 12px;
-        border: none; border-radius: 8px; text-decoration: none;
-        font-weight: 600; font-size: 1em; cursor: pointer;
-    }
-    .btn-book:hover { background-color: #082b6e; }

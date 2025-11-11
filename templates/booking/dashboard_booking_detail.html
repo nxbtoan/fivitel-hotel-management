@@ -4,19 +4,14 @@
 
 {% block dashboard_title %}Chi tiết Đơn hàng{% endblock %}
 {% block header_title %}Chi tiết Đơn hàng #{{ booking.id }}{% endblock %}
-{% block header_back_url %}{% url 'manage_bookings' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Quản lý{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'manage_bookings' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Quản lý
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
-
-{% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}" style="padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
-        {{ message }}
-    </div>
-    {% endfor %}
-{% endif %}
-
 <div class="ticket-detail-grid">
     <div class="ticket-main-content">
         <div class="checkout-section">
@@ -33,7 +28,7 @@
             {% else %}
                  <p style="font-size: 0.9em; color: #555;"><strong>Người đặt:</strong> (Khách vãng lai)</p>
             {% endif %}
-        </div>>
+        </div>
 
         <div class="checkout-section">
             <h2>Dịch vụ đi kèm đã chọn</h2>

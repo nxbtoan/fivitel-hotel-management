@@ -4,8 +4,12 @@
 
 {% block dashboard_title %}{% if object %}Sửa Người dùng{% else %}Thêm Người dùng mới{% endif %}{% endblock %}
 {% block header_title %}{% if object %}Sửa Người dùng: {{ object.username }}{% else %}Thêm Người dùng mới{% endif %}{% endblock %}
-{% block header_back_url %}{% url 'user_list_admin' %}{% endblock %}
-{% block header_back_text %}‹ Quay lại Danh sách{% endblock %}
+
+{% block header_back_link %}
+    <a href="{% url 'user_list_admin' %}" class="header-back-link">
+        <i class="fas fa-chevron-left"></i> Quay lại Danh sách
+    </a>
+{% endblock %}
 
 {% block dashboard_content %}
 <div class="checkout-section">
@@ -23,7 +27,9 @@
                 
                 {# Áp dụng class .form-control cho các loại input khác nhau #}
                 {% if field.field.widget.input_type == 'checkbox' %}
-                    {{ field }}
+                    <div class="form-checkbox-wrapper">
+                        {{ field }}
+                    </div>
                 {% else %}
                     {{ field|add_attr:"class:form-control" }}
                 {% endif %}
@@ -39,7 +45,7 @@
         
         <div style="margin-top: 30px;">
             <button type="submit" class="btn-book">Lưu lại</button>
-            <a href="{% url 'user_list_admin' %}" class="btn-action cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
+            <a href="{% url 'user_list_admin' %}" class="btn-book cancel" style="text-decoration: none; margin-left: 15px;">Hủy</a>
         </div>
     </form>
 </div>
