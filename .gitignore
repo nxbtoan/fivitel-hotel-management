@@ -1,5 +1,6 @@
 # Môi trường ảo
 venv/
+.env
 
 # Database
 db.sqlite3

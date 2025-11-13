@@ -7,7 +7,6 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'full_name', 'role', 'is_staff')
     
     # Cấu hình các trường hiển thị trong form chỉnh sửa chi tiết
-    # Chúng ta sẽ thay thế 'first_name' và 'last_name' bằng 'full_name'
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('full_name', 'email', 'date_of_birth', 'nationality', 'phone_number')}),

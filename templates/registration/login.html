@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Nhập - Fivitel</title>
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -19,10 +20,9 @@
         <h1 class="auth-title">Chào Mừng Trở Lại</h1>
         <p class="auth-subtitle">Đăng nhập để tiếp tục trải nghiệm</p>
 
-        <form method="post" novalidate>
+        <form method="post" novalidate class="auth-form">
             {% csrf_token %}
             
-            {# Hiển thị lỗi không liên quan đến trường cụ thể #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
                     {% for error in form.non_field_errors %}
@@ -31,18 +31,20 @@
                 </ul>
             {% endif %}
 
-            {# Form Django render mỗi trường trong thẻ <p> theo mặc định #}
-            {% for field in form %}
-                <p>
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="helptext">{{ field.help_text|safe }}</small>
-                    {% endif %}
-                    {{ field.errors }} {# Hiển thị lỗi cho từng trường #}
-                </p>
-            {% endfor %}
-
+            <p>
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {{ form.username.errors }}
+            </p>
+            
+            <p>
+                {{ form.password.label_tag }}
+                <span class="password-wrapper">
+                    {{ form.password }}
+                    <i class="fas fa-eye toggle-password-icon"></i>
+                </span>
+                {{ form.password.errors }}
+            </p>
             <p style="margin-top: 30px;">
                 <button type="submit" class="btn-primary">Đăng Nhập</button>
             </p>
@@ -54,5 +56,6 @@
         </div>
     </div>
 
+    <script src="{% static 'js/auth-toggle-password.js' %}"></script>
 </body>
 </html>

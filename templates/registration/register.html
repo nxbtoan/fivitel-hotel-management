@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Ký Tài Khoản - Fivitel</title>
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -18,10 +19,9 @@
         <h1 class="auth-title">Tạo Tài Khoản Mới</h1>
         <p class="auth-subtitle">Nhanh chóng và dễ dàng</p>
 
-        <form method="post" novalidate>
+        <form method="post" novalidate class="auth-form"> {# (C) Thêm class 'auth-form' #}
             {% csrf_token %}
             
-            {# Hiển thị lỗi không liên quan đến trường cụ thể #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
                     {% for error in form.non_field_errors %}
@@ -30,28 +30,36 @@
                 </ul>
             {% endif %}
 
-            {# Lặp qua tất cả các trường trong form, ngoại trừ trường password confirmation nếu có #}
             {% for field in form %}
-                {% if field.name != 'password2' %} {# Bỏ qua trường password2 vì nó sẽ được render lại bên dưới #}
+                {% if field.name != 'password' and field.name != 'password2' %}
                 <p>
                     {{ field.label_tag }}
                     {{ field }}
                     {% if field.help_text %}
                         <small class="helptext">{{ field.help_text|safe }}</small>
                     {% endif %}
-                    {{ field.errors }} {# Hiển thị lỗi cho từng trường #}
+                    {{ field.errors }}
                 </p>
                 {% endif %}
             {% endfor %}
 
-            {# Xử lý riêng cho trường password2 để hiển thị nhãn chuẩn hơn #}
-            {% if form.password2 %}
-                <p>
-                    <label for="{{ form.password2.id_for_label }}">Xác nhận mật khẩu</label>
+            <p>
+                {{ form.password.label_tag }}
+                <span class="password-wrapper">
+                    {{ form.password }}
+                    <i class="fas fa-eye toggle-password-icon"></i>
+                </span>
+                {{ form.password.errors }}
+            </p>
+            
+            <p>
+                <label for="{{ form.password2.id_for_label }}">Xác nhận mật khẩu</label>
+                <span class="password-wrapper">
                     {{ form.password2 }}
-                    {{ form.password2.errors }}
-                </p>
-            {% endif %}
+                    <i class="fas fa-eye toggle-password-icon"></i>
+                </span>
+                {{ form.password2.errors }}
+            </p>
 
             <p style="margin-top: 30px;">
                 <button type="submit" class="btn-primary">Đăng Ký</button>
@@ -62,6 +70,8 @@
             <a href="{% url 'login' %}">Đã có tài khoản? Đăng nhập</a>
         </div>
     </div>
-
+    
+    <script src="{% static 'js/auth-toggle-password.js' %}"></script>
+    <script src="{% static 'js/auth-validation.js' %}"></script>
 </body>
 </html>

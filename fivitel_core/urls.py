@@ -25,20 +25,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('', homepage, name='homepage'),
-    # path('', user_views.homepage, name='homepage'), 
-
     path('dashboard/', user_views.staff_dashboard_view, name='staff_dashboard'),
-    
+
     path('accounts/', include('users.urls')),
     path('booking/', include('booking.urls')),
     path('crm/', include('crm.urls')),
     path('services/', include('services.urls')),
     
     path('captcha/', include('captcha.urls')),
-]
-
-urlpatterns += [
-    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

@@ -181,3 +181,29 @@ form select:focus {
 .logo-city {
     color: #0A378C;
 }
+
+/* --- CSS CHO ẨN/HIỆN MẬT KHẨU --- */
+
+.password-wrapper {
+    position: relative;
+    display: block; 
+}
+
+.toggle-password-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%); 
+    cursor: pointer;
+    color: #6c757d;
+    z-index: 10;
+}
+
+.auth-form input[type="password"],
+.auth-form input[type="text"] {
+    padding-right: 45px !important; 
+}
+
+.toggle-password-icon:hover {
+    color: #0A378C;
+}
